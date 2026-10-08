@@ -129,6 +129,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .fb .say{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block;margin-bottom:4px}
 .fb.ok{background:#FFF6BF}
 .fb.ng{background:#FFE1E1}
+.nextbtn{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5}   /* 手機：繼續攻擊固定在畫面底部，不用往下滑 */
 
 /* 3D 舞台 */
 .stage{position:sticky;top:env(safe-area-inset-top);z-index:6;height:260px;margin:0 -4px 14px;overflow:hidden;transition:height .25s;
@@ -1525,7 +1526,7 @@ function pick(k) {
       <div class="say">${esc(say)}</div>
       ${it.q.explain ? `<p>${fmt(it.q.explain)}</p>` : ''}
     </div>
-    <button class="btn go wide" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
+    <button class="btn go wide nextbtn" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
   setTimeout(() => fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
 }
 function next() {
