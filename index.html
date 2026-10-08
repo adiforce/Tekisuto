@@ -131,12 +131,26 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .fb.ng{background:#FFE1E1}
 
 /* 3D 舞台 */
-.stage{position:relative;height:210px;margin-bottom:14px;overflow:hidden;
+.stage{position:sticky;top:env(safe-area-inset-top);z-index:6;height:260px;margin:0 -4px 14px;overflow:hidden;transition:height .25s;
   background:radial-gradient(circle at 50% 58%,rgba(255,255,255,.96) 0 30%,rgba(255,255,255,.55) 72%),var(--c)}
 .stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(0,0,0,.12) 1.2px,transparent 1.5px);background-size:8px 8px;pointer-events:none}
-.stage .cv{position:absolute;inset:0}
+.stage .cv{position:absolute;left:0;right:0;top:0;bottom:46px}
 .stage .cv canvas{display:block}
-.stage .name{position:absolute;left:8px;top:8px;z-index:2;font-size:14px;font-weight:900;background:var(--ink);color:#fff;padding:2px 10px;transform:skew(-10deg)}
+.stage.compact{height:176px}
+.stage.flat{height:auto;background:var(--paper)}
+.stage.flat::before,.stage.flat .cv{display:none}
+.stage .bar2{position:absolute;left:8px;right:14px;top:6px;z-index:3;display:flex;align-items:center;gap:8px}
+.stage.flat .bar2{position:static;padding:6px 6px 0}
+.stage .name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:900}
+.stage .name span{background:var(--ink);color:#fff;padding:2px 10px;display:inline-block;transform:skew(-10deg)}
+.stage .icon{width:36px;height:36px;font-size:16px}
+.stage .hud{position:absolute;left:0;right:0;bottom:0;z-index:3;margin:0;padding:7px 10px;border-top:var(--bd);background:var(--paper)}
+.stage .hud .hearts{flex:none;font-size:15px;letter-spacing:1px}
+.stage .bar2 .num{font-weight:900;font-size:14px;background:var(--ink);color:#fff;padding:1px 8px;transform:skew(-10deg)}
+.stage .bar2 .combo{font-size:24px}
+.stage.flat .hud{position:static;margin:6px;border:0}
+.stage .hud .row+.row{margin-top:4px}
+.stage .hud .hpbar{height:14px}
 .stage .load{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;color:var(--sub);font-size:14px}
 /* 必殺技插畫 */
 #cutin{position:fixed;inset:0;z-index:28;pointer-events:none;display:none;background:rgba(0,0,0,.6)}
@@ -150,10 +164,20 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 @keyframes rush{from{background-position:0 0}to{background-position:-44px 0}}
 @keyframes fadeio{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
 
+/* 爪痕 */
+#claw{position:fixed;inset:0;z-index:26;pointer-events:none;display:none}
+#claw.show{display:block}
+#claw i{position:absolute;left:12%;width:85%;height:12px;background:#FF2E2E;border:3px solid #000;border-radius:50%;transform-origin:left center;
+  transform:rotate(32deg) scaleX(0);animation:claw .5s forwards}
+#claw i:nth-child(1){top:22%}
+#claw i:nth-child(2){top:32%;animation-delay:.05s}
+#claw i:nth-child(3){top:42%;animation-delay:.1s}
+@keyframes claw{0%{transform:rotate(32deg) scaleX(0);opacity:1}40%{transform:rotate(32deg) scaleX(1);opacity:1}100%{transform:rotate(32deg) scaleX(1);opacity:0}}
+
 /* 擊中特效 */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:25;display:none;align-items:flex-start;justify-content:center;padding-top:calc(70px + env(safe-area-inset-top))}
 #fx.show{display:flex}
-#fx.mini{justify-content:flex-end;padding-right:18px;padding-top:calc(78px + env(safe-area-inset-top))}
+#fx.mini{justify-content:flex-end;padding-right:18px;padding-top:calc(54px + env(safe-area-inset-top))}
 #fx.mini .lines{display:none}
 #fx.mini .burst{padding:14px 18px}
 #fx.mini .burst b{font-size:30px}
@@ -190,7 +214,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 #lvup.show{display:flex}
 #lvup .box{background:var(--hit);border:4px solid var(--ink);box-shadow:8px 8px 0 #000;padding:26px 22px;text-align:center;max-width:340px;width:100%;animation:boom .6s cubic-bezier(.2,1.8,.5,1)}
 #lvup .box b{display:block;font-family:var(--display);font-size:60px;line-height:1}
-#lvup .box .t{font-size:26px;font-weight:900;margin:6px 0 16px;transform:skew(-6deg)}
+#lvup .box .t{font-size:26px;font-weight:900;margin:6px 0 10px;transform:skew(-6deg)}
+#lvup .unlock{font-size:17px;font-weight:900;margin-bottom:14px;line-height:1.6}
+#lvup .unlock:empty{display:none}
 
 /* ===== 作戰筆記（錯題重點） ===== */
 .rv{padding:14px 16px;margin-bottom:20px}
@@ -273,8 +299,9 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 <div id="app"></div>
 <div id="fx"><div class="lines"></div><div class="burst"><b></b><span></span></div></div>
 <div id="flash"></div>
+<div id="claw"><i></i><i></i><i></i></div>
 <div id="cutin"><div class="band"><small>必殺技</small><b></b></div></div>
-<div id="lvup"><div class="box"><b>LEVEL UP!</b><div class="t"></div><button class="btn wide" data-close>繼續</button></div></div>
+<div id="lvup"><div class="box"><b>LEVEL UP!</b><div class="t"></div><div class="unlock"></div><button class="btn wide" data-close>繼續</button></div></div>
 <div id="toast"></div>
 <div id="zoom"><button class="x" aria-label="關閉">✕</button><img alt="放大圖"></div>
 <div id="sheet"><div class="box2" id="sheetBox"></div></div>
@@ -360,6 +387,11 @@ function levelOf(exp) {
   return { lv, cur: rest, need: needExp(lv) };
 }
 const titleOf = lv => TITLES.filter(t => lv >= t[0]).pop()[1];
+const TIER_HIT = ['貓爪拳', '三連爪痕斬', '爪痕衝擊波', '天降落雷', '火焰爆炸', '龍捲旋風', '神話亂舞'];
+const TIER_ULT = ['能量光束', '電光光束', '十字光束', '流星雨', '巨大能量球', '七彩光束', '終極奧義'];
+const ULT_SUFFIX = ['', '・改', '・真', '・極', '・超', '・神', '・終極奧義'];
+const tierOf = lv => lv < 3 ? 0 : lv < 5 ? 1 : lv < 8 ? 2 : lv < 12 ? 3 : lv < 16 ? 4 : lv < 20 ? 5 : 6;
+const myTier = () => tierOf(levelOf(db.exp).lv);
 
 /* ===== 工具 ===== */
 const app = document.getElementById('app');
@@ -513,11 +545,11 @@ function addBank(b) {
   save();
   return existed;
 }
-// 加經驗值，回傳是否升級
+// 加經驗值；有升級就回傳升級前的等級，沒升級回傳 0
 function gainExp(n) {
   const before = levelOf(db.exp).lv;
   db.exp += n; save();
-  return levelOf(db.exp).lv > before;
+  return levelOf(db.exp).lv > before ? before : 0;
 }
 
 /* ===== 題目清單（可跨題庫）：ref = { b: 題庫id, q: 題目id } ===== */
@@ -557,6 +589,7 @@ function home() {
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
+        <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
     </section>`;
   if (!list.length) {
@@ -722,12 +755,14 @@ const Boss3D = (() => {
     return loading;
   }
   const easeOut = p => 1 - Math.pow(1 - p, 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
 
   /* --- 材質與零件 --- */
   function toon(color, extra) {
     const m = new T.MeshToonMaterial(Object.assign({ color, gradientMap: gradTex }, extra || {}));
     m.userData.base = m.color.clone(); R.mats.push(m); return m;
   }
+  const basic = (color, extra) => new T.MeshBasicMaterial(Object.assign({ color }, extra || {}));
   function part(geo, mat, parent, p, r, s, outline = true) {
     const m = new T.Mesh(geo, mat);
     if (p) m.position.set(p[0], p[1], p[2]);
@@ -736,86 +771,125 @@ const Boss3D = (() => {
     if (outline) { const o = new T.Mesh(geo, R.outline); o.scale.setScalar(1.07); m.add(o); }
     parent.add(m); return m;
   }
-  function eyes(g, y, z, gap, r, color) {
-    const em = new T.MeshBasicMaterial({ color: color || 0xFFE14D });
-    [-1, 1].forEach(k => part(new T.SphereGeometry(r, 10, 8), em, g, [k * gap, y, z], null, null, false));
-  }
+  const grp = (parent, p, r) => { const g = new T.Group(); if (p) g.position.set(p[0], p[1], p[2]); if (r) g.rotation.set(r[0], r[1], r[2]); parent.add(g); return g; };
   function spin(m, speed) { R.spinners.push([m, speed]); return m; }
 
-  /* --- Q 版貓咪 BOSS：共用身體 + 各品種花色 + 各科道具（全部程式組出來的原創造型） --- */
-  const BLACK = () => new T.MeshBasicMaterial({ color: 0x111111 });
+  /* --- 貓眼：沒有眼白，整顆是虹膜色；瞳孔會變細長／變圓 --- */
+  function catEye(head, k, o) {
+    const almond = o.eyeShape === 'almond', circle = o.eyeShape === 'circle';
+    const eg = grp(head, [k * (o.eyeGap || .38), .02, .86], [0, 0, almond ? k * .22 : 0]);
+    if (o.eyeScale) eg.scale.setScalar(o.eyeScale);
+    const sx = almond ? 1.25 : circle ? 1 : 1.02, sy = almond ? .78 : circle ? 1 : 1.06;
+    part(new T.SphereGeometry(.26, 20, 14), basic(0x1A1A1A), eg, [0, 0, -.02], null, [sx * 1.1, sy * 1.12, .42], false);
+    const iris = new T.Color(o.eye);
+    part(new T.SphereGeometry(.26, 20, 14), basic(iris.clone().multiplyScalar(.72)), eg, [0, 0, 0], null, [sx, sy, .42], false);
+    part(new T.SphereGeometry(.2, 18, 12), basic(iris), eg, [0, -.02, .03], null, [sx, sy, .42], false);
+    if (o.eye2) part(new T.SphereGeometry(.13, 16, 12), basic(o.eye2), eg, [0, -.02, .045], null, [sx, sy, .42], false);
+    const pupil = part(new T.SphereGeometry(.17, 16, 12), basic(0x0A0A0A), eg, [0, 0, .06], null, [.5, sy * 1.02, .4], false);
+    pupil.userData.sy = sy * 1.02; pupil.userData.round = !!o.roundPupil;
+    if (o.roundPupil) pupil.scale.set(.75, .75 * sy, .4);
+    if (o.lid) part(new T.SphereGeometry(.27, 18, 12), o.lid, eg, [0, .26, .07], [-.1, 0, 0], [1.15, .3, .45], false);   // 上眼皮半瞇，看起來比較屌
+    part(new T.SphereGeometry(.055, 8, 6), basic(0xffffff), eg, [.07, .08, .13], null, null, false);
+    part(new T.SphereGeometry(.028, 6, 5), basic(0xffffff), eg, [-.06, -.07, .13], null, null, false);
+    return { g: eg, pupil };
+  }
+
+  /* --- Q 版貓咪骨架：每個部位都是群組，換姿勢只要移動群組 --- */
   function cat(g, o) {
     const fur = toon(o.fur), white = toon(0xFFFFFF), pinkM = toon(0xFF9FB2);
-    const F = { eyes: [], xs: [], brows: [] };
-    // 身體、腳、手
-    const body = part(new T.SphereGeometry(.62, 20, 16), fur, g, [0, -.3, 0], null, [1, .92, .9]);
+    const F = { eyes: [], xs: [], brows: [], swirl: [], omega: [], mouth: null };
+    const pg = grp(g);
+    const torso = grp(pg);
+    const body = part(new T.SphereGeometry(.62, 20, 16), fur, torso, [0, 0, 0], null, [1, .92, .9]);
     if (o.belly !== false) part(new T.SphereGeometry(.5, 16, 12), o.bellyM || white, body, [0, -.05, .42], null, [.78, .9, .45], false);
     const paw = o.pawM || fur;
-    [-1, 1].forEach(k => part(new T.SphereGeometry(.22, 14, 10), paw, g, [k * .38, -.86, .28], null, [1, .7, 1.2]));
-    const armL = part(new T.SphereGeometry(.2, 14, 10), paw, g, [-.6, -.25, .35], null, [1, 1.2, 1]);
-    const armR = part(new T.SphereGeometry(.2, 14, 10), paw, g, [.62, -.18, .42], null, [1, 1.2, 1]);
-    // 尾巴（會甩）
-    const tailG = new T.Group(); tailG.position.set(0, -.55, -.45); g.add(tailG);
+    const limb = (big) => { const lg = grp(pg); part(new T.SphereGeometry(big ? .22 : .2, 14, 10), paw, lg, [0, 0, 0], null, big ? [1, .7, 1.2] : [1, 1.2, 1]); return lg; };
+    const armL = limb(false), armR = limb(false), legL = limb(true), legR = limb(true);
+    const tailG = grp(pg);
     const curve = new T.CatmullRomCurve3([new T.Vector3(0, 0, 0), new T.Vector3(.35, .1, -.35), new T.Vector3(.7, .55, -.4), new T.Vector3(.6, 1.0, -.2)]);
-    const tail = part(new T.TubeGeometry(curve, 20, o.tailR || .11, 10, false), o.tailM || fur, tailG);
+    part(new T.TubeGeometry(curve, 20, o.tailR || .11, 10, false), o.tailM || fur, tailG);
     part(new T.SphereGeometry(o.tailR || .11, 10, 8), o.tailM || fur, tailG, [.6, 1.0, -.2], null, null, false);
-    // 頭
-    const head = part(new T.SphereGeometry(1, 28, 22), fur, g, [0, 1.0, 0], null, [1.14, .95, 1]);
-    [-1, 1].forEach(k => {
-      const ear = part(new T.ConeGeometry(.34, .6, 3), o.earM || fur, g, [k * .62, 1.78, -.05], [0, k * .3, -k * .38]);
-      part(new T.ConeGeometry(.2, .38, 3), pinkM, ear, [0, -.06, .1], null, null, false);
+    if (o.tailRings) [.2, .4, .6, .8].forEach(t => {
+      const pt = curve.getPoint(t), tg = curve.getTangent(t);
+      const ring = part(new T.TorusGeometry((o.tailR || .11) * 1.02, (o.tailR || .11) * .32, 6, 16), o.tailRings, tailG, [pt.x, pt.y, pt.z], null, null, false);
+      ring.quaternion.setFromUnitVectors(new T.Vector3(0, 0, 1), tg);
     });
-    // 花紋（貼在頭和身體上的半球片）
-    const patch = (parent, dir, r, mat, scale) => {
-      const v = new T.Vector3(dir[0], dir[1], dir[2]).normalize().multiplyScalar(1 - r * .55);
+    // 頭
+    const headG = grp(pg);
+    const head = part(new T.SphereGeometry(1, 28, 22), fur, headG, [0, 0, 0], null, o.headS || [1.14, .95, 1]);
+    if (o.jowls) [-1, 1].forEach(k => part(new T.SphereGeometry(.46, 18, 14), fur, headG, [k * .66, -.32, .38], null, [1.15, .85, .9]));   // 公貓的大腮幫子
+    const es = o.earS || 1;
+    [-1, 1].forEach(k => {
+      const ear = part(new T.ConeGeometry(.34 * es, .6 * es * (o.earTall || 1), 3), o.earM || fur, headG, [k * .62 * (o.earX || 1), .78 + (es - 1) * .3, -.05], [0, k * .3, -k * .38]);
+      part(new T.ConeGeometry(.22 * es, .4 * es, 3), pinkM, ear, [0, -.08 * es, .15 * es], null, [1, 1, .55], false);
+    });
+    const patch = (parent, dir, r, mat, scale, inset) => {
+      const v = new T.Vector3(dir[0], dir[1], dir[2]).normalize().multiplyScalar(1 - r * (inset || o.patchIn || .55));
       return part(new T.SphereGeometry(r, 16, 12), mat, parent, [v.x, v.y, v.z], null, scale || null, false);
     };
-    (o.patches || []).forEach(p => patch(p[0] === 'b' ? body : head, p[1], p[2], p[3], p[4]));
+    (o.patches || []).forEach(p => patch(p[0] === 'b' ? body : head, p[1], p[2], p[3], p[4], p[5]));
     // 臉
-    const eyeY = .02, eyeZ = .86;
     [-1, 1].forEach(k => {
-      const eg = new T.Group(); eg.position.set(k * .38, eyeY, eyeZ); head.add(eg);
-      part(new T.SphereGeometry(.27, 18, 14), new T.MeshBasicMaterial({ color: 0xffffff }), eg, [0, 0, 0], null, [1, 1.18, .45]);
-      part(new T.SphereGeometry(.19, 16, 12), new T.MeshBasicMaterial({ color: o.eye }), eg, [k * .02, -.01, .07], null, [1, 1.15, .4], false);
-      part(new T.SphereGeometry(.11, 12, 10), new T.MeshBasicMaterial({ color: 0x111111 }), eg, [k * .02, -.02, .11], null, [o.slit ? .45 : 1, 1.2, .4], false);
-      part(new T.SphereGeometry(.055, 8, 6), new T.MeshBasicMaterial({ color: 0xffffff }), eg, [k * .02 + .07, .09, .15], null, null, false);
-      F.eyes.push(eg);
-      const xg = new T.Group(); xg.position.copy(eg.position); xg.visible = false; head.add(xg);
-      [-1, 1].forEach(s => part(new T.BoxGeometry(.38, .07, .05), BLACK(), xg, [0, 0, .1], [0, 0, s * .78], null, false));
+      F.eyes.push(catEye(head, k, o));
+      const xg = grp(head, [k * .38, .02, .86]); xg.visible = false;
+      [-1, 1].forEach(s => part(new T.BoxGeometry(.38, .07, .05), basic(0x111111), xg, [0, 0, .1], [0, 0, s * .78], null, false));
       F.xs.push(xg);
-      const br = part(new T.BoxGeometry(.34, .07, .05), BLACK(), head, [k * .38, .36, .86], [0, 0, k * .45], null, false);
+      const sw = grp(head, [k * .38, .02, .9]); sw.visible = false;
+      [.16, .09].forEach(r => part(new T.TorusGeometry(r, .022, 6, 20, Math.PI * 1.7), basic(0x111111), sw, [0, 0, 0], null, null, false));
+      F.swirl.push(sw);
+      const br = part(new T.BoxGeometry(.34, .07, .05), basic(0x111111), head, [k * .38, .36, .86], [0, 0, k * .45], null, false);
       br.visible = false; F.brows.push(br);
-      part(new T.SphereGeometry(.13, 10, 8), new T.MeshBasicMaterial({ color: 0xFF8FA3, transparent: true, opacity: .55 }), head, [k * .62, -.22, .74], null, [1, .6, .3], false);
-      [-.12, 0, .12].forEach(dy => part(new T.BoxGeometry(.5, .018, .018), BLACK(), head, [k * .78, -.25 + dy * .6, .62], [0, -k * .5, k * dy], null, false));
+      if (o.blush !== false) part(new T.SphereGeometry(.13, 10, 8), basic(0xFF8FA3, { transparent: true, opacity: .55 }), head, [k * .62, -.22, .74], null, [1, .6, .3], false);
+      [-.12, 0, .12].forEach(dy => part(new T.BoxGeometry(.5, .018, .018), basic(o.whisker || 0x111111), head, [k * .78, -.25 + dy * .6, .62], [0, -k * .5, k * dy], null, false));
     });
     const muz = o.muzzleM || white;
     [-1, 1].forEach(k => part(new T.SphereGeometry(.2, 14, 10), muz, head, [k * .13, -.28, .86], null, [1, .78, .55], false));
-    part(new T.SphereGeometry(.075, 10, 8), pinkM, head, [0, -.17, .99], null, [1.4, .85, .8], false);
-    [-1, 1].forEach(k => part(new T.TorusGeometry(.065, .018, 6, 12, Math.PI), BLACK(), head, [k * .065, -.32, .99], [0, 0, Math.PI], null, false));
-    R.face = F; R.tail = tailG; R.armR = armR; R.armL = armL; R.head = head;
-    return { body, head, armR, armL, tailG };
+    part(new T.SphereGeometry(.075 * (o.noseS || 1), 10, 8), pinkM, head, [0, -.17, .99], null, [1.4, .85, .8], false);
+    [-1, 1].forEach(k => F.omega.push(part(new T.TorusGeometry(.065, .018, 6, 12, Math.PI), basic(0x111111), head, [k * .065, -.32, .99], [0, 0, Math.PI], null, false)));
+    const mouth = grp(head, [0, -.38, .95]); mouth.visible = false;
+    part(new T.SphereGeometry(.13, 12, 10), basic(0x6A1020), mouth, [0, 0, 0], null, [1.1, .9, .4], false);
+    (o.fang ? [1] : [-1, 1]).forEach(k => part(new T.ConeGeometry(.03, .08, 5), basic(0xffffff), mouth, [k * .06, .07, .03], [Math.PI, 0, 0], null, false));
+    F.mouth = mouth;
+    if (o.fang) part(new T.ConeGeometry(.055, .19, 6), basic(0xffffff), head, [.11, -.46, 1.0], [Math.PI - .25, 0, .1], null, true);   // 缺牙，只剩右上一顆尖牙
+    if (o.claws) [armL, armR, legL, legR].forEach((lg, li) => [-1, 0, 1].forEach(j =>                      // 不給剪的長指甲
+      part(new T.ConeGeometry(.032, .22, 5), basic(0xFFFBEF), lg, [j * .08, li < 2 ? -.2 : -.06, li < 2 ? .1 : .24], [li < 2 ? 2.6 : Math.PI / 2 + .3, 0, 0], null, false)));
+    // 飛行用翅膀、炸毛用毛刺（平常隱藏）
+    const wings = [-1, 1].map(k => {
+      const w = grp(torso, [k * .45, .35, -.4]);
+      part(new T.SphereGeometry(.45, 14, 10), white, w, [k * .4, .15, 0], [0, 0, k * .5], [1, .55, .12]);
+      w.visible = false; return w;
+    });
+    const spikes = grp(torso); spikes.visible = false;
+    for (let i = 0; i < 16; i++) {
+      const a = i / 16 * Math.PI * 2, dir = new T.Vector3(Math.cos(a) * .9, .45 + Math.sin(a * 3) * .2, Math.sin(a) * .8 - .15).normalize();
+      const m = part(new T.ConeGeometry(.12, .4, 4), fur, spikes, [dir.x * .58, dir.y * .55, dir.z * .55], null, null, false);
+      m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), dir);
+    }
+    R.face = F;
+    R.rig = { pg, torso, headG, head, armL, armR, legL, legR, tailG, wings, spikes };
+    return R.rig;
   }
-  // 小工具：放在右手上的道具群組
-  const inHand = (c, rot) => { const h = new T.Group(); h.position.set(.72, -.1, .55); if (rot) h.rotation.set(rot[0], rot[1], rot[2]); return h; };
+  const inHand = (x, rot) => grp(x.armR, [.08, .12, .16], rot);
+
   const CATS = {
     calico(g, c) {   // 國文：三花貓＋毛筆＋書生頭巾
-      const x = cat(g, { fur: 0xFFFFFF, eye: 0xE9A93A,
+      const x = cat(g, { fur: 0xFFFFFF, eye: 0xE9A93A, eyeShape: 'round',
         patches: [['h', [.7, .55, .3], .45, toon(0xF29A3A)], ['h', [-.6, .7, .2], .4, toon(0x2B2B2B)], ['h', [-.2, .9, -.6], .4, toon(0xF29A3A)],
                   ['b', [.6, .4, -.4], .35, toon(0x2B2B2B)], ['b', [-.5, .3, -.5], .32, toon(0xF29A3A)]],
         tailM: toon(0xF29A3A) });
       part(new T.TorusGeometry(.96, .07, 8, 40), toon(c), x.head, [0, .3, 0], [Math.PI / 2 - .08, 0, 0], null, false);
       [-1, 1].forEach(k => part(new T.BoxGeometry(.12, .45, .04), toon(c), x.head, [k * .12, .05, -.98], [.2, 0, k * .5]));
-      const h = inHand(x.armR, [0, 0, -.5]); g.add(h);
+      const h = inHand(x, [0, 0, -.5]);
       part(new T.CylinderGeometry(.05, .05, .9, 8), toon(0x8B5A2B), h, [0, .35, 0]);
       part(new T.ConeGeometry(.09, .25, 10), toon(0x111111), h, [0, -.18, 0], [Math.PI, 0, 0]);
     },
     british(g, c) {  // 英文：英國短毛貓＋圓頂禮帽＋紅圍巾＋字母方塊
-      const x = cat(g, { fur: 0x8E9DB3, eye: 0xF0892A, muzzleM: toon(0xA9B6C8), bellyM: toon(0xA9B6C8) });
+      const x = cat(g, { fur: 0x8E9DB3, eye: 0xF0892A, eyeShape: 'round', muzzleM: toon(0xA9B6C8), bellyM: toon(0xA9B6C8) });
       part(new T.SphereGeometry(.52, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), toon(0x222222), x.head, [0, .78, -.05], null, [.9, 1.1, .95]);
       part(new T.CylinderGeometry(.78, .78, .06, 24), toon(0x222222), x.head, [0, .8, -.05], null, [.9, 1.05, .95]);
       part(new T.TorusGeometry(.5, .08, 6, 24), toon(c), x.head, [0, .88, -.05], [Math.PI / 2, 0, 0], [.9, .95, 1], false);
-      part(new T.TorusGeometry(.5, .14, 8, 24), toon(0xD8342C), g, [0, .2, 0], [Math.PI / 2, 0, 0]);
-      part(new T.BoxGeometry(.18, .5, .08), toon(0xD8342C), g, [.25, -.05, .55], [0, 0, .2]);
+      part(new T.TorusGeometry(.5, .14, 8, 24), toon(0xD8342C), x.torso, [0, .5, 0], [Math.PI / 2, 0, 0]);
+      part(new T.BoxGeometry(.18, .5, .08), toon(0xD8342C), x.torso, [.25, .25, .55], [0, 0, .2]);
       const orbit = spin(new T.Group(), 1.4); g.add(orbit);
       for (let i = 0; i < 5; i++) {
         const a = i / 5 * Math.PI * 2;
@@ -824,38 +898,54 @@ const Boss3D = (() => {
     },
     siamese(g, c) {  // 歷史：暹羅貓＋將軍頭盔＋沙漏
       const dark = toon(0x5A3B2A);
-      const x = cat(g, { fur: 0xF3E3C8, eye: 0x3BA7FF, earM: dark, pawM: dark, tailM: dark, muzzleM: toon(0x7A5640),
+      const x = cat(g, { fur: 0xF3E3C8, eye: 0x3BA7FF, eyeShape: 'almond', earM: dark, pawM: dark, tailM: dark, muzzleM: toon(0x7A5640),
         patches: [['h', [0, -.18, 1], .42, toon(0x8A6248), [1.3, 1, .6]]] });
       part(new T.SphereGeometry(1.04, 24, 10, 0, Math.PI * 2, 0, 1.05), toon(0xC9A24A), x.head, [0, .05, 0]);
       part(new T.ConeGeometry(.16, .7, 8), toon(0xD8342C), x.head, [0, 1.25, -.1], [-.3, 0, 0]);
       part(new T.BoxGeometry(1.5, .08, .1), toon(0xC9A24A), x.head, [0, .46, .82], [-.2, 0, 0], null, false);
-      const h = inHand(x.armR); g.add(h);
+      const h = inHand(x);
       part(new T.ConeGeometry(.17, .3, 12), toon(0xF6E7C1, { transparent: true, opacity: .85 }), h, [0, .16, 0], [Math.PI, 0, 0]);
       part(new T.ConeGeometry(.17, .3, 12), toon(0xE5A100), h, [0, -.16, 0]);
       [-1, 1].forEach(k => part(new T.CylinderGeometry(.22, .22, .05, 12), toon(0x8B5A2B), h, [0, k * .32, 0]));
     },
-    orange(g, c) {   // 地理：橘貓＋探險帽＋地球儀
-      const st = toon(0xC9671B);
-      const x = cat(g, { fur: 0xF4A340, eye: 0x6BCB3E,
-        patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [-.25, .75, .6], .14, st, [.6, 1.6, .6]], ['h', [.25, .75, .6], .14, st, [.6, 1.6, .6]],
-                  ['h', [.9, .2, .2], .2, st, [.5, 1.6, .6]], ['h', [-.9, .2, .2], .2, st, [.5, 1.6, .6]], ['b', [0, .5, -.8], .3, st, [1.6, .5, .8]]],
-        tailM: st });
-      part(new T.SphereGeometry(.6, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), toon(0xD9C38E), x.head, [0, .76, -.05], null, [.95, 1, .95]);
-      part(new T.CylinderGeometry(.95, .95, .05, 24), toon(0xC9B07A), x.head, [0, .76, -.05]);
-      part(new T.TorusGeometry(.58, .05, 6, 24), toon(c), x.head, [0, .8, -.05], [Math.PI / 2, 0, 0], null, false);
-      const globe = new T.Group(); globe.position.set(0, -.2, .82); g.add(globe);
-      const ball = spin(part(new T.SphereGeometry(.36, 20, 14), toon(0x3A8EE6), globe), 1.2);
+    orange(g, c) {   // 地理：照著 JR 家的橘貓做的（奶油色嘴邊、額頭 M 紋、黃綠眼、單顆尖牙、小鈴鐺、長指甲）＋探險帽＋地球儀
+      const st = toon(0x8E3A0C), cream = toon(0xFFE9CC);
+      const furM = toon(0xE47F2E);
+      const x = cat(g, { fur: 0xE47F2E, eye: 0xD2C838, eye2: 0x9DBB3C, eyeShape: 'circle', roundPupil: true, eyeScale: .95, eyeGap: .4,
+        headS: [1.24, .95, 1], jowls: true, blush: false, noseS: 1.3, earS: 1.45, earTall: 1.1, earX: .92,
+        muzzleM: cream, bellyM: cream, whisker: 0xFFFFFF, fang: true, claws: true, patchIn: .3,
+        patches: [
+          // 額頭 M 字紋
+          ['h', [0, .5, .86], .16, st, [.4, 1.25, .45]], ['h', [-.17, .48, .87], .14, st, [.38, 1.1, .45]], ['h', [.17, .48, .87], .14, st, [.38, 1.1, .45]],
+          ['h', [-.34, .44, .86], .12, st, [.38, .95, .45]], ['h', [.34, .44, .86], .12, st, [.38, .95, .45]],
+          // 後腦勺條紋
+          ['h', [0, .35, -.95], .22, st, [1.1, .4, .5], .75], ['h', [0, -.05, -1], .22, st, [1.1, .4, .5], .75],
+          // 兩頰各兩道橫紋
+          ['h', [.95, .0, .35], .2, st, [.5, .3, .8], .7], ['h', [.92, -.2, .38], .18, st, [.5, .28, .8], .7],
+          ['h', [-.95, .0, .35], .2, st, [.5, .3, .8], .7], ['h', [-.92, -.2, .38], .18, st, [.5, .28, .8], .7],
+          // 嘴邊、下巴奶油白
+          ['h', [0, -.55, .85], .4, cream, [1.3, .85, .6]],
+          // 背上、身體兩側條紋
+          ['b', [0, .55, -.8], .28, st, [1.3, .4, .7], .7], ['b', [0, .1, -.95], .28, st, [1.3, .4, .7], .7],
+          ['b', [.8, .35, -.45], .24, st, [.4, 1.1, .8], .7], ['b', [-.8, .35, -.45], .24, st, [.4, 1.1, .8], .7],
+          ['b', [.9, -.1, -.3], .22, st, [.4, 1, .8], .7], ['b', [-.9, -.1, -.3], .22, st, [.4, 1, .8], .7]],
+        tailM: toon(0xEB8C35), tailR: .17, tailRings: st });
+      part(new T.TorusGeometry(.42, .06, 8, 24), toon(0xD8342C), x.torso, [0, .5, .04], [Math.PI / 2 - .25, 0, 0], null, false);
+      const bell = part(new T.SphereGeometry(.12, 14, 10), toon(0xF2C230), x.torso, [0, .36, .52]);
+      part(new T.BoxGeometry(.16, .025, .04), basic(0x6B4A10), bell, [0, -.03, .1], null, null, false);
+      part(new T.TorusGeometry(.04, .015, 6, 12), toon(0xF2C230), bell, [0, .13, 0], null, null, false);
+      const globe = inHand(x, [0, 0, 0]); globe.position.set(-.25, .1, .3);
+      const ball = spin(part(new T.SphereGeometry(.34, 20, 14), toon(0x3A8EE6), globe), 1.2);
       [[.5, .5, .7], [-.6, .2, .7], [.2, -.6, .7], [-.3, .5, -.8], [.7, -.2, -.6]].forEach(d => {
-        const v = new T.Vector3(d[0], d[1], d[2]).normalize().multiplyScalar(.27);
-        part(new T.SphereGeometry(.14, 10, 8), toon(c), ball, [v.x, v.y, v.z], null, [1, .8, .6], false);
+        const v = new T.Vector3(d[0], d[1], d[2]).normalize().multiplyScalar(.26);
+        part(new T.SphereGeometry(.13, 10, 8), toon(c), ball, [v.x, v.y, v.z], null, [1, .8, .6], false);
       });
-      part(new T.TorusGeometry(.45, .03, 6, 24, Math.PI * 1.3), toon(0xC9A24A), globe, [0, 0, 0], [0, Math.PI / 2, .4], null, false);
     },
     black(g, c) {    // 公民：黑貓＋領結＋法槌＋天秤
-      const x = cat(g, { fur: 0x2E2E36, eye: 0xF4D03F, slit: true, belly: false, muzzleM: toon(0x3E3E48) });
-      [-1, 1].forEach(k => part(new T.ConeGeometry(.16, .3, 4), toon(c), g, [k * .16, .23, .55], [0, 0, k * Math.PI / 2]));
-      part(new T.SphereGeometry(.08, 10, 8), toon(c), g, [0, .23, .58]);
-      const h = inHand(x.armR, [0, 0, -.6]); g.add(h);
+      const x = cat(g, { fur: 0x2E2E36, eye: 0xF4D03F, eyeShape: 'almond', belly: false, muzzleM: toon(0x3E3E48) });
+      [-1, 1].forEach(k => part(new T.ConeGeometry(.16, .3, 4), toon(c), x.torso, [k * .16, .53, .55], [0, 0, k * Math.PI / 2]));
+      part(new T.SphereGeometry(.08, 10, 8), toon(c), x.torso, [0, .53, .58]);
+      const h = inHand(x, [0, 0, -.6]);
       part(new T.CylinderGeometry(.05, .05, .8, 8), toon(0x8B5A2B), h, [0, .3, 0]);
       part(new T.CylinderGeometry(.14, .14, .42, 12), toon(0x6B3E1E), h, [0, .72, 0], [0, 0, Math.PI / 2]);
       const bal = spin(new T.Group(), .8); bal.position.set(0, 2.45, 0); g.add(bal);
@@ -865,12 +955,12 @@ const Boss3D = (() => {
     },
     silver(g, c) {   // 生物：美國短毛貓（銀虎斑）＋葉子＋DNA
       const st = toon(0x4A4F57);
-      const x = cat(g, { fur: 0xC9CED6, eye: 0x3BBF7A,
+      const x = cat(g, { fur: 0xC9CED6, eye: 0x3BBF7A, eyeShape: 'round',
         patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [-.28, .72, .6], .13, st, [.6, 1.6, .6]], ['h', [.28, .72, .6], .13, st, [.6, 1.6, .6]],
                   ['h', [.92, .1, .1], .2, st, [.5, 1.7, .6]], ['h', [-.92, .1, .1], .2, st, [.5, 1.7, .6]],
                   ['b', [.8, .2, -.2], .24, st, [.5, 1.4, .8]], ['b', [-.8, .2, -.2], .24, st, [.5, 1.4, .8]]],
         tailM: toon(0x8C939C) });
-      const leaf = part(new T.SphereGeometry(.3, 14, 10), toon(c), x.head, [.15, 1.12, 0], [0, 0, -.5], [.45, 1, .12]);
+      part(new T.SphereGeometry(.3, 14, 10), toon(c), x.head, [.15, 1.12, 0], [0, 0, -.5], [.45, 1, .12]);
       part(new T.CylinderGeometry(.02, .02, .25, 5), toon(0x3E7A1E), x.head, [.05, .98, 0], [0, 0, -.3], null, false);
       const dna = spin(new T.Group(), 1.1); g.add(dna);
       for (let i = 0; i < 14; i++) {
@@ -879,14 +969,14 @@ const Boss3D = (() => {
       }
     },
     tux(g, c) {      // 化學：賓士貓＋護目鏡＋燒瓶
-      const x = cat(g, { fur: 0x26262C, eye: 0xB6D63A, pawM: toon(0xFFFFFF),
+      const x = cat(g, { fur: 0x26262C, eye: 0xB6D63A, eyeShape: 'almond', pawM: toon(0xFFFFFF),
         patches: [['h', [0, -.45, 1], .45, toon(0xFFFFFF), [1.2, .9, .6]]] });
       part(new T.TorusGeometry(.98, .045, 6, 40), toon(0x444444), x.head, [0, .42, 0], [Math.PI / 2 - .25, 0, 0], null, false);
       [-1, 1].forEach(k => {
         const gg = part(new T.TorusGeometry(.17, .05, 8, 18), toon(c), x.head, [k * .3, .5, .86], [-.35, 0, 0]);
-        part(new T.CircleGeometry(.15, 16), new T.MeshBasicMaterial({ color: 0x9FF3FF, transparent: true, opacity: .7 }), gg, [0, 0, .01], null, null, false);
+        part(new T.CircleGeometry(.15, 16), basic(0x9FF3FF, { transparent: true, opacity: .7 }), gg, [0, 0, .01], null, null, false);
       });
-      const h = inHand(x.armR); g.add(h);
+      const h = inHand(x);
       part(new T.SphereGeometry(.25, 16, 12), toon(0xDDF6FF, { transparent: true, opacity: .6 }), h, [0, 0, 0]);
       part(new T.SphereGeometry(.19, 14, 10), toon(c), h, [0, -.04, 0], null, null, false);
       part(new T.CylinderGeometry(.08, .1, .3, 10), toon(0xDDF6FF, { transparent: true, opacity: .7 }), h, [0, .3, 0]);
@@ -894,40 +984,71 @@ const Boss3D = (() => {
       for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; part(new T.SphereGeometry(.07 + (i % 3) * .04, 8, 6), toon(c), orbit, [Math.cos(a) * 1.45, 1 + (i % 2) * .6, Math.sin(a) * 1.45], null, null, false); }
     },
     russian(g, c) {  // 物理：俄羅斯藍貓＋原子軌道＋閃電尾巴
-      const x = cat(g, { fur: 0x7C8FA6, eye: 0x2ECC71, muzzleM: toon(0x93A5BA), bellyM: toon(0x93A5BA) });
+      const x = cat(g, { fur: 0x7C8FA6, eye: 0x2ECC71, eyeShape: 'almond', muzzleM: toon(0x93A5BA), bellyM: toon(0x93A5BA) });
       [[1.25, 0, 0], [1.25, 0, 1.05], [1.25, 0, -1.05]].forEach((r, i) => {
-        const ring = new T.Group(); ring.rotation.set(r[0], r[1], r[2]); ring.position.y = .55; g.add(ring);
+        const ring = grp(g, [0, .55, 0], r);
         const tor = spin(new T.Group(), 1.6 + i * .5); tor.userData.axis = 'z'; ring.add(tor);
         part(new T.TorusGeometry(1.65, .03, 6, 48), toon(0xFFD400), tor, [0, 0, 0], null, null, false);
-        part(new T.SphereGeometry(.1, 10, 8), new T.MeshBasicMaterial({ color: c }), tor, [1.65, 0, 0], null, null, false);
+        part(new T.SphereGeometry(.1, 10, 8), basic(c), tor, [1.65, 0, 0], null, null, false);
       });
-      const bolt = new T.Group(); bolt.position.set(.6, 1.15, -.2); x.tailG.add(bolt);
+      const bolt = grp(x.tailG, [.6, 1.15, -.2]);
       [[0, 0, .5], [.08, -.18, -.5], [0, -.36, .5]].forEach(b => part(new T.BoxGeometry(.08, .26, .05), toon(0xFFD400), bolt, [b[0], b[1], 0], [0, 0, b[2]], null, false));
     },
     persian(g, c) {  // 地科：白色波斯貓＋星環＋月亮＋星星魔杖
-      const x = cat(g, { fur: 0xFFFFFF, eye: 0x4AA3FF, tailR: .17, muzzleM: toon(0xF4F4F4) });
-      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; part(new T.SphereGeometry(.2, 10, 8), toon(0xFFFFFF), g, [Math.cos(a) * .55, .15, Math.sin(a) * .5], null, null, false); }
+      const x = cat(g, { fur: 0xFFFFFF, eye: 0x4AA3FF, eyeShape: 'round', tailR: .17, muzzleM: toon(0xF4F4F4) });
+      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; part(new T.SphereGeometry(.2, 10, 8), toon(0xFFFFFF), x.torso, [Math.cos(a) * .55, .45, Math.sin(a) * .5], null, null, false); }
       const ring = spin(part(new T.TorusGeometry(1.6, .05, 6, 48), toon(c), g, [0, .4, 0], [1.3, .25, 0], null, false), 1.2); ring.userData.axis = 'z';
-      const orbit = spin(new T.Group(), .9); orbit.position.y = .6; g.add(orbit);
+      const orbit = spin(grp(g, [0, .6, 0]), .9);
       part(new T.SphereGeometry(.2, 14, 10), toon(0xF1E7B0), orbit, [1.8, .5, 0]);
-      const h = inHand(x.armR, [0, 0, -.4]); g.add(h);
+      const h = inHand(x, [0, 0, -.4]);
       part(new T.CylinderGeometry(.035, .035, .8, 6), toon(0xE5C14A), h, [0, .3, 0], null, null, false);
-      const star = spin(new T.Group(), 2); star.position.y = .78; h.add(star);
-      for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; const m = part(new T.ConeGeometry(.07, .22, 4), toon(0xFFD400), star, [Math.sin(a) * .1, Math.cos(a) * .1, 0], [0, 0, -a], null, false); }
+      const star = spin(grp(h, [0, .78, 0]), 2);
+      for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; part(new T.ConeGeometry(.07, .22, 4), toon(0xFFD400), star, [Math.sin(a) * .1, Math.cos(a) * .1, 0], [0, 0, -a], null, false); }
     },
     ghost(g, c) {    // 錯題：幽靈貓＋紅眼＋鎖鏈
       const wm = toon(0xE9ECF5, { transparent: true, opacity: .82 });
-      const x = cat(g, { fur: 0xE9ECF5, eye: 0xFF2E2E, slit: true, belly: false, muzzleM: wm });
+      const x = cat(g, { fur: 0xE9ECF5, eye: 0xFF2E2E, eyeShape: 'almond', belly: false, muzzleM: wm });
       R.mats.forEach(m => { if (m.color.getHex() === 0xE9ECF5) { m.transparent = true; m.opacity = .82; } });
-      part(new T.ConeGeometry(.6, 1.1, 16, 1, true), wm, g, [0, -.95, -.05], [Math.PI, 0, 0]);
-      for (let i = 0; i < 7; i++) part(new T.TorusGeometry(.09, .03, 6, 12), toon(0x555555), g, [-.5 + i * .14, -.55 - Math.sin(i * .9) * .08, .5], [0, i % 2 ? Math.PI / 2 : 0, 0], null, false);
+      part(new T.ConeGeometry(.6, 1.1, 16, 1, true), wm, x.torso, [0, -.65, -.05], [Math.PI, 0, 0]);
+      for (let i = 0; i < 7; i++) part(new T.TorusGeometry(.09, .03, 6, 12), toon(0x555555), x.torso, [-.5 + i * .14, -.25 - Math.sin(i * .9) * .08, .5], [0, i % 2 ? Math.PI / 2 : 0, 0], null, false);
       [-1, 1].forEach(k => part(new T.ConeGeometry(.08, .3, 6), toon(0xFF2E2E), x.head, [k * .35, .62, .72], [.6, 0, 0], null, false));
     },
     mix(g, c) {      // 預設：米克斯（棕虎斑）
       const st = toon(0x5A3B2A);
-      cat(g, { fur: 0xB98A5E, eye: 0xE9A93A, patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [.9, .2, .2], .2, st, [.5, 1.6, .6]], ['h', [-.9, .2, .2], .2, st, [.5, 1.6, .6]]] });
+      cat(g, { fur: 0xB98A5E, eye: 0xE9A93A, eyeShape: 'round', patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [.9, .2, .2], .2, st, [.5, 1.6, .6]], ['h', [-.9, .2, .2], .2, st, [.5, 1.6, .6]]] });
     }
   };
+
+  /* --- 姿勢：每個部位的 [位置xyz, 旋轉xyz, 縮放xyz] --- */
+  const KEYS = ['pg', 'torso', 'headG', 'armL', 'armR', 'legL', 'legR', 'tailG'];
+  const POSES = {
+    stand: { pg: [0, 0, 0, 0, 0, 0], torso: [0, -.3, 0, 0, 0, 0], headG: [0, 1, 0, 0, 0, 0],
+      armL: [-.6, -.25, .35, 0, 0, .3], armR: [.62, -.18, .42, 0, 0, -.3], legL: [-.38, -.86, .28, 0, 0, 0], legR: [.38, -.86, .28, 0, 0, 0], tailG: [0, -.55, -.45, 0, 0, 0] },
+    sit: { pg: [0, -.1, 0, 0, 0, 0], torso: [0, -.5, -.1, -.15, 0, 0, 1.08, .88, 1.05], headG: [0, .72, .1, .08, 0, 0],
+      armL: [-.24, -.9, .5, 0, 0, 0], armR: [.32, -.5, .55, -.5, 0, -.2], legL: [-.55, -.92, 0, 0, 0, 0, 1.3, .7, 1.5], legR: [.55, -.92, 0, 0, 0, 0, 1.3, .7, 1.5], tailG: [-.1, -.95, -.45, 0, -1.4, 0] },
+    loaf: { pg: [0, -.15, 0, 0, 0, 0], torso: [0, -.62, -.15, 0, 0, 0, 1.18, .72, 1.45], headG: [0, .35, .5, .1, 0, 0],
+      armL: [-.28, -1, .85, 0, 0, 0, 1, .7, 1], armR: [.28, -1, .85, 0, 0, 0, 1, .7, 1], legL: [-.55, -1, -.6, 0, 0, 0], legR: [.55, -1, -.6, 0, 0, 0], tailG: [0, -.85, -1, -1.3, 0, 0] },
+    fly: { pg: [0, .35, 0, .1, 0, 0], torso: [0, -.3, 0, 0, 0, 0], headG: [0, 1, 0, 0, 0, 0],
+      armL: [-.82, .05, .25, 0, 0, 1], armR: [.84, 0, .3, 0, 0, -1], legL: [-.3, -1, .15, .3, 0, 0], legR: [.3, -1, .15, .3, 0, 0], tailG: [0, -.55, -.45, 0, 0, 0] },
+    puff: { pg: [0, 0, 0, 0, 0, 0], torso: [0, -.25, -.05, .35, 0, 0, 1.15, 1.1, 1.1], headG: [0, .95, .25, -.15, 0, 0],
+      armL: [-.5, -.85, .45, 0, 0, 0], armR: [.5, -.85, .45, 0, 0, 0], legL: [-.45, -.88, -.35, 0, 0, 0], legR: [.45, -.88, -.35, 0, 0, 0], tailG: [0, -.4, -.5, -.2, 0, 0, 1.5, 1.5, 1.5] },
+    bellyup: { pg: [0, -.55, 0, -1.25, 0, 0], torso: [0, -.3, 0, 0, 0, 0], headG: [0, 1, 0, 1.05, 0, 0],
+      armL: [-.45, -.1, .55, -1.2, 0, .3], armR: [.45, -.1, .55, -1.2, 0, -.3], legL: [-.4, -.75, .5, -1.2, 0, 0], legR: [.4, -.75, .5, -1.2, 0, 0], tailG: [0, -.55, -.45, 0, 0, 0] }
+  };
+  const poseVals = name => KEYS.map(k => { const v = (POSES[name] || POSES.stand)[k] || POSES.stand[k]; return v.length > 6 ? v.slice() : v.concat([1, 1, 1]); });
+  function setPose(name) {
+    if (!R || !R.rig || R.poseName === name) return;
+    R.poseFrom = R.poseCur || poseVals(name); R.poseTo = poseVals(name); R.poseT = 0; R.poseName = name;
+    R.rig.wings.forEach(w => { w.visible = name === 'fly'; });
+    R.rig.spikes.visible = name === 'puff';
+  }
+  function applyPose(dt) {
+    const rig = R.rig; if (!rig) return;
+    R.poseT = Math.min(1, R.poseT + dt / .35);
+    const e = easeOut(R.poseT);
+    R.poseCur = R.poseTo.map((to, i) => to.map((v, j) => lerp(R.poseFrom[i][j], v, e)));
+    KEYS.forEach((k, i) => { const v = R.poseCur[i], o = rig[k]; o.position.set(v[0], v[1], v[2]); o.rotation.set(v[3], v[4], v[5]); o.scale.set(v[6], v[7], v[8]); });
+  }
 
   /* --- 啟動／停止 --- */
   function start(el, kind, hex) {
@@ -944,23 +1065,27 @@ const Boss3D = (() => {
     } catch (e) { renderer = null; return false; }
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(34, 2, .1, 100);
-    camera.position.set(0, .7, 7); camera.lookAt(0, .3, 0);
+    camera.position.set(0, .7, 6.1); camera.lookAt(0, .3, 0);
     scene.add(new T.HemisphereLight(0xffffff, 0x666666, .8));
     const dl = new T.DirectionalLight(0xffffff, .9); dl.position.set(3, 5, 4); scene.add(dl);
     R = { el, scene, camera, mats: [], spinners: [], tweens: [], parts: [], t: 0, last: 0, flash: 0, shake: 0, angry: 0, dead: false,
-      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, ry: 0, raf: 0, blinkT: 2, hurt: 0, mad: 0, face: null, tail: null,
+      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, ry: 0, raf: 0, blinkT: 2, hurt: 0, mad: 0, big: 0, hiss: 0, dizzy: false,
+      ex: { punch: 0, tailS: 1 }, face: null, rig: null, poseName: null, poseCur: null,
       outline: new T.MeshBasicMaterial({ color: 0x000000, side: T.BackSide }) };
-    const c = new T.Color(hex), d = c.clone().multiplyScalar(.55), l = c.clone().lerp(new T.Color(0xffffff), .45);
     const boss = new T.Group(), body = new T.Group();
     (CATS[kind] || CATS.mix)(body, hex);
+    R.basePose = ['stand', 'sit', 'loaf', 'fly'][Math.floor(Math.random() * 4)];
+    R.poseCur = null; setPose('stand'); R.poseT = 1; applyPose(0);          // 用站姿量尺寸
     const box = new T.Box3().setFromObject(body), size = box.getSize(new T.Vector3()), mid = box.getCenter(new T.Vector3());
     const fit = Math.min(1.15, 2.7 / size.y, 3.4 / Math.max(size.x, size.z));
     body.scale.setScalar(fit); body.position.set(-mid.x * fit, (.2 - mid.y) * fit, -mid.z * fit);
     boss.add(body); scene.add(boss); R.boss = boss;
-    const sh = new T.Mesh(new T.CircleGeometry(1.1, 24), new T.MeshBasicMaterial({ color: 0, transparent: true, opacity: .18 }));
+    R.poseName = null; setPose(R.basePose);
+    const sh = new T.Mesh(new T.CircleGeometry(1.1, 24), basic(0, { transparent: true, opacity: .18 }));
     sh.rotation.x = -Math.PI / 2; sh.position.y = -1.45; scene.add(sh); R.shadow = sh;
     R.pgeo = new T.TetrahedronGeometry(.13, 0);
-    R.pmat = [new T.MeshBasicMaterial({ color: c }), new T.MeshBasicMaterial({ color: 0xFFD400 }), new T.MeshBasicMaterial({ color: 0xffffff }), new T.MeshBasicMaterial({ color: 0x000000 })];
+    R.pmat = [basic(new T.Color(hex)), basic(0xFFD400), basic(0xffffff), basic(0x000000)];
+    R.fmat = [basic(0xFF6A00), basic(0xFFD400), basic(0xFF2E2E)];
     el.appendChild(renderer.domElement);
     resize();
     R.last = performance.now();
@@ -997,133 +1122,269 @@ const Boss3D = (() => {
     });
     if (!R) return;
     R.tweens = alive.concat(R.tweens);
-    const o = R.off, b = R.boss, idle = REDUCE ? 0 : 1;
-    R.ry += dt * (R.angry ? 1.3 : .55) * idle;
-    const jitter = R.angry && !REDUCE ? (Math.random() - .5) * .06 : 0;
-    b.position.set(o.x + jitter, o.y + Math.sin(R.t * 2) * .1 * idle, o.z);
-    b.rotation.set(o.rx, R.ry + o.ry, o.rz);
-    b.scale.setScalar(o.s);
+    const o = R.off, b = R.boss, idle = REDUCE ? 0 : 1, rig = R.rig;
+    applyPose(dt);
+    // 姿勢之上的小動作
+    if (rig) {
+      const pn = R.poseName;
+      rig.tailG.rotation.z += Math.sin(R.t * (R.angry ? 10 : 4)) * .35 * idle;
+      if (R.ex.tailS !== 1) rig.tailG.scale.multiplyScalar(R.ex.tailS);
+      rig.armL.position.y += Math.sin(R.t * 3) * .05 * idle;
+      rig.armR.position.z += R.ex.punch; rig.armR.position.y += R.ex.punch * .3;
+      if (pn === 'fly') { rig.wings.forEach((w, i) => { w.rotation.y = Math.sin(R.t * 14) * .6 * (i ? -1 : 1) * idle; }); rig.pg.position.y += Math.sin(R.t * 3) * .12 * idle; }
+      if (pn === 'bellyup') ['armL', 'armR', 'legL', 'legR'].forEach((k, i) => { rig[k].rotation.x += Math.sin(R.t * 9 + i * 1.7) * .45 * idle; });
+      if (pn === 'loaf') rig.torso.scale.y *= 1 + Math.sin(R.t * 2) * .03 * idle;
+      if (R.hiss > 0) rig.spikes.visible = true; else rig.spikes.visible = pn === 'puff';
+    }
+    // 表情
     if (R.face) {
       R.blinkT -= dt; let open = 1;
       if (R.blinkT < .14) open = Math.abs(R.blinkT - .07) / .07;
       if (R.blinkT <= 0) R.blinkT = 2.5 + Math.random() * 2.5;
-      R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt);
-      const hurt = R.hurt > 0, mad = R.angry || R.mad > 0;
-      R.face.eyes.forEach(e => { e.visible = !hurt; e.scale.y = Math.max(.08, open); });
+      R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt); R.big = Math.max(0, R.big - dt); R.hiss = Math.max(0, R.hiss - dt);
+      const hurt = R.hurt > 0 && !R.dizzy, mad = R.angry || R.mad > 0 || R.hiss > 0 || R.poseName === 'puff';
+      const pw = R.big > 0 ? .98 : mad ? .16 : .48;
+      R.face.eyes.forEach(e => {
+        e.g.visible = !hurt && !R.dizzy; e.g.scale.y = Math.max(.08, open);
+        if (e.pupil.userData.round) {
+          const r = R.big > 0 ? 1 : mad ? .5 : .75, k = Math.min(1, dt * 12);
+          e.pupil.scale.x = lerp(e.pupil.scale.x, r, k); e.pupil.scale.y = lerp(e.pupil.scale.y, r * e.pupil.userData.sy, k);
+        } else e.pupil.scale.x = lerp(e.pupil.scale.x, pw, Math.min(1, dt * 12));
+      });
       R.face.xs.forEach(e => { e.visible = hurt; });
+      R.face.swirl.forEach((e, i) => { e.visible = R.dizzy; e.rotation.z += dt * 8 * (i ? -1 : 1); });
       R.face.brows.forEach(e => { e.visible = mad; });
+      R.face.mouth.visible = R.hiss > 0; R.face.omega.forEach(m => { m.visible = R.hiss <= 0; });
     }
-    if (R.tail) R.tail.rotation.z = Math.sin(R.t * (R.angry ? 10 : 4)) * .35 * idle;
-    if (R.armL) R.armL.position.y = -.25 + Math.sin(R.t * 3) * .05 * idle;
+    const jitter = R.angry && !REDUCE ? (Math.random() - .5) * .06 : 0;
+    R.ry += dt * (R.angry ? 1.3 : .55) * idle;
+    b.position.set(o.x + jitter, o.y + Math.sin(R.t * 2) * .1 * idle, o.z);
+    b.rotation.set(o.rx, Math.sin(R.ry) * .6 + o.ry, o.rz);
+    b.scale.setScalar(o.s);
     R.spinners.forEach(([m, s]) => { if (m.userData.axis === 'z') m.rotation.z += dt * s * idle; else m.rotation.y += dt * s * idle; });
-    R.shadow.scale.setScalar(Math.max(.2, 1 - Math.max(0, o.y) * .25));
+    R.shadow.scale.setScalar(Math.max(.2, 1 - Math.max(0, o.y + (R.poseName === 'fly' ? .5 : 0)) * .25));
     R.shadow.visible = b.visible;
     R.flash = Math.max(0, R.flash - dt * 4);
     const red = new T.Color(0xFF2E2E);
-    R.mats.forEach(m => {
-      m.color.copy(m.userData.base).lerp(red, R.angry * .45);
-      m.emissive.setRGB(R.flash, R.flash, R.flash);
-    });
+    R.mats.forEach(m => { m.color.copy(m.userData.base).lerp(red, R.angry * .4); m.emissive.setRGB(R.flash, R.flash, R.flash); });
     R.parts = R.parts.filter(p => {
       p.life -= dt; if (p.life <= 0) { R.scene.remove(p.m); return false; }
-      p.v.y -= 7 * dt; p.m.position.addScaledVector(p.v, dt);
+      if (p.spin) { p.a += dt * p.spin; p.m.position.set(Math.cos(p.a) * p.r, p.m.position.y + dt * p.rise, Math.sin(p.a) * p.r); }
+      else { p.v.y -= (p.g == null ? 7 : p.g) * dt; p.m.position.addScaledVector(p.v, dt); }
       p.m.rotation.x += dt * 8; p.m.rotation.y += dt * 6;
       p.m.scale.setScalar(Math.max(.01, p.life / p.max) * p.size);
       return true;
     });
     R.shake = Math.max(0, R.shake - dt * 1.2);
-    R.camera.position.x = Math.sin(R.t * 55) * R.shake;
-    R.camera.position.y = .7 + Math.cos(R.t * 47) * R.shake * .6;
+    R.camera.position.x = Math.sin(R.t * 55) * R.shake * (R.hshake ? 2 : 1);
+    R.camera.position.y = .7 + Math.cos(R.t * 47) * R.shake * .6 * (R.hshake ? .2 : 1);
     R.camera.lookAt(0, .3, 0);
     renderer.render(R.scene, R.camera);
   }
 
-  /* --- 動作 --- */
+  /* --- 特效零件 --- */
   const tween = (dur, fn, done, wait, keep) => R.tweens.push({ dur, fn, done, wait: wait || 0, t: 0, keep: !!keep });
+  const later = (sec, fn) => tween(.001, () => {}, () => { if (R) fn(); }, sec, true);
   function reset() {
     if (!R) return false;
     R.tweens = R.tweens.filter(t => t.keep); Object.assign(R.off, { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 });
+    R.ex.punch = 0; R.ex.tailS = 1; R.hshake = false;
     if (!R.dead) R.boss.visible = true;
     return true;
   }
-  function burst(n, speed, pos, size) {
-    const at = pos || R.boss.position;
+  const bossPos = () => new T.Vector3(R.boss.position.x, R.boss.position.y + .3, R.boss.position.z);
+  function burst(n, speed, pos, size, mats) {
+    const at = pos || bossPos(), ms = mats || R.pmat;
     for (let i = 0; i < n; i++) {
-      const m = new T.Mesh(R.pgeo, R.pmat[i % R.pmat.length]);
-      m.position.copy(at); m.position.y += .3;
+      const m = new T.Mesh(R.pgeo, ms[i % ms.length]);
+      m.position.copy(at);
       const v = new T.Vector3(Math.random() - .5, Math.random() * .8 + .2, Math.random() - .3).normalize().multiplyScalar(speed * (.6 + Math.random() * .7));
       const life = .6 + Math.random() * .6, sz = (size || 1) * (.7 + Math.random() * .9);
       R.scene.add(m); R.parts.push({ m, v, life, max: life, size: sz });
     }
   }
-  function beam() {
-    const from = new T.Vector3(-4.2, -2.2, 2.5), to = new T.Vector3(0, .3, 0);
-    const dir = to.clone().sub(from), len = dir.length();
-    const grp = new T.Group();
-    const outer = new T.Mesh(new T.CylinderGeometry(.5, .5, len, 16, 1, true), new T.MeshBasicMaterial({ color: 0xFFD400, transparent: true, opacity: .9 }));
-    const inner = new T.Mesh(new T.CylinderGeometry(.22, .22, len, 12, 1, true), new T.MeshBasicMaterial({ color: 0xffffff }));
-    grp.add(outer, inner);
-    grp.position.copy(from.clone().add(to).multiplyScalar(.5));
-    grp.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), dir.normalize());
-    R.scene.add(grp);
-    tween(.7, p => {
+  function fade(obj, dur, fn) {           // 物件跑完 dur 秒後移除
+    R.scene.add(obj);
+    tween(dur, p => fn(p), () => { if (R) R.scene.remove(obj); }, 0, true);
+  }
+  function beam(from, color, width, rainbow) {
+    const to = bossPos(), dir = to.clone().sub(from), len = dir.length();
+    const g = new T.Group();
+    const outerM = basic(color, { transparent: true, opacity: .9 });
+    g.add(new T.Mesh(new T.CylinderGeometry(.5 * width, .5 * width, len, 16, 1, true), outerM));
+    g.add(new T.Mesh(new T.CylinderGeometry(.22 * width, .22 * width, len, 12, 1, true), basic(0xffffff)));
+    g.position.copy(from.clone().add(to).multiplyScalar(.5));
+    g.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), dir.normalize());
+    fade(g, .7, p => {
       const k = p < .2 ? p / .2 : p < .6 ? 1 : 1 - (p - .6) / .4;
-      grp.scale.set(Math.max(.01, k), 1, Math.max(.01, k)); outer.material.opacity = .9 * k;
-    }, () => { R && R.scene.remove(grp); }, 0, true);
+      g.scale.set(Math.max(.01, k), 1, Math.max(.01, k)); outerM.opacity = .9 * k;
+      if (rainbow) outerM.color.setHSL((R.t * 2) % 1, 1, .55);
+    });
+  }
+  function slash() {
+    for (let i = 0; i < 3; i++) {
+      const m = new T.Mesh(new T.BoxGeometry(2.4, .07, .02), basic(0xffffff, { transparent: true }));
+      const at = bossPos(); m.position.set(at.x, at.y + .5 - i * .4, at.z + 1.2); m.rotation.z = -.6;
+      fade(m, .4, p => { m.scale.x = Math.min(1, p * 4); m.material.opacity = 1 - Math.max(0, p - .5) * 2; });
+    }
+  }
+  function shock(color) {
+    const m = new T.Mesh(new T.TorusGeometry(1, .08, 6, 40), basic(color || 0xffffff, { transparent: true }));
+    m.position.copy(bossPos()); m.rotation.x = Math.PI / 2.4;
+    fade(m, .5, p => { m.scale.setScalar(.3 + p * 2.6); m.material.opacity = 1 - p; });
+  }
+  function thunder() {
+    const g = new T.Group(), at = bossPos();
+    const pts = [[0, 4.5], [.4, 3.6], [-.3, 2.7], [.35, 1.8], [-.2, .9], [0, 0]];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = new T.Vector3(at.x + pts[i][0], at.y + pts[i][1], at.z + .3), b2 = new T.Vector3(at.x + pts[i + 1][0], at.y + pts[i + 1][1], at.z + .3);
+      const d = b2.clone().sub(a), m = new T.Mesh(new T.BoxGeometry(.14, d.length(), .05), basic(0xFFF27A));
+      m.position.copy(a.clone().add(b2).multiplyScalar(.5)); m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize()); g.add(m);
+    }
+    R.flash = 1; R.shake = Math.max(R.shake, .2);
+    fade(g, .4, p => { g.visible = Math.floor(p * 10) % 2 === 0; });
+  }
+  function fire() {
+    const m = new T.Mesh(new T.SphereGeometry(1, 16, 12), basic(0xFF7A00, { transparent: true }));
+    m.position.copy(bossPos());
+    fade(m, .5, p => { m.scale.setScalar(.2 + p * 1.8); m.material.opacity = .85 * (1 - p); m.material.color.setHSL(.08 - p * .08, 1, .55); });
+    burst(22, 6, null, 1.4, R.fmat);
+  }
+  function tornado() {
+    const at = bossPos();
+    for (let i = 0; i < 28; i++) {
+      const m = new T.Mesh(R.pgeo, R.pmat[i % 3]); m.position.set(at.x, at.y - 1.3 + (i % 7) * .2, at.z); R.scene.add(m);
+      R.parts.push({ m, spin: 9, a: i * .9, r: .6 + (i % 4) * .25, rise: 2.5, life: .9, max: .9, size: 1.2 });
+    }
+    tween(.9, p => { R.off.y = Math.sin(Math.PI * p) * 1.4; R.off.ry = p * Math.PI * 6; });
+  }
+  function meteors(n) {
+    for (let i = 0; i < n; i++) {
+      later(i * .1, () => {
+        const m = new T.Mesh(new T.IcosahedronGeometry(.32, 0), basic(i % 2 ? 0xFF7A00 : 0xFFD400));
+        const at = bossPos(), sx = (Math.random() - .5) * 3;
+        fade(m, .35, p => { m.position.set(lerp(at.x + sx + 2, at.x + sx * .2, p), lerp(at.y + 5, at.y, p), at.z + .3); });
+        later(.35, () => { burst(8, 5, null, 1.2, R.fmat); R.shake = Math.max(R.shake, .15); R.flash = .8; });
+      });
+    }
+  }
+  function energyBall(color) {
+    const m = new T.Mesh(new T.SphereGeometry(1, 20, 16), basic(color || 0x7AF0FF, { transparent: true, opacity: .9 }));
+    const inner = new T.Mesh(new T.SphereGeometry(.6, 16, 12), basic(0xffffff)); m.add(inner);
+    const startP = new T.Vector3(0, .4, 3.8);
+    fade(m, .7, p => {
+      if (p < .6) { m.position.copy(startP); m.scale.setScalar(easeOut(p / .6) * .7); }
+      else { const q = (p - .6) / .4; m.position.lerpVectors(startP, bossPos(), q); m.scale.setScalar(.7 + q * .3); }
+    });
+    later(.7, () => { fire(); R.flash = 1; R.shake = .35; });
   }
   function shatter() {
     if (!R) return;
     R.dead = true; R.flash = 1; R.shake = .45;
-    burst(46, 7, R.boss.position, 2);
+    burst(46, 7, bossPos(), 2);
     R.boss.visible = false;
   }
+  function ko() {                          // 肚肚朝上、轉圈圈眼，再變碎片
+    if (!R) return;
+    reset(); setPose('bellyup'); R.dizzy = true; R.angry = 0;
+    later(1.1, shatter);
+  }
+  const HIT_FX = [null, slash, () => { slash(); shock(); }, thunder, fire, tornado];
+  function tierHit(tier) {
+    const t = tier >= 6 ? 1 + Math.floor(Math.random() * 5) : tier;
+    if (HIT_FX[t]) HIT_FX[t]();
+  }
+  function ultFx(tier) {                   // 回傳打飛 BOSS 的時間點（秒）
+    const L = new T.Vector3(-4.2, -2.2, 2.5), Rt = new T.Vector3(4.2, -2.2, 2.5);
+    switch (tier) {
+      case 0: later(.6, () => beam(L, 0xFFD400, 1)); return .85;
+      case 1: later(.6, () => { beam(L, 0x55E0FF, 1.5); thunder(); }); return .85;
+      case 2: later(.6, () => { beam(L, 0xFFD400, 1.2); beam(Rt, 0xFF4FD8, 1.2); }); return .85;
+      case 3: later(.45, () => meteors(6)); return 1.25;
+      case 4: later(.45, () => energyBall()); return 1.2;
+      case 5: later(.6, () => { beam(L, 0xFF0000, 1.6, true); R.flash = 1.6; }); return .9;
+      default:
+        later(.45, () => meteors(5));
+        later(1.0, () => { beam(L, 0xFFD400, 1.3, true); beam(Rt, 0x55E0FF, 1.3, true); });
+        later(1.3, () => energyBall(0xFFD400));
+        return 2.05;
+    }
+  }
+
   return {
     load, start, stop, resize,
     available: () => !!T,
     running: () => !!R,
-    hit1(final) {
-      if (!reset()) return;
-      R.flash = 1; R.shake = .08; R.hurt = .7; burst(8, 4);
+    hit1(final, tier) {
+      if (!reset()) return 0;
+      R.flash = 1; R.shake = .08; R.hurt = .7; burst(8, 4); tierHit(tier || 0);
       tween(.45, p => {
         const k = p < .25 ? p / .25 : 1 - (p - .25) / .75;
         R.off.z = -1 * k; R.off.rx = -.35 * k; R.off.rz = .3 * Math.sin(p * 22) * (1 - p);
-      }, final ? shatter : null);
+      }, final ? ko : null);
+      return final ? 650 : 0;
     },
-    hit2(final) {
-      if (!reset()) return;
-      R.flash = 1; R.shake = .16; R.hurt = 1; burst(18, 5.5);
+    hit2(final, tier) {
+      if (!reset()) return 0;
+      R.flash = 1; R.shake = .16; R.hurt = 1; burst(18, 5.5); tierHit(tier || 0);
       tween(.85, p => {
         R.off.y = 2 * 4 * p * (1 - p); R.off.ry = Math.PI * 2 * easeOut(p);
         R.off.z = -.8 * Math.sin(Math.PI * p); R.off.rz = .5 * Math.sin(Math.PI * p);
-      }, final ? shatter : null);
+      }, final ? ko : null);
+      return final ? 1000 : 0;
     },
-    ult(final) {
-      if (!reset()) return;
-      R.hurt = 2.4;
-      tween(.2, p => { R.off.s = 1 + .15 * Math.sin(p * Math.PI * 6); }, null, .45);       // 被氣勢震住
-      tween(.01, () => {}, () => { if (!R) return; beam(); R.shake = .25; }, .6);
-      tween(.6, p => {                                                                   // 被打飛
-        if (p === 0) return;
+    ult(final, tier) {
+      if (!reset()) return 0;
+      R.hurt = 2.6 + (tier >= 6 ? 1.2 : 0);
+      const flyAt = ultFx(tier || 0);
+      tween(.2, p => { R.off.s = 1 + .15 * Math.sin(p * Math.PI * 6); }, null, .45);
+      later(flyAt - .25, () => { R.shake = .25; });
+      tween(.6, p => {
         R.off.x = 5.5 * easeOut(p); R.off.y = 3 * easeOut(p); R.off.z = -7 * easeOut(p);
         R.off.rz = 9 * p; R.off.rx = 6 * p;
       }, () => {
         if (!R) return;
         R.flash = 1; R.shake = .4; burst(30, 6.5, new T.Vector3(0, .3, 0), 1.4);
-        if (final) { R.dead = true; R.boss.visible = false; return; }
         Object.assign(R.off, { x: 0, y: 5, z: 0, rx: 0, ry: 0, rz: 0, s: 1 });
-        tween(.55, p => { R.off.y = 5 * Math.pow(1 - p, 2); }, () => { if (R) { R.shake = .12; burst(10, 3, new T.Vector3(0, -1.2, 0)); } }, .7);
-      }, .85);
+        tween(.55, p => { R.off.y = 5 * Math.pow(1 - p, 2); }, () => { if (!R) return; R.shake = .12; burst(10, 3, new T.Vector3(0, -1.2, 0)); if (final) ko(); }, .7);
+      }, flyAt);
+      return Math.round((flyAt + .6 + .7 + .55) * 1000) + (final ? 300 : 0);
     },
+    // 答錯：BOSS 反擊。回傳 { name, claw }
     attack() {
-      if (!reset()) return;
-      R.mad = .9;
-      tween(.55, p => {
-        const k = Math.sin(Math.PI * Math.min(1, p * 1.3));
-        R.off.z = 2.6 * k; R.off.s = 1 + .3 * k; R.off.rx = .45 * k;
-      });
-      tween(.01, () => {}, () => { if (R) R.shake = .22; }, .2);
+      if (!reset()) return null;
+      const kind = ['punch', 'pounce', 'tail', 'hiss'][Math.floor(Math.random() * 4)];
+      if (kind === 'punch') {
+        R.mad = .9;
+        tween(.7, p => { R.ex.punch = Math.max(0, Math.sin(p * Math.PI * 4)) * .9; R.off.z = .6 * Math.sin(Math.PI * p); });
+        later(.18, () => { R.shake = .18; }); later(.45, () => { R.shake = .2; });
+        return { name: '毛毛貓貓拳', claw: true };
+      }
+      if (kind === 'pounce') {
+        R.big = 1.1;
+        tween(.75, p => {
+          if (p < .35) { const q = p / .35; R.off.y = -.3 * q; R.off.s = 1 - .1 * q; }
+          else { const q = (p - .35) / .65, k = Math.sin(Math.PI * q); R.off.y = -.3 + .9 * k; R.off.z = 3 * k; R.off.s = .9 + .5 * k; R.off.rx = .4 * k; }
+        });
+        later(.5, () => { R.shake = .28; });
+        return { name: '毛毛飛撲', claw: true };
+      }
+      if (kind === 'tail') {
+        R.mad = .9; R.hshake = true;
+        tween(.7, p => { R.off.ry = Math.PI * 2 * easeOut(p); R.ex.tailS = 1 + .6 * Math.sin(Math.PI * p); R.off.z = .8 * Math.sin(Math.PI * p); });
+        later(.35, () => { R.shake = .3; });
+        return { name: '毛毛甩尾鞭', claw: false };
+      }
+      R.hiss = 1.2;
+      tween(.8, p => { const k = Math.sin(Math.PI * Math.min(1, p * 1.4)); R.off.s = 1 + .25 * k; R.off.z = 1.2 * k; R.off.rx = -.15 * k; });
+      later(.25, () => { R.shake = .22; });
+      return { name: '毛毛哈氣', claw: false, hiss: true };
     },
-    setAngry(on) { if (R) R.angry = on ? 1 : 0; }
+    setAngry(on) {
+      if (!R) return;
+      R.angry = on ? 1 : 0;
+      if (!R.dizzy) setPose(on ? 'puff' : R.basePose);
+    }
   };
 })();
 window.addEventListener('resize', () => Boss3D.resize());
@@ -1134,7 +1395,12 @@ let S = null, C = null;
 const SET = { last: null, all: null, rev: null };
 const HIT_WORDS = [['HIT!', '會心一擊！'], ['NICE!', '漂亮命中！'], ['BOOM!', '直擊要害！'], ['YES!', '答對了！']];
 const COMBO_WORDS = [[3, 'COMBO!', '連擊發動！'], [5, 'RUSH!', '勢不可擋！'], [8, 'MAX!', '無雙狀態！'], [12, 'GOD!', '已經沒人擋得住你！']];
-const HURT_WORDS = [['OUCH!', '被擊中了！'], ['MISS!', '攻擊落空！'], ['ARGH!', '受到傷害！']];
+const CAT_ATTACKS = [{ name: '毛毛貓貓拳', claw: true }, { name: '毛毛飛撲', claw: true }, { name: '毛毛甩尾鞭' }, { name: '毛毛哈氣', hiss: true }];
+function showClaw() {
+  const c = document.getElementById('claw');
+  c.classList.remove('show'); void c.offsetWidth; c.classList.add('show');
+  clearTimeout(showClaw.t); showClaw.t = setTimeout(() => c.classList.remove('show'), 700);
+}
 
 // opt: { title, boss, sub, recordBid }
 function startQuiz(refs, opt) {
@@ -1151,7 +1417,10 @@ function startQuiz(refs, opt) {
   setTheme(opt.sub);
   const x = subOf(opt.sub), stage = document.createElement('div');
   stage.className = 'panel stage';
-  stage.innerHTML = `<span class="name">${esc(S.boss)}</span><div class="cv"></div><div class="load">BOSS 登場中…</div>`;
+  stage.innerHTML = `<div class="cv"></div><div class="load">BOSS 登場中…</div>
+    <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
+    <div class="hud" id="hud"></div>`;
+  if (window.ResizeObserver) new ResizeObserver(() => Boss3D.resize()).observe(stage);
   S.stageEl = stage; S.ult = x.ult;
   renderQ();
   const mine = S;
@@ -1159,24 +1428,22 @@ function startQuiz(refs, opt) {
     if (S !== mine) return;
     const started = ok && Boss3D.start(stage.querySelector('.cv'), x.kind, x.c);
     if (started) { stage.querySelector('.load').remove(); Boss3D.setAngry(S.bossHp / S.n <= .25); }
-    else { stage.remove(); S.stageEl = null; }
+    else { stage.classList.add('flat'); stage.querySelector('.load').remove(); }
   });
 }
-function hudHtml() {
+function updateHud() {
+  const el = S && S.stageEl && S.stageEl.querySelector('#hud'); if (!el) return;
   const bp = S.bossHp / S.n * 100;
   const hearts = Array.from({ length: S.maxHp }, (_, i) => `<span class="${i < S.hp ? '' : 'lost'}">♥</span>`).join('');
-  return `<div class="panel hud" id="hud">
-      <div class="row"><span class="who">BOSS</span><div class="hpbar ${bp <= 25 ? 'low' : ''}"><i style="width:${bp}%"></i></div><span class="num">${S.bossHp}/${S.n}</span></div>
-      <div class="row"><span class="who">YOU</span><div class="hearts" aria-label="剩餘生命 ${S.hp}">${hearts}</div>${S.combo >= 2 ? `<span class="combo pop">${S.combo}<small>COMBO</small></span>` : ''}<span class="num">${S.i + 1}/${S.n}</span></div>
-    </div>`;
+  el.innerHTML = `<div class="row"><span class="who">BOSS</span><div class="hpbar ${bp <= 25 ? 'low' : ''}"><i style="width:${bp}%"></i></div><span class="num">${S.bossHp}/${S.n}</span>
+      <div class="hearts" aria-label="剩餘生命 ${S.hp}">${hearts}</div></div>`;
+  S.stageEl.querySelector('.qn').textContent = `${S.i + 1}/${S.n}`;
+  S.stageEl.querySelector('.cb').innerHTML = S.combo >= 2 ? `<span class="combo pop">${S.combo}<small>COMBO</small></span>` : '';
 }
 function renderQ() {
   const it = S.items[S.i];
   S.answered = false;
-  app.innerHTML = `<header class="top"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button>
-      <h1>${esc(S.boss)}｜${esc(S.title)}</h1></header>
-    <div id="stageSlot"></div>
-    ${hudHtml()}
+  app.innerHTML = `<div id="stageSlot"></div>
     <div class="panel qcard">
       ${S.multi ? srcTag(it) : ''}
       ${imgTag(it.q)}
@@ -1187,7 +1454,8 @@ function renderQ() {
     </div>
     <div id="fb"></div>`;
   const slot = document.getElementById('stageSlot');
-  if (slot && S.stageEl) { slot.replaceWith(S.stageEl); Boss3D.resize(); }
+  if (slot && S.stageEl) { slot.replaceWith(S.stageEl); S.stageEl.classList.remove('compact'); Boss3D.resize(); }
+  updateHud();
   window.scrollTo(0, 0);
 }
 function showCutin(name) {
@@ -1224,22 +1492,23 @@ function pick(k) {
     const lastQ = S.i === S.items.length - 1, final = S.bossHp <= 0 || lastQ, move = S.combo % 3 === 0 ? 'ult' : S.combo % 3 === 2 ? 'hit2' : 'hit1';
     const cw = COMBO_WORDS.filter(c => S.combo >= c[0]).pop();
     const w = move === 'hit2' ? ['DOUBLE!', '二連擊！'] : cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
+    const tier = myTier(), ultName = S.ult + ULT_SUFFIX[tier];
     if (move === 'ult') {
-      say = `必殺技「${S.ult}」命中！`;
-      showCutin(S.ult); SFX.ult(); vibrate([80, 40, 160]);
+      say = `必殺技「${ultName}」命中！`;
+      showCutin(ultName); SFX.ult(); vibrate([80, 40, 160]);
     } else {
-      say = w[1]; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
+      say = `${TIER_HIT[tier]}！${w[1]}`; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
     }
     if (final) S.bossHp = 0;
-    Boss3D[move](final);
-    Boss3D.setAngry(!final && S.bossHp / S.n <= .25);
-    if (final) setTimeout(() => { showFx('K.O.!', 'BOSS 被擊倒了！', true); SFX.win(); }, move === 'ult' ? 1500 : 650);
+    const koMs = Boss3D[move](final, tier);
+    if (!final) Boss3D.setAngry(S.bossHp / S.n <= .25);
+    if (final) setTimeout(() => { showFx('K.O.!', 'BOSS 被擊倒了！', true); SFX.win(); }, koMs || (move === 'ult' ? 1500 : 650));
   } else {
     S.wrong.push({ b: it.bid, q: it.q.id }); S.combo = 0; S.hp--;
-    const w = pickOne(HURT_WORDS);
-    say = w[1] + (S.hp > 0 ? `　正解是 ${LETTER[right]}` : '　你倒下了…');
-    showFx(w[0], w[1], false); SFX.hurt(); vibrate([60, 40, 60]);
-    Boss3D.attack();
+    const atk = Boss3D.attack() || pickOne(CAT_ATTACKS);
+    say = `被「${atk.name}」打中了！` + (S.hp > 0 ? `　正解是 ${LETTER[right]}` : '　你倒下了…');
+    showFx(atk.hiss ? 'HISS!' : pickOne(['OUCH!', 'ARGH!', 'MEOW!']), atk.name + '！', false); SFX.hurt(); vibrate([60, 40, 60]);
+    if (atk.claw) setTimeout(showClaw, 220);
     if (S.hp > 0 && S.i === S.items.length - 1) {          // 撐到最後一題還活著＝勝利，補上最後一擊
       S.bossHp = 0;
       setTimeout(() => { Boss3D.hit1(true); showFx('K.O.!', '撐到最後，BOSS 倒下了！', true); SFX.win(); }, 900);
@@ -1247,7 +1516,7 @@ function pick(k) {
     const fl = document.getElementById('flash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
     app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
   }
-  const hud = document.getElementById('hud'); if (hud) hud.outerHTML = hudHtml();
+  updateHud();
   const done = S.hp <= 0 || S.i === S.items.length - 1;
   const fb = document.getElementById('fb');
   fb.innerHTML = `<div class="panel fb ${ok ? 'ok' : 'ng'}">
@@ -1304,11 +1573,13 @@ function result() {
   S = null;
   window.scrollTo(0, 0);
   if (!win) setTimeout(SFX.lose, 200);
-  if (up) setTimeout(showLevelUp, 1100);
+  if (up) setTimeout(() => showLevelUp(up), 1100);
 }
-function showLevelUp() {
-  const L = levelOf(db.exp), box = document.getElementById('lvup');
+function showLevelUp(before) {
+  const L = levelOf(db.exp), box = document.getElementById('lvup'), t = tierOf(L.lv);
   box.querySelector('.t').textContent = `Lv.${L.lv}　${titleOf(L.lv)}`;
+  box.querySelector('.unlock').innerHTML = before && tierOf(before) < t
+    ? `新招式解鎖！<br>攻擊：${TIER_HIT[t]}<br>大招：${TIER_ULT[t]}` : '';
   box.classList.add('show'); SFX.lvup(); vibrate([40, 30, 40, 30, 80]);
 }
 
@@ -1384,7 +1655,7 @@ function cnext() {
   if (C.i < C.items.length - 1) { C.i++; renderCard(); return; }
   const n = C.items.length, gain = Math.min(30, 5 + n * 2), up = gainExp(gain);
   home(); toast(`修練完成！EXP +${gain}`);
-  if (up) setTimeout(showLevelUp, 400);
+  if (up) setTimeout(() => showLevelUp(up), 400);
 }
 function cprev() { if (C && C.i > 0) { C.i--; renderCard(); } }
 
@@ -1451,6 +1722,13 @@ app.addEventListener('click', e => {
 });
 document.getElementById('zoom').querySelector('.x').addEventListener('click', () => document.getElementById('zoom').classList.remove('show'));
 document.getElementById('lvup').addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target.id === 'lvup') e.currentTarget.classList.remove('show'); });
+
+window.addEventListener('scroll', () => {
+  if (!S || !S.stageEl) return;                  // 用兩個門檻避免縮放時來回跳動
+  const y = window.scrollY, c = S.stageEl.classList;
+  if (y > 90 && !c.contains('compact')) c.add('compact');
+  else if (y < 8 && c.contains('compact')) c.remove('compact');
+}, { passive: true });
 
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
