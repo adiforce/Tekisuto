@@ -114,6 +114,10 @@ header.top h1.small{font-size:16px;font-weight:600;white-space:nowrap;overflow:h
 .face .hint{position:absolute;top:12px;left:0;right:0;text-align:center;font-size:12px;color:var(--sub)}
 .face.front{position:relative}
 .face .qtext{text-align:center;margin:0}
+.copts{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:6px;text-align:left}
+.copts li{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:15px;display:flex;gap:8px}
+.copts li b{color:var(--sub);flex:none}
+.back .copts li.ok{border-color:var(--ok);background:var(--ok-soft)}
 .ans{font-size:22px;font-weight:700;color:var(--ok);text-align:center;margin-bottom:6px}
 .nav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
@@ -350,6 +354,10 @@ const isMulti = items => new Set(items.map(it => it.bid)).size > 1;
 const imgTag = q => q.image
   ? `<button class="qimg" data-act="zoom" data-src="${esc(q.image)}"><img src="${esc(q.image)}" alt="題目附圖" loading="lazy" onerror="this.parentNode.classList.add('broken')"></button>`
   : '';
+// 題目本身要搭配選項才看得懂（下列何者…、配對、哪一張圖）時，單字卡也顯示選項
+const needOpts = q => /下列|何者|配對|哪一張/.test(q.q) || (q.lock && q.options.some(o => o.length > 2));
+const optList = (q, order) => `<ul class="copts">${order.map((oi, k) =>
+  `<li><b>${LETTER[k]}</b><span>${fmt(q.options[oi])}</span></li>`).join('')}</ul>`;
 const srcTag = it => `<span class="src">${esc(it.bt)}</span>`;
 
 /* ===== 首頁 ===== */
@@ -597,7 +605,7 @@ function review(refs, title) {
 function cards(refs) {
   const items = resolve(refs);
   if (!items.length) { toast('沒有卡片'); return; }
-  C = { items: shuffle(items), multi: isMulti(items), i: 0 };
+  C = { items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) })), multi: isMulti(items), i: 0 };
   renderCard();
 }
 function renderCard() {
@@ -609,9 +617,10 @@ function renderCard() {
       <div class="face front"><div class="hint">點一下翻面，左右滑換張</div>
         ${C.multi ? `<div style="text-align:center">${srcTag(it)}</div>` : ''}
         ${imgTag(q)}
-        <div class="qtext">${fmt(q.q)}</div></div>
+        <div class="qtext">${fmt(q.q)}</div>
+        ${needOpts(q) ? optList(q, it.order) : ''}</div>
       <div class="face back">
-        <div class="ans">${fmt(q.options[q.answer])}</div>
+        <div class="ans">${needOpts(q) ? LETTER[it.order.indexOf(q.answer)] + '　' : ''}${fmt(q.options[q.answer])}</div>
         ${q.point ? `<div class="pt"><b>重點</b><p>${fmt(q.point)}</p></div>` : ''}
         ${q.mnemonic ? `<div class="mn"><b>💡 口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
       </div>
