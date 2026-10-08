@@ -4,163 +4,257 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#f6f3ec">
+<meta name="theme-color" content="#ffffff">
 <title>背書小幫手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f6f3ec; --card:#fffdf8; --ink:#2b2a27; --sub:#7a766c; --line:#e4dfd3;
-  --accent:#2f6f5e; --on-accent:#ffffff; --accent-soft:#e3efe9;
-  --ok:#2f8a4f; --ok-soft:#e2f3e7; --ng:#c0443a; --ng-soft:#fbe6e3;
-  --hl:#fff4cf; --hl-ink:#6b5200; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.05);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#1b1c1a; --card:#252623; --ink:#ecebe6; --sub:#a19e95; --line:#3a3b37;
-    --accent:#6cc0a6; --on-accent:#10241e; --accent-soft:#24362f;
-    --ok:#6fcf8e; --ok-soft:#1f3326; --ng:#ff8a7e; --ng-soft:#3b2421;
-    --hl:#3a321a; --hl-ink:#f2d98a; --shadow:none;
-  }
+  color-scheme: light;
+  --ink:#000; --paper:#fff; --dot:rgba(0,0,0,.07); --sub:#555;
+  --hit:#FFD400; --hurt:#FF2E2E; --ok:#14A44D;
+  --c:#3A3A3A; --c-ink:#fff;          /* 目前科目色，由 JS 依科目覆寫 */
+  --bd:3px solid var(--ink); --sh:5px 5px 0 var(--ink);
+  --display:"Bangers","Noto Sans TC",Impact,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink)}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
 body{
-  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
-  font-size:17px;line-height:1.65;
+  font-family:"Noto Sans TC",-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  font-size:17px;line-height:1.65;font-weight:500;
+  background-image:radial-gradient(var(--dot) 1.1px,transparent 1.4px);background-size:9px 9px;
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-x:hidden;
 }
-#app{max-width:720px;margin:0 auto;padding:12px 16px 48px}
+#app{max-width:720px;margin:0 auto;padding:10px 16px 56px}
 p{margin:.4em 0}
 .sub{color:var(--sub);font-size:14px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--hit);outline-offset:2px}
 
-header.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px;min-height:44px}
-header.top h1{font-size:21px;margin:0;flex:1;letter-spacing:.02em}
-header.top h1.small{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
+/* ===== 共用元件 ===== */
+.panel{background:var(--paper);border:var(--bd);border-radius:6px;box-shadow:var(--sh)}
 .btn{
-  appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);
-  font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;cursor:pointer;
-  min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:center;
+  appearance:none;border:var(--bd);background:var(--paper);border-radius:6px;box-shadow:4px 4px 0 var(--ink);
+  font-size:16px;font-weight:900;padding:11px 12px;min-height:50px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:center;line-height:1.3;
+  transition:transform .06s,box-shadow .06s;
 }
-.btn:active{transform:scale(.98)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
-.btn:disabled{opacity:.4;pointer-events:none}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.go{background:var(--c);color:var(--c-ink)}
+.btn.hot{background:var(--hit)}
+.btn:disabled{opacity:.35;pointer-events:none;box-shadow:none}
 .btn.wide{width:100%}
-.btn.danger{color:var(--ng)}
-.icon{appearance:none;border:0;background:transparent;color:var(--ink);font-size:22px;width:44px;height:44px;border-radius:10px;cursor:pointer;flex:none}
-.icon:active{background:var(--line)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-
-/* 首頁 */
-.bank{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
-.bank-head{display:flex;align-items:flex-start;gap:8px}
-.bank-head>div{flex:1;min-width:0}
-.bank h2{font-size:18px;margin:2px 0 2px;line-height:1.4}
-.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
-.meta{color:var(--sub);font-size:14px}
-.meta b.ng{color:var(--ng)}
-.empty{text-align:center;padding:48px 8px}
-.bank.all{border-color:var(--ng);background:var(--ng-soft)}
-.bank.all .tag{background:var(--ng);color:#fff}
+.btn.sm{min-height:40px;padding:6px 12px;font-size:15px;box-shadow:3px 3px 0 var(--ink)}
+.btn.danger{color:var(--hurt)}
+.icon{appearance:none;border:var(--bd);background:var(--paper);border-radius:50%;width:42px;height:42px;font-size:19px;font-weight:900;cursor:pointer;flex:none;display:grid;place-items:center;box-shadow:2px 2px 0 var(--ink)}
+.icon:active{transform:translate(2px,2px);box-shadow:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 .grid.three{grid-template-columns:1fr 1fr 1fr}
-.src{display:inline-block;font-size:12px;color:var(--sub);border:1px solid var(--line);border-radius:99px;padding:0 8px;margin-bottom:8px}
+.span2{grid-column:1/-1}
+.tag{display:inline-block;font-size:13px;font-weight:900;padding:1px 10px;border:2px solid var(--ink);background:var(--c);color:var(--c-ink);transform:skew(-10deg)}
+.tag>span{display:inline-block;transform:skew(10deg)}
 
-/* 測驗 */
-.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:16px}
-.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
-.qtext{font-size:19px;font-weight:600;margin-bottom:16px}
-.opts{display:grid;gap:10px}
-.opt{
-  appearance:none;width:100%;text-align:left;font:inherit;color:var(--ink);cursor:pointer;
-  background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;
-  display:flex;gap:12px;align-items:flex-start;
-}
-.opt .lt{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--sub);margin-top:1px}
-.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
-.opt.ok .lt{background:var(--ok);border-color:var(--ok);color:#fff}
-.opt.ng{border-color:var(--ng);background:var(--ng-soft)}
-.opt.ng .lt{background:var(--ng);border-color:var(--ng);color:#fff}
-.opt:disabled{cursor:default;opacity:1}
-.fb{margin:16px 0 12px;padding:14px;border-radius:14px}
-.fb.ok{background:var(--ok-soft)} .fb.ok b{color:var(--ok)}
-.fb.ng{background:var(--ng-soft)} .fb.ng b{color:var(--ng)}
+header.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px;min-height:46px}
+header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* 結果 */
-.score{text-align:center;padding:28px 0 12px}
-.score .big{font-size:56px;font-weight:800;line-height:1.1;color:var(--accent)}
-.score .big small{font-size:24px;color:var(--sub);font-weight:600}
+/* ===== 首頁 ===== */
+.logo{display:flex;align-items:flex-end;gap:10px;margin:8px 0 18px}
+.logo h1{margin:0;flex:1;font-size:40px;line-height:1;font-weight:900;letter-spacing:.02em;transform:skew(-8deg);
+  color:var(--paper);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;
+  text-shadow:4px 4px 0 var(--ink)}
+.logo h1 small{display:block;font-size:14px;letter-spacing:.3em;color:var(--ink);-webkit-text-stroke:0;text-shadow:none;margin-bottom:6px}
 
-/* 錯題重點 */
-.rv{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
-.rv-q{font-weight:600;display:flex;gap:10px}
-.num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ng-soft);color:var(--ng);display:grid;place-items:center;font-size:13px;font-weight:700;margin-top:2px}
-.rv-a{margin:8px 0 0 34px;color:var(--ok);font-weight:600}
-.pt,.mn{margin-top:12px;padding:10px 12px;border-radius:12px}
-.pt{background:var(--accent-soft)}
-.pt b{color:var(--accent);font-size:13px}
-.mn{background:var(--hl);color:var(--hl-ink)}
-.mn b{font-size:13px}
-.pt p,.mn p{margin:2px 0 0}
+.me{display:flex;gap:14px;align-items:center;padding:14px 16px;margin-bottom:22px;background:var(--hit)}
+.me .lv{font-family:var(--display);font-size:46px;line-height:.9;text-align:center;min-width:72px}
+.me .lv small{display:block;font-family:"Noto Sans TC";font-size:12px;font-weight:900}
+.me .info{flex:1;min-width:0}
+.me .ttl{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block}
+.exp{height:14px;border:var(--bd);background:var(--paper);border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.exp i{display:block;height:100%;background:var(--ink);transition:width .6s}
+.me .nums{font-size:13px;font-weight:700}
 
-/* 單字卡 */
-.flip{perspective:1200px;cursor:pointer;margin-bottom:16px;user-select:none;-webkit-user-select:none}
+.bank{position:relative;margin-bottom:22px;overflow:hidden}
+.bank .band{position:absolute;left:0;top:0;bottom:0;width:58px;background:var(--c);border-right:var(--bd);
+  display:flex;align-items:center;justify-content:center}
+.bank .band b{writing-mode:vertical-rl;font-size:26px;font-weight:900;color:var(--c-ink);letter-spacing:.15em}
+.bank .body{padding:14px 14px 14px 74px}
+.bank h2{font-size:18px;margin:6px 0 2px;line-height:1.4;font-weight:900}
+.bank .boss{font-size:14px;font-weight:700}
+.bank .meta{font-size:14px;color:var(--sub);font-weight:700}
+.bank .meta b.ng{color:var(--hurt)}
+.bank .more{position:absolute;top:10px;right:10px;width:36px;height:36px;font-size:16px}
+.bank .grid{gap:10px}
+.rankmark{position:absolute;top:44px;right:12px;font-family:var(--display);font-size:34px;line-height:1;transform:rotate(12deg);
+  color:var(--c);-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill}
+.bank.revenge{--c:#FF2E2E;--c-ink:#fff}
+.bank.revenge .band{background:repeating-linear-gradient(-45deg,var(--hurt) 0 10px,#000 10px 20px)}
+.empty{text-align:center;padding:40px 8px}
+.empty .big{font-size:24px;font-weight:900;transform:skew(-6deg)}
+
+/* ===== 戰鬥（測驗） ===== */
+.hud{padding:10px 12px;margin-bottom:16px}
+.hud .row{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px}
+.hud .row+.row{margin-top:8px}
+.hud .who{min-width:42px;font-family:var(--display);font-size:20px;letter-spacing:.04em}
+.hpbar{flex:1;height:18px;border:var(--bd);background:#ddd;transform:skew(-12deg);overflow:hidden}
+.hpbar i{display:block;height:100%;background:var(--c);transition:width .45s cubic-bezier(.3,1.6,.6,1)}
+.hpbar.low i{background:var(--hurt)}
+.hearts{flex:1;letter-spacing:2px;font-size:18px;line-height:1}
+.hearts .lost{opacity:.18}
+.hud .num{min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.combo{position:fixed;right:14px;top:calc(120px + env(safe-area-inset-top));z-index:15;pointer-events:none;text-align:right;
+  font-family:var(--display);color:var(--hit);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 3px 0 var(--ink);
+  transform:rotate(-8deg);line-height:.9;opacity:0;transition:opacity .2s}
+.combo.on{opacity:1}
+.combo b{display:block;font-size:52px}
+.combo small{font-size:22px}
+.combo.pop{animation:pop .35s}
+
+.qcard{padding:16px;margin-bottom:16px;position:relative}
+.qcard .src{display:inline-block;font-size:12px;font-weight:900;border:2px solid var(--ink);padding:0 8px;margin-bottom:8px}
+.qtext{font-size:19px;font-weight:900;line-height:1.6}
+.opts{display:grid;gap:12px}
+.opt{appearance:none;width:100%;text-align:left;cursor:pointer;background:var(--paper);border:var(--bd);border-radius:6px;
+  box-shadow:4px 4px 0 var(--ink);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;font-size:17px;font-weight:700;
+  transition:transform .06s,box-shadow .06s}
+.opt:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.opt .lt{flex:none;width:30px;height:30px;border:var(--bd);display:grid;place-items:center;font-family:var(--display);font-size:19px;background:var(--paper);transform:skew(-10deg)}
+.opt.ok{background:var(--hit)}
+.opt.ok .lt{background:var(--ink);color:var(--hit)}
+.opt.ng{background:var(--hurt);color:#fff}
+.opt.ng .lt{background:var(--ink);color:#fff}
+.opt:disabled{cursor:default}
+.opt.dim{opacity:.45}
+.fb{margin:18px 0 14px;padding:14px 16px;position:relative}
+.fb .say{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block;margin-bottom:4px}
+.fb.ok{background:#FFF6BF}
+.fb.ng{background:#FFE1E1}
+
+/* 擊中特效 */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:25;display:none;align-items:center;justify-content:center}
+#fx.show{display:flex}
+#fx .lines{position:absolute;inset:-20%;
+  background:repeating-conic-gradient(from 0deg,var(--fxc) 0 3deg,transparent 3deg 9deg);
+  -webkit-mask:radial-gradient(circle,transparent 26%,#000 60%);mask:radial-gradient(circle,transparent 26%,#000 60%);
+  opacity:.5;animation:spin .6s linear}
+#fx .burst{position:relative;padding:26px 30px;background:var(--fxbg);border:4px solid var(--ink);
+  clip-path:polygon(50% 0,61% 18%,82% 6%,78% 30%,100% 32%,84% 50%,100% 68%,77% 70%,82% 94%,61% 82%,50% 100%,39% 82%,18% 94%,22% 70%,0 68%,16% 50%,0 32%,22% 30%,18% 6%,39% 18%);
+  text-align:center;animation:boom .55s cubic-bezier(.2,1.8,.5,1)}
+#fx .burst b{display:block;font-family:var(--display);font-size:54px;line-height:1;letter-spacing:.03em;color:var(--fxt);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill}
+#fx .burst span{display:block;font-size:22px;font-weight:900;color:var(--ink);margin-top:2px}
+#flash{position:fixed;inset:0;background:var(--hurt);pointer-events:none;z-index:24;opacity:0}
+#flash.on{animation:flash .45s}
+.shake{animation:shake .4s}
+
+/* ===== 戰果 ===== */
+.result{text-align:center;padding:22px 16px 18px;margin-top:6px;position:relative;overflow:hidden}
+.result .lines{position:absolute;inset:-40%;background:repeating-conic-gradient(var(--c) 0 4deg,transparent 4deg 12deg);opacity:.18}
+.stamp{position:relative;display:inline-grid;place-items:center;width:150px;height:150px;border:5px solid var(--ink);border-radius:50%;
+  background:var(--c);transform:rotate(-12deg);box-shadow:6px 6px 0 var(--ink);animation:stamp .5s cubic-bezier(.2,1.6,.5,1)}
+.stamp b{font-family:var(--display);font-size:104px;line-height:1;color:var(--paper);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;margin-top:10px}
+.stamp.lose{background:#444}
+.stamp.lose b{font-family:"Noto Sans TC";font-weight:900;font-size:46px;margin:0}
+.result .line{position:relative;font-size:21px;font-weight:900;margin:18px 0 6px;transform:skew(-6deg)}
+.stats{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stats div{border:var(--bd);padding:6px 4px;background:var(--paper)}
+.stats b{display:block;font-family:var(--display);font-size:30px;line-height:1.1}
+.stats small{font-size:12px;font-weight:900}
+
+/* 升級 */
+#lvup{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:20px}
+#lvup.show{display:flex}
+#lvup .box{background:var(--hit);border:4px solid var(--ink);box-shadow:8px 8px 0 #000;padding:26px 22px;text-align:center;max-width:340px;width:100%;animation:boom .6s cubic-bezier(.2,1.8,.5,1)}
+#lvup .box b{display:block;font-family:var(--display);font-size:60px;line-height:1}
+#lvup .box .t{font-size:26px;font-weight:900;margin:6px 0 16px;transform:skew(-6deg)}
+
+/* ===== 作戰筆記（錯題重點） ===== */
+.rv{padding:14px 16px;margin-bottom:20px}
+.rv .src{display:inline-block;font-size:12px;font-weight:900;border:2px solid var(--ink);padding:0 8px;margin-bottom:8px}
+.rv-q{font-weight:900;display:flex;gap:10px}
+.num{flex:none;width:28px;height:28px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--display);font-size:18px;transform:skew(-10deg)}
+.rv-a{margin:8px 0 0 38px;font-weight:900}
+.rv-a mark{background:var(--hit);padding:0 4px}
+.pt,.mn{margin-top:12px;padding:10px 12px;border:var(--bd)}
+.pt{background:var(--paper)}
+.pt b,.mn b{font-size:13px;font-weight:900;display:inline-block;transform:skew(-8deg)}
+.mn{background:var(--hit);position:relative}
+.pt p,.mn p{margin:2px 0 0;font-weight:700}
+
+/* ===== 修練（單字卡） ===== */
+.flip{perspective:1200px;cursor:pointer;margin-bottom:18px;user-select:none;-webkit-user-select:none}
 .flip .inner{display:grid;transition:transform .45s;transform-style:preserve-3d}
 .flip.on .inner{transform:rotateY(180deg)}
-.face{
-  grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
-  min-height:320px;padding:24px 20px;display:flex;flex-direction:column;justify-content:center;
-}
-.face.back{transform:rotateY(180deg)}
-.face .hint{position:absolute;top:12px;left:0;right:0;text-align:center;font-size:12px;color:var(--sub)}
-.face.front{position:relative}
-.face .qtext{text-align:center;margin:0}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:var(--bd);border-radius:6px;box-shadow:var(--sh);
+  background:var(--paper);min-height:340px;padding:28px 18px 20px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.face.back{transform:rotateY(180deg);background:#FFFBE0}
+.face .hint{position:absolute;top:8px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;color:var(--sub)}
+.face .qtext{text-align:center}
+.ans{font-size:22px;font-weight:900;text-align:center;margin-bottom:6px}
+.ans mark{background:var(--hit);padding:0 6px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .copts{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:6px;text-align:left}
-.copts li{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:15px;display:flex;gap:8px}
-.copts li b{color:var(--sub);flex:none}
-.back .copts li.ok{border-color:var(--ok);background:var(--ok-soft)}
-.ans{font-size:22px;font-weight:700;color:var(--ok);text-align:center;margin-bottom:6px}
-.nav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.copts li{border:2px solid var(--ink);padding:6px 10px;font-size:15px;font-weight:700;display:flex;gap:8px}
+.copts li b{font-family:var(--display);font-size:17px;flex:none}
+.bar{height:12px;border:var(--bd);background:var(--paper);margin-bottom:16px;transform:skew(-12deg);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c);transition:width .3s}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* 匯入 */
-textarea{width:100%;min-height:200px;margin-top:12px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,monospace}
-.steps{padding-left:20px;color:var(--sub);font-size:15px}
-.err{color:var(--ng);font-size:14px;min-height:1em}
-.sec-h{display:flex;align-items:center;gap:8px;margin:8px 0 4px}
-.sec-h h2{font-size:17px;margin:0;flex:1}
-.gh-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
-.gh-row:last-of-type{border-bottom:0}
-.gh-info{flex:1;min-width:0}
-.gh-info b{font-size:16px;line-height:1.4}
-.btn.sm{min-height:40px;padding:8px 14px;font-size:15px;flex:none}
-.gh-ok{color:var(--ok);font-size:14px;white-space:nowrap;flex:none}
-.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 16px 12px;margin-bottom:22px}
-
-/* 附圖 */
-.qimg{display:block;width:100%;padding:6px;margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:zoom-in;position:relative}
-.qimg img{display:block;width:100%;max-height:46vh;object-fit:contain}
-.qimg::after{content:"🔍 點圖放大";position:absolute;right:8px;bottom:8px;font-size:12px;background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:99px}
-.qimg.broken{cursor:default;background:var(--card)} .qimg.broken img{display:none}
-.qimg.broken::after{content:"圖片載入失敗（題庫需放在 GitHub 上）";position:static;display:block;text-align:center;background:none;color:var(--sub);padding:16px}
+/* ===== 附圖 ===== */
+.qimg{display:block;width:100%;padding:6px;margin:0 0 14px;border:var(--bd);background:#fff;cursor:zoom-in;position:relative}
+.qimg img{display:block;width:100%;max-height:44vh;object-fit:contain}
+.qimg::after{content:"🔍 點圖放大";position:absolute;right:6px;bottom:6px;font-size:12px;font-weight:900;background:var(--ink);color:#fff;padding:2px 8px}
+.qimg.broken{cursor:default} .qimg.broken img{display:none}
+.qimg.broken::after{content:"圖片載入失敗（題庫要放在 GitHub 上）";position:static;display:block;text-align:center;background:none;color:var(--sub);padding:14px}
 .rv .qimg{margin:10px 0 0}
-#zoom{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:30;overflow:auto;-webkit-overflow-scrolling:touch}
+#zoom{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:40;overflow:auto}
 #zoom.show{display:block}
 #zoom img{display:block;width:100%;min-height:100%;object-fit:contain;background:#fff}
-#zoom .x{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:22px}
+#zoom .x{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:#000;color:#fff;font-size:20px}
 
-/* 浮層 */
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:15px;opacity:0;transition:.25s;pointer-events:none;max-width:90vw;z-index:20}
+/* ===== 匯入 ===== */
+textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--bd);background:var(--paper);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,monospace}
+.steps{padding-left:22px;font-size:15px;font-weight:700}
+.err{color:var(--hurt);font-size:14px;font-weight:700;min-height:1em}
+.sec-h{display:flex;align-items:center;gap:8px;margin:6px 0 8px}
+.sec-h h2{font-size:19px;margin:0;flex:1;font-weight:900;transform:skew(-6deg)}
+.box{padding:4px 14px 12px;margin-bottom:24px}
+.gh-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:2px dashed var(--ink)}
+.gh-row:last-of-type{border-bottom:0}
+.gh-info{flex:1;min-width:0}
+.gh-info b{font-size:16px;line-height:1.4;font-weight:900}
+.gh-ok{font-size:14px;font-weight:900;white-space:nowrap;flex:none}
+
+/* ===== 浮層 ===== */
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;border:3px solid #fff;outline:3px solid var(--ink);padding:8px 16px;font-size:15px;font-weight:900;
+  opacity:0;transition:.25s;pointer-events:none;max-width:90vw;z-index:50;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#sheet{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:10}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:35}
 #sheet.show{display:flex}
-#sheet .box{background:var(--bg);width:100%;max-width:720px;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:grid;gap:10px}
-#sheet .box h3{margin:0 0 4px;font-size:16px;text-align:center}
+#sheet .box2{background:var(--paper);width:100%;max-width:720px;border-top:var(--bd);padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:grid;gap:12px}
+#sheet .box2 h3{margin:0 0 2px;font-size:16px;text-align:center;font-weight:900}
+
+@keyframes boom{0%{transform:scale(.2) rotate(-14deg)}100%{transform:scale(1) rotate(-4deg)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(25deg)}}
+@keyframes pop{0%{transform:rotate(-8deg) scale(1.5)}100%{transform:rotate(-8deg) scale(1)}}
+@keyframes flash{0%{opacity:.55}100%{opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@keyframes stamp{0%{transform:rotate(-12deg) scale(2.4);opacity:0}100%{transform:rotate(-12deg) scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
+<div id="fx"><div class="lines"></div><div class="burst"><b></b><span></span></div></div>
+<div id="flash"></div>
+<div id="lvup"><div class="box"><b>LEVEL UP!</b><div class="t"></div><button class="btn wide" data-close>繼續</button></div></div>
 <div id="toast"></div>
 <div id="zoom"><button class="x" aria-label="關閉">✕</button><img alt="放大圖"></div>
-<div id="sheet"><div class="box" id="sheetBox"></div></div>
+<div id="sheet"><div class="box2" id="sheetBox"></div></div>
 
 <script>
 (() => {
@@ -216,6 +310,33 @@ const SAMPLE = {
   ]
 };
 
+/* ===== 科目：顏色、BOSS ===== */
+const SUBJECTS = {
+  '國文': { c: '#E8382F', ink: '#fff', boss: '文言魔王' },
+  '英文': { c: '#1F5BD8', ink: '#fff', boss: '單字巨人' },
+  '歷史': { c: '#E5A100', ink: '#000', boss: '時光之龍' },
+  '地理': { c: '#0E9F6E', ink: '#fff', boss: '大地霸主' },
+  '公民': { c: '#8B3FD9', ink: '#fff', boss: '法典判官' },
+  '生物': { c: '#6CBF1F', ink: '#000', boss: '細胞魔獸' },
+  '化學': { c: '#F06A0F', ink: '#fff', boss: '元素術士' },
+  '物理': { c: '#00B4D8', ink: '#000', boss: '力場機甲' },
+  '地科': { c: '#4B3FD1', ink: '#fff', boss: '星核巨獸' }
+};
+const DEFAULT_SUB = { c: '#3A3A3A', ink: '#fff', boss: '知識魔像' };
+const subOf = s => SUBJECTS[(s || '').trim()] || DEFAULT_SUB;
+const subVars = s => { const x = subOf(s); return `--c:${x.c};--c-ink:${x.ink}`; };
+function setTheme(s) { const x = subOf(s); document.documentElement.style.setProperty('--c', x.c); document.documentElement.style.setProperty('--c-ink', x.ink); }
+
+/* ===== 等級 ===== */
+const TITLES = [[1, '見習生'], [3, '修練者'], [5, '戰士'], [8, '勇者'], [12, '英雄'], [16, '傳說'], [20, '神話']];
+const needExp = lv => 100 + (lv - 1) * 50;
+function levelOf(exp) {
+  let lv = 1, rest = exp;
+  while (rest >= needExp(lv)) { rest -= needExp(lv); lv++; }
+  return { lv, cur: rest, need: needExp(lv) };
+}
+const titleOf = lv => TITLES.filter(t => lv >= t[0]).pop()[1];
+
 /* ===== 工具 ===== */
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -228,7 +349,7 @@ let toastTimer;
 function toast(t) {
   const el = document.getElementById('toast');
   el.textContent = t; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 function sheet(title, buttons) {
   const box = document.getElementById('sheetBox');
@@ -251,6 +372,28 @@ async function copyText(t) {
     ta.remove();
   }
 }
+const vibrate = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+
+/* ===== 音效（Web Audio 合成，不用音檔） ===== */
+let actx = null;
+function tone(freq, dur, type = 'square', when = 0, vol = .08) {
+  if (!db.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const t = actx.currentTime + when, o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur + .02);
+  } catch (e) {}
+}
+const SFX = {
+  hit: combo => { const b = 520 + Math.min(combo, 10) * 40; tone(b, .09); tone(b * 1.5, .16, 'square', .07); },
+  hurt: () => { tone(180, .25, 'sawtooth', 0, .1); tone(110, .3, 'sawtooth', .1, .1); },
+  win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'square', i * .11)),
+  lose: () => [392, 330, 262].forEach((f, i) => tone(f, .3, 'triangle', i * .2, .12)),
+  lvup: () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, .14, 'square', i * .08))
+};
 
 /* ===== 題庫格式檢查 ===== */
 // 題目 id 沒指定時，用題目文字算出來；重新出題、順序改變，錯題紀錄都還對得上
@@ -293,7 +436,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -335,6 +478,12 @@ function addBank(b) {
   save();
   return existed;
 }
+// 加經驗值，回傳是否升級
+function gainExp(n) {
+  const before = levelOf(db.exp).lv;
+  db.exp += n; save();
+  return levelOf(db.exp).lv > before;
+}
 
 /* ===== 題目清單（可跨題庫）：ref = { b: 題庫id, q: 題目id } ===== */
 function refsOf(bid, which) {
@@ -346,71 +495,89 @@ const allWrongRefs = () => db.order.flatMap(id => refsOf(id, 'wrong'));
 function resolve(refs) {
   return refs.map(r => {
     const b = db.banks[r.b], q = b && b.questions.find(x => x.id === r.q);
-    return q ? { bid: r.b, bt: b.title, q } : null;
+    return q ? { bid: r.b, bt: b.title, sub: b.subject, q } : null;
   }).filter(Boolean);
 }
 const toRefs = items => items.map(it => ({ b: it.bid, q: it.q.id }));
 const isMulti = items => new Set(items.map(it => it.bid)).size > 1;
+const srcTag = it => `<span class="src" style="${subVars(it.sub)}">${esc(it.bt)}</span>`;
 const imgTag = q => q.image
   ? `<button class="qimg" data-act="zoom" data-src="${esc(q.image)}"><img src="${esc(q.image)}" alt="題目附圖" loading="lazy" onerror="this.parentNode.classList.add('broken')"></button>`
   : '';
-// 題目本身要搭配選項才看得懂（下列何者…、配對、哪一張圖）時，單字卡也顯示選項
+// 題目本身要搭配選項才看得懂（下列何者…、配對、哪一張圖）時，修練卡也顯示選項
 const needOpts = q => /下列|何者|配對|哪一張/.test(q.q) || (q.lock && q.options.some(o => o.length > 2));
 const optList = (q, order) => `<ul class="copts">${order.map((oi, k) =>
   `<li><b>${LETTER[k]}</b><span>${fmt(q.options[oi])}</span></li>`).join('')}</ul>`;
-const srcTag = it => `<span class="src">${esc(it.bt)}</span>`;
 
-/* ===== 首頁 ===== */
+/* ===== 基地（首頁） ===== */
 function home() {
-  S = null; C = null; window.scrollTo(0, 0);
+  S = null; C = null; window.scrollTo(0, 0); setTheme('');
+  hideCombo();
   const list = db.order.filter(id => db.banks[id]);
-  let h = `<header class="top"><h1>背書小幫手</h1><button class="btn primary" data-act="importView">＋ 匯入</button></header>`;
+  const L = levelOf(db.exp);
+  let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
+      <button class="icon" data-act="toggleSound" aria-label="音效開關">${db.sound ? '🔊' : '🔇'}</button></div>
+    <section class="panel me">
+      <div class="lv"><small>LV</small>${L.lv}</div>
+      <div class="info">
+        <div class="ttl">${titleOf(L.lv)}</div>
+        <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
+        <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
+      </div>
+    </section>`;
   if (!list.length) {
     h += `<div class="empty">
-      <p style="font-size:18px;font-weight:600">還沒有題庫</p>
-      <p class="sub">把課本照片和「出題指令」一起丟給 AI，<br>再把它回的 JSON 匯入這裡。</p>
-      <div class="grid"><button class="btn primary" data-act="importView">匯入題庫</button><button class="btn" data-act="loadSample">先玩示範題庫</button></div>
+      <p class="big">還沒有 BOSS 可以打！</p>
+      <p class="sub">先匯入題庫，或用示範題庫試打一場。</p>
+      <div class="grid"><button class="btn go" data-act="importView">匯入題庫</button><button class="btn" data-act="loadSample">玩示範題庫</button></div>
     </div>`;
   }
   const allW = allWrongRefs();
   if (allW.length) {
     const nb = new Set(allW.map(r => r.b)).size;
-    h += `<section class="bank all">
-      <span class="tag">全部錯題</span>
-      <h2>${allW.length} 題沒記住</h2>
-      <div class="meta">來自 ${nb} 個題庫，答對就會自動移除</div>
-      <div class="grid three">
-        <button class="btn primary" data-act="allQuiz">重考</button>
-        <button class="btn" data-act="allReview">重點</button>
-        <button class="btn" data-act="allCards">翻卡</button>
+    h += `<section class="panel bank revenge">
+      <div class="band"><b>復仇</b></div>
+      <div class="body">
+        <span class="tag"><span>復仇戰</span></span>
+        <h2>錯題怨靈　HP ${allW.length}</h2>
+        <div class="meta">來自 ${nb} 個題庫的錯題，答對就會消滅</div>
+        <div class="grid three">
+          <button class="btn go" data-act="allQuiz">開戰</button>
+          <button class="btn" data-act="allReview">筆記</button>
+          <button class="btn" data-act="allCards">修練</button>
+        </div>
       </div>
     </section>`;
   }
   for (const id of list) {
-    const b = db.banks[id], w = (db.wrong[id] || []).length, l = db.last[id], eid = esc(id);
-    h += `<section class="bank">
-      <div class="bank-head"><div>
-        ${b.subject ? `<span class="tag">${esc(b.subject)}</span>` : ''}
+    const b = db.banks[id], w = (db.wrong[id] || []).length, best = db.best[id], eid = esc(id), x = subOf(b.subject);
+    h += `<section class="panel bank" style="${subVars(b.subject)}">
+      <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
+      <button class="icon more" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button>
+      ${best ? `<div class="rankmark" aria-label="最佳評級">${esc(best)}</div>` : ''}
+      <div class="body">
+        <div class="boss">BOSS：${x.boss}</div>
         <h2>${esc(b.title)}</h2>
-        <div class="meta">${b.questions.length} 題 · 錯題 <b class="${w ? 'ng' : ''}">${w}</b>${l ? ` · 上次 ${l.score}/${l.total}` : ''}</div>
-      </div><button class="icon" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button></div>
-      <div class="grid">
-        <button class="btn primary" data-act="quiz" data-id="${eid}" data-mode="all">開始測驗</button>
-        <button class="btn" data-act="quiz" data-id="${eid}" data-mode="wrong" ${w ? '' : 'disabled'}>錯題重考</button>
-        <button class="btn" data-act="cards" data-id="${eid}">單字卡</button>
-        <button class="btn" data-act="review" data-id="${eid}" ${w ? '' : 'disabled'}>錯題重點</button>
+        <div class="meta">HP ${b.questions.length}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>${best ? '' : '　尚未擊敗'}</div>
+        <div class="grid">
+          <button class="btn go span2" data-act="quiz" data-id="${eid}" data-mode="all">挑戰 BOSS</button>
+          <button class="btn" data-act="quiz" data-id="${eid}" data-mode="wrong" ${w ? '' : 'disabled'}>錯題再戰</button>
+          <button class="btn" data-act="cards" data-id="${eid}">修練卡</button>
+          <button class="btn span2" data-act="review" data-id="${eid}" ${w ? '' : 'disabled'}>作戰筆記（錯題重點）</button>
+        </div>
       </div>
     </section>`;
   }
+  if (list.length) h += `<button class="btn wide hot" data-act="importView">＋ 匯入新題庫</button>`;
   app.innerHTML = h;
 }
 
 /* ===== 匯入 ===== */
 function importView() {
-  window.scrollTo(0, 0);
+  window.scrollTo(0, 0); setTheme('');
   app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>匯入題庫</h1></header>
     <div class="sec-h"><h2>線上題庫</h2><button class="icon" data-act="ghRefresh" aria-label="重新整理">↻</button></div>
-    <div class="box" id="gh"><p class="sub">讀取中…</p></div>
+    <div class="panel box" id="gh"><p class="sub">讀取中…</p></div>
     <div class="sec-h"><h2>自己貼上 JSON</h2></div>
     <ol class="steps">
       <li>按下面按鈕複製出題指令，連同課本照片一起傳給 AI</li>
@@ -420,7 +587,7 @@ function importView() {
     <textarea id="raw" placeholder='{"title":"…","questions":[…]}' spellcheck="false"></textarea>
     <p id="err" class="err"></p>
     <div class="grid">
-      <button class="btn primary" data-act="doImport">匯入</button>
+      <button class="btn go" data-act="doImport">匯入</button>
       <label class="btn">選擇 JSON 檔<input type="file" id="file" accept=".json,application/json,text/plain" hidden></label>
     </div>
     <p class="sub" style="margin-top:16px">id 不同會新增一個題庫；同一個 id 再匯入會更新題目，題目文字沒變的錯題紀錄會保留。</p>`;
@@ -431,6 +598,18 @@ function importView() {
     r.readAsText(f);
   };
   ghLoad(false);
+}
+function doImport() {
+  const raw = document.getElementById('raw').value;
+  const err = document.getElementById('err');
+  if (!raw.trim()) { err.textContent = '請先貼上 JSON'; return; }
+  try {
+    const b = normalize(raw);
+    const existed = addBank(b);
+    home(); toast((existed ? '已更新：' : '已匯入：') + b.title);
+  } catch (e) {
+    err.textContent = '格式有問題：' + (e instanceof SyntaxError ? 'JSON 不完整或有多餘文字' : e.message);
+  }
 }
 
 /* ===== 從 GitHub 匯入：讀 banks/index.json（由 GitHub Actions 自動產生） ===== */
@@ -462,7 +641,7 @@ async function ghLoad(force) {
         return { name: f.file, err: e instanceof SyntaxError ? 'JSON 格式錯誤' : (e.message || '讀取失敗') };
       }
     }));
-    const key = x => x.bank ? (x.bank.subject + '\u0000' + x.bank.title) : '\uffff' + x.name;
+    const key = x => x.bank ? (x.bank.subject + '\u0000' + x.bank.title) : '￿' + x.name;
     ghCache.sort((a, b) => key(a).localeCompare(key(b), 'zh-Hant'));
     renderGh();
   } catch (e) {
@@ -480,58 +659,78 @@ function renderGh() {
     if (x.err) return `<div class="gh-row"><div class="gh-info"><b>${esc(x.name)}</b><div class="err">${esc(x.err)}</div></div></div>`;
     const b = x.bank, st = ghStatus(b);
     const btn = st === 'same' ? '<span class="gh-ok">✔ 已匯入</span>'
-      : `<button class="btn sm ${st === 'new' ? 'primary' : ''}" data-act="ghImport" data-n="${i}">${st === 'new' ? '匯入' : '更新'}</button>`;
-    return `<div class="gh-row"><div class="gh-info">
-        ${b.subject ? `<span class="tag">${esc(b.subject)}</span>` : ''}
+      : `<button class="btn sm ${st === 'new' ? 'go' : 'hot'}" data-act="ghImport" data-n="${i}">${st === 'new' ? '匯入' : '更新'}</button>`;
+    return `<div class="gh-row" style="${subVars(b.subject)}"><div class="gh-info">
+        ${b.subject ? `<span class="tag"><span>${esc(b.subject)}</span></span>` : ''}
         <div><b>${esc(b.title)}</b></div>
-        <div class="sub">${b.questions.length} 題${st === 'update' ? ' · GitHub 上有新版本' : ''}</div>
+        <div class="sub">${b.questions.length} 題${st === 'update' ? '　GitHub 上有新版本' : ''}</div>
       </div>${btn}</div>`;
-  }).join('') + (pend > 1 ? `<button class="btn primary wide" data-act="ghImportAll" style="margin-top:12px">全部匯入／更新（${pend} 份）</button>` : '');
-}
-function doImport() {
-  const raw = document.getElementById('raw').value;
-  const err = document.getElementById('err');
-  if (!raw.trim()) { err.textContent = '請先貼上 JSON'; return; }
-  try {
-    const b = normalize(raw);
-    const existed = addBank(b);
-    home(); toast((existed ? '已更新：' : '已匯入：') + b.title);
-  } catch (e) {
-    err.textContent = '格式有問題：' + (e instanceof SyntaxError ? 'JSON 不完整或有多餘文字' : e.message);
-  }
+  }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">全部匯入／更新（${pend} 份）</button>` : '');
 }
 
-/* ===== 測驗 ===== */
+/* ===== 戰鬥（測驗） ===== */
 let S = null, C = null;
 const SET = { last: null, all: null, rev: null };
-const OK_MSG = ['答對了！', '漂亮！', '沒錯！', '穩！'];
-// recordBid：整份題庫考完才記「上次成績」
-function startQuiz(refs, title, recordBid) {
+const HIT_WORDS = [['HIT!', '會心一擊！'], ['NICE!', '漂亮命中！'], ['BOOM!', '直擊要害！'], ['YES!', '答對了！']];
+const COMBO_WORDS = [[3, 'COMBO!', '連擊發動！'], [5, 'RUSH!', '勢不可擋！'], [8, 'MAX!', '無雙狀態！'], [12, 'GOD!', '已經沒人擋得住你！']];
+const HURT_WORDS = [['OUCH!', '被擊中了！'], ['MISS!', '攻擊落空！'], ['ARGH!', '受到傷害！']];
+
+// opt: { title, boss, sub, recordBid }
+function startQuiz(refs, opt) {
   const items = resolve(refs);
-  if (!items.length) { toast('沒有可以考的題目'); return; }
+  if (!items.length) { toast('沒有可以挑戰的題目'); return; }
+  const n = items.length, maxHp = Math.min(8, Math.max(3, Math.ceil(n * .3)));
   S = {
-    title, recordBid: recordBid || null, multi: isMulti(items),
-    i: 0, correct: 0, wrong: [], answered: false,
+    title: opt.title, boss: opt.boss, sub: opt.sub, recordBid: opt.recordBid || null, multi: isMulti(items),
+    i: 0, correct: 0, wrong: [], answered: false, combo: 0, maxCombo: 0, exp: 0,
+    n, bossHp: n, hp: maxHp, maxHp,
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
   SET.all = toRefs(S.items);
+  setTheme(opt.sub);
   renderQ();
 }
+function hudHtml() {
+  const bp = S.bossHp / S.n * 100;
+  const hearts = Array.from({ length: S.maxHp }, (_, i) => `<span class="${i < S.hp ? '' : 'lost'}">♥</span>`).join('');
+  return `<div class="panel hud" id="hud">
+      <div class="row"><span class="who">BOSS</span><div class="hpbar ${bp <= 25 ? 'low' : ''}"><i style="width:${bp}%"></i></div><span class="num">${S.bossHp}/${S.n}</span></div>
+      <div class="row"><span class="who">YOU</span><div class="hearts" aria-label="剩餘生命 ${S.hp}">${hearts}</div><span class="num">${S.i + 1}/${S.n}</span></div>
+    </div>`;
+}
 function renderQ() {
-  const it = S.items[S.i], n = S.items.length;
+  const it = S.items[S.i];
   S.answered = false;
-  app.innerHTML = `<header class="top"><button class="icon" data-act="quitQuiz" aria-label="離開">✕</button>
-      <h1 class="small">${esc(S.title)}</h1><span class="sub">${S.i + 1} / ${n}</span></header>
-    <div class="bar"><i style="width:${S.i / n * 100}%"></i></div>
-    ${S.multi ? srcTag(it) : ''}
-    ${imgTag(it.q)}
-    <div class="qtext">${fmt(it.q.q)}</div>
+  app.innerHTML = `<header class="top"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button>
+      <h1>${esc(S.boss)}｜${esc(S.title)}</h1></header>
+    ${hudHtml()}
+    <div class="panel qcard">
+      ${S.multi ? srcTag(it) : ''}
+      ${imgTag(it.q)}
+      <div class="qtext">${fmt(it.q.q)}</div>
+    </div>
     <div class="opts">${it.order.map((oi, k) =>
       `<button class="opt" data-act="pick" data-k="${k}"><span class="lt">${LETTER[k]}</span><span>${fmt(it.q.options[oi])}</span></button>`).join('')}
     </div>
     <div id="fb"></div>`;
   window.scrollTo(0, 0);
 }
+function showFx(big, small, good) {
+  const fx = document.getElementById('fx');
+  fx.style.setProperty('--fxc', good ? getComputedStyle(document.documentElement).getPropertyValue('--c') : '#000');
+  fx.style.setProperty('--fxbg', good ? '#FFD400' : '#FF2E2E');
+  fx.style.setProperty('--fxt', good ? '#fff' : '#FFD400');
+  fx.querySelector('b').textContent = big; fx.querySelector('span').textContent = small;
+  fx.classList.remove('show'); void fx.offsetWidth; fx.classList.add('show');
+  clearTimeout(showFx.t); showFx.t = setTimeout(() => fx.classList.remove('show'), 750);
+}
+function showCombo(n) {
+  const el = document.getElementById('combo');
+  if (n < 2) { el.classList.remove('on'); return; }
+  el.querySelector('b').textContent = n;
+  el.classList.add('on'); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+const hideCombo = () => document.getElementById('combo').classList.remove('on');
 function pick(k) {
   if (!S || S.answered) return;
   S.answered = true;
@@ -539,79 +738,124 @@ function pick(k) {
   const right = it.order.indexOf(it.q.answer);
   app.querySelectorAll('.opt').forEach((bt, j) => {
     bt.disabled = true;
-    if (j === right) bt.classList.add('ok'); else if (j === k) bt.classList.add('ng');
+    if (j === right) bt.classList.add('ok'); else if (j === k) bt.classList.add('ng'); else bt.classList.add('dim');
   });
-  if (ok) S.correct++; else S.wrong.push({ b: it.bid, q: it.q.id });
   markWrong(it.bid, it.q.id, !ok);
-  const last = S.i === S.items.length - 1;
+  let say;
+  if (ok) {
+    S.correct++; S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo); S.bossHp--;
+    S.exp += 10 + Math.min(S.combo, 10) * 2;
+    const cw = COMBO_WORDS.filter(c => S.combo >= c[0]).pop();
+    const w = cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
+    say = w[1]; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(30);
+  } else {
+    S.wrong.push({ b: it.bid, q: it.q.id }); S.combo = 0; S.hp--;
+    const w = pickOne(HURT_WORDS);
+    say = w[1] + (S.hp > 0 ? `　正解是 ${LETTER[right]}` : '　你倒下了…');
+    showFx(w[0], w[1], false); SFX.hurt(); vibrate([60, 40, 60]);
+    const fl = document.getElementById('flash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
+    app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
+  }
+  showCombo(S.combo);
+  const hud = document.getElementById('hud'); if (hud) hud.outerHTML = hudHtml();
+  const done = S.hp <= 0 || S.i === S.items.length - 1;
   const fb = document.getElementById('fb');
-  fb.innerHTML = `<div class="fb ${ok ? 'ok' : 'ng'}">
-      <b>${ok ? pickOne(OK_MSG) : `答錯了，正解是 ${LETTER[right]}`}</b>
+  fb.innerHTML = `<div class="panel fb ${ok ? 'ok' : 'ng'}">
+      <div class="say">${esc(say)}</div>
       ${it.q.explain ? `<p>${fmt(it.q.explain)}</p>` : ''}
     </div>
-    <button class="btn primary wide" data-act="next">${last ? '看結果' : '下一題'}</button>`;
-  fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    <button class="btn go wide" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
+  setTimeout(() => fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
 }
 function next() {
   if (!S) return;
-  if (S.i < S.items.length - 1) { S.i++; renderQ(); } else result();
+  if (S.hp > 0 && S.i < S.items.length - 1) { S.i++; renderQ(); } else result();
 }
+const RANK_ORDER = ['C', 'B', 'A', 'S'];
 function result() {
-  const n = S.items.length;
-  if (S.recordBid) { db.last[S.recordBid] = { score: S.correct, total: n, at: Date.now() }; save(); }
-  const pct = Math.round(S.correct / n * 100);
-  const msg = pct === 100 ? '全對！這部分沒問題了' : pct >= 80 ? '很穩，把錯的補起來就好'
-    : pct >= 60 ? '及格了，錯題記起來分數就上去' : '先看錯題重點，等等再考一次';
-  SET.last = { title: S.title, refs: S.wrong.slice() };
-  const wn = S.wrong.length;
-  app.innerHTML = `<header class="top"><h1>測驗結果</h1></header>
-    <div class="score"><div class="big">${S.correct}<small> / ${n}</small></div><p class="sub">${msg}</p></div>
-    ${wn ? `<div class="grid">
-        <button class="btn primary" data-act="reviewLast" style="grid-column:1/-1">看錯題重點＋口訣（${wn} 題）</button>
-        <button class="btn" data-act="cardsLast">錯題翻卡</button>
-        <button class="btn" data-act="quizLast">錯題再考一次</button>
-        <button class="btn" data-act="home" style="grid-column:1/-1">回首頁</button>
-      </div>` : `<div class="grid">
-        <button class="btn primary" data-act="cardsAllLast">翻卡複習</button>
-        <button class="btn" data-act="home">回首頁</button>
-      </div>`}`;
+  hideCombo();
+  const n = S.n, win = S.hp > 0, pct = S.correct / n;
+  const rank = !win ? null : pct >= 1 ? 'S' : pct >= .85 ? 'A' : pct >= .7 ? 'B' : 'C';
+  const LINES = {
+    S: '完美擊破！這一課已經被你征服了！', A: '超強！只差一點就完美了！',
+    B: '打贏了！把錯題補起來，下次拿 S！', C: '險勝！先看作戰筆記，再挑戰一次！'
+  };
+  let exp = S.exp;
+  if (win) { exp += 30 + (rank === 'S' ? 30 : 0); db.kills++; }
+  if (win && S.recordBid) {
+    const old = db.best[S.recordBid];
+    if (!old || RANK_ORDER.indexOf(rank) > RANK_ORDER.indexOf(old)) db.best[S.recordBid] = rank;
+    db.last[S.recordBid] = { score: S.correct, total: n, at: Date.now() };
+  }
+  const up = gainExp(exp);
+  SET.last = { title: S.title, boss: S.boss, sub: S.sub, refs: S.wrong.slice() };
+  const answered = S.i + 1, wn = S.wrong.length;
+  app.innerHTML = `<header class="top"><h1>${esc(S.boss)}｜戰果</h1></header>
+    <section class="panel result">
+      <div class="lines"></div>
+      <div class="stamp ${win ? '' : 'lose'}"><b>${win ? rank : '敗北'}</b></div>
+      <div class="line">${win ? LINES[rank] : '別放棄！看完作戰筆記，再來討回這一戰！'}</div>
+      <div class="stats">
+        <div><b>${S.correct}/${answered}</b><small>答對</small></div>
+        <div><b>${S.maxCombo}</b><small>最大連擊</small></div>
+        <div><b>+${exp}</b><small>EXP</small></div>
+      </div>
+    </section>
+    <div class="grid">
+      ${wn ? `<button class="btn go span2" data-act="reviewLast">看作戰筆記（${wn} 題錯題）</button>
+        <button class="btn" data-act="cardsLast">錯題修練卡</button>
+        <button class="btn" data-act="quizLast">錯題再戰</button>` : ''}
+      ${!win ? `<button class="btn ${wn ? '' : 'go'} span2" data-act="retry">重新挑戰</button>` : ''}
+      ${win && !wn ? `<button class="btn go" data-act="cardsAllLast">修練卡複習</button>` : ''}
+      <button class="btn ${win && !wn ? '' : 'span2'}" data-act="home">回基地</button>
+    </div>`;
+  SET.retry = { refs: SET.all, title: S.title, boss: S.boss, sub: S.sub, recordBid: S.recordBid };
   S = null;
   window.scrollTo(0, 0);
+  setTimeout(() => { win ? SFX.win() : SFX.lose(); }, 200);
+  if (up) setTimeout(showLevelUp, 1100);
+}
+function showLevelUp() {
+  const L = levelOf(db.exp), box = document.getElementById('lvup');
+  box.querySelector('.t').textContent = `Lv.${L.lv}　${titleOf(L.lv)}`;
+  box.classList.add('show'); SFX.lvup(); vibrate([40, 30, 40, 30, 80]);
 }
 
-/* ===== 錯題重點 ===== */
+/* ===== 作戰筆記（錯題重點） ===== */
 function review(refs, title) {
   const items = resolve(refs), multi = isMulti(items);
-  SET.rev = { title, refs: toRefs(items) };
-  let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1 class="small">${esc(title)}</h1></header>`;
-  if (!items.length) h += `<div class="empty"><p style="font-size:18px;font-weight:600">沒有錯題 🎉</p></div>`;
+  SET.rev = { title, refs: toRefs(items), sub: multi ? '' : (items[0] || {}).sub };
+  setTheme(SET.rev.sub);
+  let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>作戰筆記｜${esc(title)}</h1></header>`;
+  if (!items.length) h += `<div class="empty"><p class="big">沒有錯題，全部擊破！</p></div>`;
   items.forEach((it, i) => {
     const q = it.q;
-    h += `<article class="rv">
+    h += `<article class="panel rv">
       ${multi ? srcTag(it) : ''}
       <div class="rv-q"><span class="num">${i + 1}</span><span>${fmt(q.q)}</span></div>
       ${imgTag(q)}
-      <div class="rv-a">✔ ${fmt(q.options[q.answer])}</div>
+      <div class="rv-a">✔ <mark>${fmt(q.options[q.answer])}</mark></div>
       ${q.point ? `<div class="pt"><b>重點</b><p>${fmt(q.point)}</p></div>` : ''}
-      ${q.mnemonic ? `<div class="mn"><b>💡 口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
+      ${q.mnemonic ? `<div class="mn"><b>💡 必殺口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
     </article>`;
   });
-  if (items.length) h += `<div class="grid"><button class="btn" data-act="cardsReview">翻卡複習這些</button><button class="btn primary" data-act="quizReview">再考一次</button></div>`;
+  if (items.length) h += `<div class="grid"><button class="btn" data-act="cardsReview">修練這些</button><button class="btn go" data-act="quizReview">馬上再戰</button></div>`;
   app.innerHTML = h;
   window.scrollTo(0, 0);
 }
 
-/* ===== 單字卡 ===== */
+/* ===== 修練（單字卡） ===== */
 function cards(refs) {
   const items = resolve(refs);
   if (!items.length) { toast('沒有卡片'); return; }
   C = { items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) })), multi: isMulti(items), i: 0 };
+  setTheme(isMulti(items) ? '' : items[0].sub);
   renderCard();
 }
 function renderCard() {
   const it = C.items[C.i], q = it.q, n = C.items.length;
   app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="離開">✕</button>
-      <h1 class="small">單字卡</h1><span class="sub">${C.i + 1} / ${n}</span></header>
+      <h1>修練中　${C.i + 1} / ${n}</h1></header>
     <div class="bar"><i style="width:${(C.i + 1) / n * 100}%"></i></div>
     <div class="flip" id="card" data-act="flip"><div class="inner">
       <div class="face front"><div class="hint">點一下翻面，左右滑換張</div>
@@ -620,14 +864,14 @@ function renderCard() {
         <div class="qtext">${fmt(q.q)}</div>
         ${needOpts(q) ? optList(q, it.order) : ''}</div>
       <div class="face back">
-        <div class="ans">${needOpts(q) ? LETTER[it.order.indexOf(q.answer)] + '　' : ''}${fmt(q.options[q.answer])}</div>
+        <div class="ans"><mark>${needOpts(q) ? LETTER[it.order.indexOf(q.answer)] + '　' : ''}${fmt(q.options[q.answer])}</mark></div>
         ${q.point ? `<div class="pt"><b>重點</b><p>${fmt(q.point)}</p></div>` : ''}
-        ${q.mnemonic ? `<div class="mn"><b>💡 口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
+        ${q.mnemonic ? `<div class="mn"><b>💡 必殺口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
       </div>
     </div></div>
     <div class="nav">
       <button class="btn" data-act="cprev" ${C.i ? '' : 'disabled'}>‹ 上一張</button>
-      <button class="btn primary" data-act="cnext">${C.i === n - 1 ? '完成' : '下一張 ›'}</button>
+      <button class="btn go" data-act="cnext">${C.i === n - 1 ? '修練完成' : '下一張 ›'}</button>
     </div>`;
   const card = document.getElementById('card');
   let x0 = null, y0 = null;
@@ -642,34 +886,49 @@ function renderCard() {
     }
   });
 }
-function cnext() { if (!C) return; if (C.i < C.items.length - 1) { C.i++; renderCard(); } else { toast('複習完了！'); home(); } }
+function cnext() {
+  if (!C) return;
+  if (C.i < C.items.length - 1) { C.i++; renderCard(); return; }
+  const n = C.items.length, gain = Math.min(30, 5 + n * 2), up = gainExp(gain);
+  home(); toast(`修練完成！EXP +${gain}`);
+  if (up) setTimeout(showLevelUp, 400);
+}
 function cprev() { if (C && C.i > 0) { C.i--; renderCard(); } }
 
 /* ===== 事件 ===== */
-const bankTitle = id => (db.banks[id] || {}).title || '';
+const bankOf = id => db.banks[id] || {};
+const quizOpt = (id, extra) => { const b = bankOf(id); return { title: b.title + (extra || ''), boss: subOf(b.subject).boss, sub: b.subject }; };
+const REVENGE = { title: '全部錯題', boss: '錯題怨靈', sub: '' };
 const ACT = {
   home, importView, doImport,
   copyPrompt: () => copyText(PROMPT),
   loadSample: () => { addBank(normalize(SAMPLE)); home(); toast('已加入示範題庫'); },
+  toggleSound: () => { db.sound = !db.sound; save(); home(); if (db.sound) SFX.hit(1); },
   quiz: d => d.mode === 'wrong'
-    ? startQuiz(refsOf(d.id, 'wrong'), bankTitle(d.id) + '・錯題')
-    : startQuiz(refsOf(d.id), bankTitle(d.id), d.id),
+    ? startQuiz(refsOf(d.id, 'wrong'), quizOpt(d.id, '・錯題'))
+    : startQuiz(refsOf(d.id), { ...quizOpt(d.id), recordBid: d.id }),
   cards: d => cards(refsOf(d.id)),
-  review: d => review(refsOf(d.id, 'wrong'), '錯題重點｜' + bankTitle(d.id)),
-  allQuiz: () => startQuiz(allWrongRefs(), '全部錯題'),
-  allReview: () => review(allWrongRefs(), '全部錯題重點'),
+  review: d => review(refsOf(d.id, 'wrong'), bankOf(d.id).title),
+  allQuiz: () => startQuiz(allWrongRefs(), REVENGE),
+  allReview: () => review(allWrongRefs(), '全部錯題'),
   allCards: () => cards(allWrongRefs()),
   pick: d => pick(+d.k),
   next,
-  quitQuiz: () => { if (!S || S.i === 0 || confirm('要離開測驗嗎？已作答的錯題會保留。')) home(); },
-  reviewLast: () => review(SET.last.refs, '錯題重點｜' + SET.last.title),
+  quitQuiz: () => { if (!S || S.i === 0 || confirm('要撤退嗎？已作答的錯題會保留。')) { S = null; home(); } },
+  reviewLast: () => review(SET.last.refs, SET.last.title),
   cardsLast: () => cards(SET.last.refs),
-  quizLast: () => startQuiz(SET.last.refs, SET.last.title.replace(/・錯題$/, '') + '・錯題'),
+  quizLast: () => startQuiz(SET.last.refs, { title: SET.last.title.replace(/・錯題$/, '') + '・錯題', boss: SET.last.boss, sub: SET.last.sub }),
+  retry: () => startQuiz(SET.retry.refs, SET.retry),
   cardsAllLast: () => cards(SET.all),
   cardsReview: () => cards(SET.rev.refs),
-  quizReview: () => startQuiz(SET.rev.refs, SET.rev.title.replace(/^錯題重點｜/, '').replace(/重點$/, '') + (SET.rev.title.startsWith('全部') ? '' : '・錯題')),
+  quizReview: () => startQuiz(SET.rev.refs, SET.rev.title === '全部錯題' ? REVENGE
+    : { title: SET.rev.title + '・錯題', boss: subOf(SET.rev.sub).boss, sub: SET.rev.sub }),
   flip: (d, el) => { if (el.dataset.swiped) { delete el.dataset.swiped; return; } el.classList.toggle('on'); },
   cnext, cprev,
+  zoom: (d, el) => {
+    if (el.classList.contains('broken')) return;
+    const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
+  },
   ghRefresh: () => ghLoad(true),
   ghImport: d => {
     const x = ghCache && ghCache[+d.n]; if (!x || !x.bank) return;
@@ -680,17 +939,14 @@ const ACT = {
     (ghCache || []).forEach(x => { if (x.bank && ghStatus(x.bank) !== 'same') { addBank(x.bank); n++; } });
     renderGh(); toast(`已匯入／更新 ${n} 份題庫`);
   },
-  zoom: (d, el) => {
-    if (el.classList.contains('broken')) return;
-    const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
-  },
   bankMenu: d => {
     const b = db.banks[d.id]; if (!b) return;
     sheet(b.title, [
       { text: '清除錯題紀錄', fn: () => { db.wrong[d.id] = []; delete db.last[d.id]; save(); home(); toast('已清除'); } },
+      { text: '重置最佳評級', fn: () => { delete db.best[d.id]; save(); home(); toast('已重置'); } },
       { text: '刪除這個題庫', cls: 'danger', fn: () => {
         if (!confirm('確定刪除「' + b.title + '」？')) return;
-        delete db.banks[d.id]; delete db.wrong[d.id]; delete db.last[d.id];
+        delete db.banks[d.id]; delete db.wrong[d.id]; delete db.last[d.id]; delete db.best[d.id];
         db.order = db.order.filter(x => x !== d.id); save(); home(); toast('已刪除');
       } }
     ]);
@@ -700,11 +956,8 @@ app.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const fn = ACT[el.dataset.act]; if (fn) fn(el.dataset, el, e);
 });
-
-document.getElementById('zoom').addEventListener('click', e => {
-  if (e.target.tagName !== 'IMG' || e.target.closest('.x')) e.currentTarget.classList.remove('show');
-});
-document.getElementById('zoom').querySelector('.x').addEventListener('click', e => { e.stopPropagation(); document.getElementById('zoom').classList.remove('show'); });
+document.getElementById('zoom').querySelector('.x').addEventListener('click', () => document.getElementById('zoom').classList.remove('show'));
+document.getElementById('lvup').addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target.id === 'lvup') e.currentTarget.classList.remove('show'); });
 
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
