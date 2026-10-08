@@ -90,6 +90,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
   color:var(--c);-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill}
 .bank.revenge{--c:#FF2E2E;--c-ink:#fff}
 .bank.revenge .band{background:repeating-linear-gradient(-45deg,var(--hurt) 0 10px,#000 10px 20px)}
+.bank.revenge .band b{background:#000;color:#fff;padding:8px 3px}
 .empty{text-align:center;padding:40px 8px}
 .empty .big{font-size:24px;font-weight:900;transform:skew(-6deg)}
 
@@ -104,12 +105,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .hearts{flex:1;letter-spacing:2px;font-size:18px;line-height:1}
 .hearts .lost{opacity:.18}
 .hud .num{min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
-.combo{position:fixed;right:14px;top:calc(120px + env(safe-area-inset-top));z-index:15;pointer-events:none;text-align:right;
-  font-family:var(--display);color:var(--hit);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 3px 0 var(--ink);
-  transform:rotate(-8deg);line-height:.9;opacity:0;transition:opacity .2s}
-.combo.on{opacity:1}
-.combo b{display:block;font-size:52px}
-.combo small{font-size:22px}
+.combo{font-family:var(--display);color:var(--hit);-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill;text-shadow:2px 2px 0 var(--ink);
+  font-size:26px;line-height:1;white-space:nowrap;display:inline-block;transform:rotate(-6deg)}
+.combo small{font-size:16px;margin-left:2px}
 .combo.pop{animation:pop .35s}
 
 .qcard{padding:16px;margin-bottom:16px;position:relative}
@@ -132,9 +130,34 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .fb.ok{background:#FFF6BF}
 .fb.ng{background:#FFE1E1}
 
+/* 3D 舞台 */
+.stage{position:relative;height:210px;margin-bottom:14px;overflow:hidden;
+  background:radial-gradient(circle at 50% 58%,rgba(255,255,255,.96) 0 30%,rgba(255,255,255,.55) 72%),var(--c)}
+.stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(0,0,0,.12) 1.2px,transparent 1.5px);background-size:8px 8px;pointer-events:none}
+.stage .cv{position:absolute;inset:0}
+.stage .cv canvas{display:block}
+.stage .name{position:absolute;left:8px;top:8px;z-index:2;font-size:14px;font-weight:900;background:var(--ink);color:#fff;padding:2px 10px;transform:skew(-10deg)}
+.stage .load{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;color:var(--sub);font-size:14px}
+/* 必殺技插畫 */
+#cutin{position:fixed;inset:0;z-index:28;pointer-events:none;display:none;background:rgba(0,0,0,.6)}
+#cutin.show{display:block;animation:fadeio 1.25s forwards}
+#cutin .band{position:absolute;left:-10%;right:-10%;top:32%;padding:18px 0;background:var(--c);border-top:5px solid #000;border-bottom:5px solid #000;
+  transform:rotate(-7deg);text-align:center;animation:slidein .35s cubic-bezier(.2,1.4,.5,1)}
+#cutin .band::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.25) 0 2px,transparent 2px 22px);animation:rush .3s linear infinite}
+#cutin small{position:relative;display:block;font-size:16px;font-weight:900;color:#fff;letter-spacing:.4em}
+#cutin b{position:relative;display:block;font-size:44px;font-weight:900;line-height:1.15;color:#FFD400;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000;transform:skew(-8deg)}
+@keyframes slidein{from{transform:rotate(-7deg) translateX(-110%)}to{transform:rotate(-7deg) translateX(0)}}
+@keyframes rush{from{background-position:0 0}to{background-position:-44px 0}}
+@keyframes fadeio{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
+
 /* 擊中特效 */
-#fx{position:fixed;inset:0;pointer-events:none;z-index:25;display:none;align-items:center;justify-content:center}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:25;display:none;align-items:flex-start;justify-content:center;padding-top:calc(70px + env(safe-area-inset-top))}
 #fx.show{display:flex}
+#fx.mini{justify-content:flex-end;padding-right:18px;padding-top:calc(78px + env(safe-area-inset-top))}
+#fx.mini .lines{display:none}
+#fx.mini .burst{padding:14px 18px}
+#fx.mini .burst b{font-size:30px}
+#fx.mini .burst span{font-size:15px}
 #fx .lines{position:absolute;inset:-20%;
   background:repeating-conic-gradient(from 0deg,var(--fxc) 0 3deg,transparent 3deg 9deg);
   -webkit-mask:radial-gradient(circle,transparent 26%,#000 60%);mask:radial-gradient(circle,transparent 26%,#000 60%);
@@ -248,9 +271,9 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 </head>
 <body>
 <div id="app"></div>
-<div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
 <div id="fx"><div class="lines"></div><div class="burst"><b></b><span></span></div></div>
 <div id="flash"></div>
+<div id="cutin"><div class="band"><small>必殺技</small><b></b></div></div>
 <div id="lvup"><div class="box"><b>LEVEL UP!</b><div class="t"></div><button class="btn wide" data-close>繼續</button></div></div>
 <div id="toast"></div>
 <div id="zoom"><button class="x" aria-label="關閉">✕</button><img alt="放大圖"></div>
@@ -312,17 +335,18 @@ const SAMPLE = {
 
 /* ===== 科目：顏色、BOSS ===== */
 const SUBJECTS = {
-  '國文': { c: '#E8382F', ink: '#fff', boss: '文言魔王' },
-  '英文': { c: '#1F5BD8', ink: '#fff', boss: '單字巨人' },
-  '歷史': { c: '#E5A100', ink: '#000', boss: '時光之龍' },
-  '地理': { c: '#0E9F6E', ink: '#fff', boss: '大地霸主' },
-  '公民': { c: '#8B3FD9', ink: '#fff', boss: '法典判官' },
-  '生物': { c: '#6CBF1F', ink: '#000', boss: '細胞魔獸' },
-  '化學': { c: '#F06A0F', ink: '#fff', boss: '元素術士' },
-  '物理': { c: '#00B4D8', ink: '#000', boss: '力場機甲' },
-  '地科': { c: '#4B3FD1', ink: '#fff', boss: '星核巨獸' }
+  '國文': { c: '#E8382F', ink: '#fff', boss: '三花文言喵', kind: 'calico', ult: '文氣沖天' },
+  '英文': { c: '#1F5BD8', ink: '#fff', boss: '英短紳士喵', kind: 'british', ult: '單字風暴' },
+  '歷史': { c: '#E5A100', ink: '#000', boss: '暹羅將軍喵', kind: 'siamese', ult: '千年時光砲' },
+  '地理': { c: '#0E9F6E', ink: '#fff', boss: '橘貓探險王', kind: 'orange', ult: '大地崩裂斬' },
+  '公民': { c: '#8B3FD9', ink: '#fff', boss: '黑貓大法官', kind: 'black', ult: '正義審判' },
+  '生物': { c: '#6CBF1F', ink: '#000', boss: '銀虎博士喵', kind: 'silver', ult: '細胞分裂爆' },
+  '化學': { c: '#F06A0F', ink: '#fff', boss: '賓士煉金喵', kind: 'tux', ult: '元素連鎖反應' },
+  '物理': { c: '#00B4D8', ink: '#000', boss: '藍貓電磁喵', kind: 'russian', ult: '超導電磁砲' },
+  '地科': { c: '#4B3FD1', ink: '#fff', boss: '波斯星辰喵', kind: 'persian', ult: '隕石天降' },
+  '錯題': { c: '#FF2E2E', ink: '#fff', boss: '幽靈怨念喵', kind: 'ghost', ult: '怨念淨化' }
 };
-const DEFAULT_SUB = { c: '#3A3A3A', ink: '#fff', boss: '知識魔像' };
+const DEFAULT_SUB = { c: '#3A3A3A', ink: '#fff', boss: '米克斯修練喵', kind: 'mix', ult: '知識爆裂拳' };
 const subOf = s => SUBJECTS[(s || '').trim()] || DEFAULT_SUB;
 const subVars = s => { const x = subOf(s); return `--c:${x.c};--c-ink:${x.ink}`; };
 function setTheme(s) { const x = subOf(s); document.documentElement.style.setProperty('--c', x.c); document.documentElement.style.setProperty('--c-ink', x.ink); }
@@ -392,6 +416,17 @@ const SFX = {
   hurt: () => { tone(180, .25, 'sawtooth', 0, .1); tone(110, .3, 'sawtooth', .1, .1); },
   win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'square', i * .11)),
   lose: () => [392, 330, 262].forEach((f, i) => tone(f, .3, 'triangle', i * .2, .12)),
+  ult: () => {
+    if (!db.sound) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(1400, t + .7);
+      g.gain.setValueAtTime(.06, t); g.gain.linearRampToValueAtTime(.1, t + .7); g.gain.exponentialRampToValueAtTime(.0001, t + .8);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + .85);
+    } catch (e) {}
+    tone(90, .6, 'square', .85, .14); tone(60, .7, 'sawtooth', .9, .12); [784, 1047, 1319].forEach((f, i) => tone(f, .12, 'square', 1.1 + i * .07));
+  },
   lvup: () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, .14, 'square', i * .08))
 };
 
@@ -511,8 +546,7 @@ const optList = (q, order) => `<ul class="copts">${order.map((oi, k) =>
 
 /* ===== 基地（首頁） ===== */
 function home() {
-  S = null; C = null; window.scrollTo(0, 0); setTheme('');
-  hideCombo();
+  Boss3D.stop(); S = null; C = null; window.scrollTo(0, 0); setTheme('');
   const list = db.order.filter(id => db.banks[id]);
   const L = levelOf(db.exp);
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
@@ -539,7 +573,7 @@ function home() {
       <div class="band"><b>復仇</b></div>
       <div class="body">
         <span class="tag"><span>復仇戰</span></span>
-        <h2>錯題怨靈　HP ${allW.length}</h2>
+        <h2>幽靈怨念喵　HP ${allW.length}</h2>
         <div class="meta">來自 ${nb} 個題庫的錯題，答對就會消滅</div>
         <div class="grid three">
           <button class="btn go" data-act="allQuiz">開戰</button>
@@ -574,6 +608,7 @@ function home() {
 
 /* ===== 匯入 ===== */
 function importView() {
+  Boss3D.stop();
   window.scrollTo(0, 0); setTheme('');
   app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>匯入題庫</h1></header>
     <div class="sec-h"><h2>線上題庫</h2><button class="icon" data-act="ghRefresh" aria-label="重新整理">↻</button></div>
@@ -668,6 +703,432 @@ function renderGh() {
   }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">全部匯入／更新（${pend} 份）</button>` : '');
 }
 
+/* ===== 3D BOSS（three.js r128，從 CDN 載入；失敗就只用 2D 特效） ===== */
+const Boss3D = (() => {
+  const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let T = null, loading = null, renderer = null, R = null, gradTex = null;
+  function load() {
+    if (window.THREE) { T = window.THREE; return Promise.resolve(true); }
+    if (loading) return loading;
+    loading = new Promise(res => {
+      const s = document.createElement('script');
+      s.src = CDN; s.async = true;
+      s.onload = () => { T = window.THREE || null; res(!!T); };
+      s.onerror = () => { loading = null; res(false); };
+      document.head.appendChild(s);
+      setTimeout(() => res(!!window.THREE), 10000);
+    });
+    return loading;
+  }
+  const easeOut = p => 1 - Math.pow(1 - p, 3);
+
+  /* --- 材質與零件 --- */
+  function toon(color, extra) {
+    const m = new T.MeshToonMaterial(Object.assign({ color, gradientMap: gradTex }, extra || {}));
+    m.userData.base = m.color.clone(); R.mats.push(m); return m;
+  }
+  function part(geo, mat, parent, p, r, s, outline = true) {
+    const m = new T.Mesh(geo, mat);
+    if (p) m.position.set(p[0], p[1], p[2]);
+    if (r) m.rotation.set(r[0], r[1], r[2]);
+    if (s) typeof s === 'number' ? m.scale.setScalar(s) : m.scale.set(s[0], s[1], s[2]);
+    if (outline) { const o = new T.Mesh(geo, R.outline); o.scale.setScalar(1.07); m.add(o); }
+    parent.add(m); return m;
+  }
+  function eyes(g, y, z, gap, r, color) {
+    const em = new T.MeshBasicMaterial({ color: color || 0xFFE14D });
+    [-1, 1].forEach(k => part(new T.SphereGeometry(r, 10, 8), em, g, [k * gap, y, z], null, null, false));
+  }
+  function spin(m, speed) { R.spinners.push([m, speed]); return m; }
+
+  /* --- Q 版貓咪 BOSS：共用身體 + 各品種花色 + 各科道具（全部程式組出來的原創造型） --- */
+  const BLACK = () => new T.MeshBasicMaterial({ color: 0x111111 });
+  function cat(g, o) {
+    const fur = toon(o.fur), white = toon(0xFFFFFF), pinkM = toon(0xFF9FB2);
+    const F = { eyes: [], xs: [], brows: [] };
+    // 身體、腳、手
+    const body = part(new T.SphereGeometry(.62, 20, 16), fur, g, [0, -.3, 0], null, [1, .92, .9]);
+    if (o.belly !== false) part(new T.SphereGeometry(.5, 16, 12), o.bellyM || white, body, [0, -.05, .42], null, [.78, .9, .45], false);
+    const paw = o.pawM || fur;
+    [-1, 1].forEach(k => part(new T.SphereGeometry(.22, 14, 10), paw, g, [k * .38, -.86, .28], null, [1, .7, 1.2]));
+    const armL = part(new T.SphereGeometry(.2, 14, 10), paw, g, [-.6, -.25, .35], null, [1, 1.2, 1]);
+    const armR = part(new T.SphereGeometry(.2, 14, 10), paw, g, [.62, -.18, .42], null, [1, 1.2, 1]);
+    // 尾巴（會甩）
+    const tailG = new T.Group(); tailG.position.set(0, -.55, -.45); g.add(tailG);
+    const curve = new T.CatmullRomCurve3([new T.Vector3(0, 0, 0), new T.Vector3(.35, .1, -.35), new T.Vector3(.7, .55, -.4), new T.Vector3(.6, 1.0, -.2)]);
+    const tail = part(new T.TubeGeometry(curve, 20, o.tailR || .11, 10, false), o.tailM || fur, tailG);
+    part(new T.SphereGeometry(o.tailR || .11, 10, 8), o.tailM || fur, tailG, [.6, 1.0, -.2], null, null, false);
+    // 頭
+    const head = part(new T.SphereGeometry(1, 28, 22), fur, g, [0, 1.0, 0], null, [1.14, .95, 1]);
+    [-1, 1].forEach(k => {
+      const ear = part(new T.ConeGeometry(.34, .6, 3), o.earM || fur, g, [k * .62, 1.78, -.05], [0, k * .3, -k * .38]);
+      part(new T.ConeGeometry(.2, .38, 3), pinkM, ear, [0, -.06, .1], null, null, false);
+    });
+    // 花紋（貼在頭和身體上的半球片）
+    const patch = (parent, dir, r, mat, scale) => {
+      const v = new T.Vector3(dir[0], dir[1], dir[2]).normalize().multiplyScalar(1 - r * .55);
+      return part(new T.SphereGeometry(r, 16, 12), mat, parent, [v.x, v.y, v.z], null, scale || null, false);
+    };
+    (o.patches || []).forEach(p => patch(p[0] === 'b' ? body : head, p[1], p[2], p[3], p[4]));
+    // 臉
+    const eyeY = .02, eyeZ = .86;
+    [-1, 1].forEach(k => {
+      const eg = new T.Group(); eg.position.set(k * .38, eyeY, eyeZ); head.add(eg);
+      part(new T.SphereGeometry(.27, 18, 14), new T.MeshBasicMaterial({ color: 0xffffff }), eg, [0, 0, 0], null, [1, 1.18, .45]);
+      part(new T.SphereGeometry(.19, 16, 12), new T.MeshBasicMaterial({ color: o.eye }), eg, [k * .02, -.01, .07], null, [1, 1.15, .4], false);
+      part(new T.SphereGeometry(.11, 12, 10), new T.MeshBasicMaterial({ color: 0x111111 }), eg, [k * .02, -.02, .11], null, [o.slit ? .45 : 1, 1.2, .4], false);
+      part(new T.SphereGeometry(.055, 8, 6), new T.MeshBasicMaterial({ color: 0xffffff }), eg, [k * .02 + .07, .09, .15], null, null, false);
+      F.eyes.push(eg);
+      const xg = new T.Group(); xg.position.copy(eg.position); xg.visible = false; head.add(xg);
+      [-1, 1].forEach(s => part(new T.BoxGeometry(.38, .07, .05), BLACK(), xg, [0, 0, .1], [0, 0, s * .78], null, false));
+      F.xs.push(xg);
+      const br = part(new T.BoxGeometry(.34, .07, .05), BLACK(), head, [k * .38, .36, .86], [0, 0, k * .45], null, false);
+      br.visible = false; F.brows.push(br);
+      part(new T.SphereGeometry(.13, 10, 8), new T.MeshBasicMaterial({ color: 0xFF8FA3, transparent: true, opacity: .55 }), head, [k * .62, -.22, .74], null, [1, .6, .3], false);
+      [-.12, 0, .12].forEach(dy => part(new T.BoxGeometry(.5, .018, .018), BLACK(), head, [k * .78, -.25 + dy * .6, .62], [0, -k * .5, k * dy], null, false));
+    });
+    const muz = o.muzzleM || white;
+    [-1, 1].forEach(k => part(new T.SphereGeometry(.2, 14, 10), muz, head, [k * .13, -.28, .86], null, [1, .78, .55], false));
+    part(new T.SphereGeometry(.075, 10, 8), pinkM, head, [0, -.17, .99], null, [1.4, .85, .8], false);
+    [-1, 1].forEach(k => part(new T.TorusGeometry(.065, .018, 6, 12, Math.PI), BLACK(), head, [k * .065, -.32, .99], [0, 0, Math.PI], null, false));
+    R.face = F; R.tail = tailG; R.armR = armR; R.armL = armL; R.head = head;
+    return { body, head, armR, armL, tailG };
+  }
+  // 小工具：放在右手上的道具群組
+  const inHand = (c, rot) => { const h = new T.Group(); h.position.set(.72, -.1, .55); if (rot) h.rotation.set(rot[0], rot[1], rot[2]); return h; };
+  const CATS = {
+    calico(g, c) {   // 國文：三花貓＋毛筆＋書生頭巾
+      const x = cat(g, { fur: 0xFFFFFF, eye: 0xE9A93A,
+        patches: [['h', [.7, .55, .3], .45, toon(0xF29A3A)], ['h', [-.6, .7, .2], .4, toon(0x2B2B2B)], ['h', [-.2, .9, -.6], .4, toon(0xF29A3A)],
+                  ['b', [.6, .4, -.4], .35, toon(0x2B2B2B)], ['b', [-.5, .3, -.5], .32, toon(0xF29A3A)]],
+        tailM: toon(0xF29A3A) });
+      part(new T.TorusGeometry(.96, .07, 8, 40), toon(c), x.head, [0, .3, 0], [Math.PI / 2 - .08, 0, 0], null, false);
+      [-1, 1].forEach(k => part(new T.BoxGeometry(.12, .45, .04), toon(c), x.head, [k * .12, .05, -.98], [.2, 0, k * .5]));
+      const h = inHand(x.armR, [0, 0, -.5]); g.add(h);
+      part(new T.CylinderGeometry(.05, .05, .9, 8), toon(0x8B5A2B), h, [0, .35, 0]);
+      part(new T.ConeGeometry(.09, .25, 10), toon(0x111111), h, [0, -.18, 0], [Math.PI, 0, 0]);
+    },
+    british(g, c) {  // 英文：英國短毛貓＋圓頂禮帽＋紅圍巾＋字母方塊
+      const x = cat(g, { fur: 0x8E9DB3, eye: 0xF0892A, muzzleM: toon(0xA9B6C8), bellyM: toon(0xA9B6C8) });
+      part(new T.SphereGeometry(.52, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), toon(0x222222), x.head, [0, .78, -.05], null, [.9, 1.1, .95]);
+      part(new T.CylinderGeometry(.78, .78, .06, 24), toon(0x222222), x.head, [0, .8, -.05], null, [.9, 1.05, .95]);
+      part(new T.TorusGeometry(.5, .08, 6, 24), toon(c), x.head, [0, .88, -.05], [Math.PI / 2, 0, 0], [.9, .95, 1], false);
+      part(new T.TorusGeometry(.5, .14, 8, 24), toon(0xD8342C), g, [0, .2, 0], [Math.PI / 2, 0, 0]);
+      part(new T.BoxGeometry(.18, .5, .08), toon(0xD8342C), g, [.25, -.05, .55], [0, 0, .2]);
+      const orbit = spin(new T.Group(), 1.4); g.add(orbit);
+      for (let i = 0; i < 5; i++) {
+        const a = i / 5 * Math.PI * 2;
+        part(new T.BoxGeometry(.26, .26, .26), toon(i % 2 ? 0xFFFFFF : c), orbit, [Math.cos(a) * 1.7, .5 + Math.sin(a * 2) * .3, Math.sin(a) * 1.7], [a, a, 0]);
+      }
+    },
+    siamese(g, c) {  // 歷史：暹羅貓＋將軍頭盔＋沙漏
+      const dark = toon(0x5A3B2A);
+      const x = cat(g, { fur: 0xF3E3C8, eye: 0x3BA7FF, earM: dark, pawM: dark, tailM: dark, muzzleM: toon(0x7A5640),
+        patches: [['h', [0, -.18, 1], .42, toon(0x8A6248), [1.3, 1, .6]]] });
+      part(new T.SphereGeometry(1.04, 24, 10, 0, Math.PI * 2, 0, 1.05), toon(0xC9A24A), x.head, [0, .05, 0]);
+      part(new T.ConeGeometry(.16, .7, 8), toon(0xD8342C), x.head, [0, 1.25, -.1], [-.3, 0, 0]);
+      part(new T.BoxGeometry(1.5, .08, .1), toon(0xC9A24A), x.head, [0, .46, .82], [-.2, 0, 0], null, false);
+      const h = inHand(x.armR); g.add(h);
+      part(new T.ConeGeometry(.17, .3, 12), toon(0xF6E7C1, { transparent: true, opacity: .85 }), h, [0, .16, 0], [Math.PI, 0, 0]);
+      part(new T.ConeGeometry(.17, .3, 12), toon(0xE5A100), h, [0, -.16, 0]);
+      [-1, 1].forEach(k => part(new T.CylinderGeometry(.22, .22, .05, 12), toon(0x8B5A2B), h, [0, k * .32, 0]));
+    },
+    orange(g, c) {   // 地理：橘貓＋探險帽＋地球儀
+      const st = toon(0xC9671B);
+      const x = cat(g, { fur: 0xF4A340, eye: 0x6BCB3E,
+        patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [-.25, .75, .6], .14, st, [.6, 1.6, .6]], ['h', [.25, .75, .6], .14, st, [.6, 1.6, .6]],
+                  ['h', [.9, .2, .2], .2, st, [.5, 1.6, .6]], ['h', [-.9, .2, .2], .2, st, [.5, 1.6, .6]], ['b', [0, .5, -.8], .3, st, [1.6, .5, .8]]],
+        tailM: st });
+      part(new T.SphereGeometry(.6, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), toon(0xD9C38E), x.head, [0, .76, -.05], null, [.95, 1, .95]);
+      part(new T.CylinderGeometry(.95, .95, .05, 24), toon(0xC9B07A), x.head, [0, .76, -.05]);
+      part(new T.TorusGeometry(.58, .05, 6, 24), toon(c), x.head, [0, .8, -.05], [Math.PI / 2, 0, 0], null, false);
+      const globe = new T.Group(); globe.position.set(0, -.2, .82); g.add(globe);
+      const ball = spin(part(new T.SphereGeometry(.36, 20, 14), toon(0x3A8EE6), globe), 1.2);
+      [[.5, .5, .7], [-.6, .2, .7], [.2, -.6, .7], [-.3, .5, -.8], [.7, -.2, -.6]].forEach(d => {
+        const v = new T.Vector3(d[0], d[1], d[2]).normalize().multiplyScalar(.27);
+        part(new T.SphereGeometry(.14, 10, 8), toon(c), ball, [v.x, v.y, v.z], null, [1, .8, .6], false);
+      });
+      part(new T.TorusGeometry(.45, .03, 6, 24, Math.PI * 1.3), toon(0xC9A24A), globe, [0, 0, 0], [0, Math.PI / 2, .4], null, false);
+    },
+    black(g, c) {    // 公民：黑貓＋領結＋法槌＋天秤
+      const x = cat(g, { fur: 0x2E2E36, eye: 0xF4D03F, slit: true, belly: false, muzzleM: toon(0x3E3E48) });
+      [-1, 1].forEach(k => part(new T.ConeGeometry(.16, .3, 4), toon(c), g, [k * .16, .23, .55], [0, 0, k * Math.PI / 2]));
+      part(new T.SphereGeometry(.08, 10, 8), toon(c), g, [0, .23, .58]);
+      const h = inHand(x.armR, [0, 0, -.6]); g.add(h);
+      part(new T.CylinderGeometry(.05, .05, .8, 8), toon(0x8B5A2B), h, [0, .3, 0]);
+      part(new T.CylinderGeometry(.14, .14, .42, 12), toon(0x6B3E1E), h, [0, .72, 0], [0, 0, Math.PI / 2]);
+      const bal = spin(new T.Group(), .8); bal.position.set(0, 2.45, 0); g.add(bal);
+      part(new T.CylinderGeometry(.04, .04, .5, 6), toon(0xE5C14A), bal, [0, -.2, 0], null, null, false);
+      part(new T.BoxGeometry(1.5, .06, .06), toon(0xE5C14A), bal, [0, 0, 0]);
+      [-1, 1].forEach(k => part(new T.CylinderGeometry(.24, .12, .1, 12), toon(0xE5C14A), bal, [k * .72, -.25, 0]));
+    },
+    silver(g, c) {   // 生物：美國短毛貓（銀虎斑）＋葉子＋DNA
+      const st = toon(0x4A4F57);
+      const x = cat(g, { fur: 0xC9CED6, eye: 0x3BBF7A,
+        patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [-.28, .72, .6], .13, st, [.6, 1.6, .6]], ['h', [.28, .72, .6], .13, st, [.6, 1.6, .6]],
+                  ['h', [.92, .1, .1], .2, st, [.5, 1.7, .6]], ['h', [-.92, .1, .1], .2, st, [.5, 1.7, .6]],
+                  ['b', [.8, .2, -.2], .24, st, [.5, 1.4, .8]], ['b', [-.8, .2, -.2], .24, st, [.5, 1.4, .8]]],
+        tailM: toon(0x8C939C) });
+      const leaf = part(new T.SphereGeometry(.3, 14, 10), toon(c), x.head, [.15, 1.12, 0], [0, 0, -.5], [.45, 1, .12]);
+      part(new T.CylinderGeometry(.02, .02, .25, 5), toon(0x3E7A1E), x.head, [.05, .98, 0], [0, 0, -.3], null, false);
+      const dna = spin(new T.Group(), 1.1); g.add(dna);
+      for (let i = 0; i < 14; i++) {
+        const a = i * .55, y = -1 + i * .2;
+        [0, Math.PI].forEach((ph, j) => part(new T.SphereGeometry(.07, 8, 6), toon(j ? c : 0xFFFFFF), dna, [1.55 + Math.cos(a + ph) * .22, y, Math.sin(a + ph) * .22], null, null, false));
+      }
+    },
+    tux(g, c) {      // 化學：賓士貓＋護目鏡＋燒瓶
+      const x = cat(g, { fur: 0x26262C, eye: 0xB6D63A, pawM: toon(0xFFFFFF),
+        patches: [['h', [0, -.45, 1], .45, toon(0xFFFFFF), [1.2, .9, .6]]] });
+      part(new T.TorusGeometry(.98, .045, 6, 40), toon(0x444444), x.head, [0, .42, 0], [Math.PI / 2 - .25, 0, 0], null, false);
+      [-1, 1].forEach(k => {
+        const gg = part(new T.TorusGeometry(.17, .05, 8, 18), toon(c), x.head, [k * .3, .5, .86], [-.35, 0, 0]);
+        part(new T.CircleGeometry(.15, 16), new T.MeshBasicMaterial({ color: 0x9FF3FF, transparent: true, opacity: .7 }), gg, [0, 0, .01], null, null, false);
+      });
+      const h = inHand(x.armR); g.add(h);
+      part(new T.SphereGeometry(.25, 16, 12), toon(0xDDF6FF, { transparent: true, opacity: .6 }), h, [0, 0, 0]);
+      part(new T.SphereGeometry(.19, 14, 10), toon(c), h, [0, -.04, 0], null, null, false);
+      part(new T.CylinderGeometry(.08, .1, .3, 10), toon(0xDDF6FF, { transparent: true, opacity: .7 }), h, [0, .3, 0]);
+      const orbit = spin(new T.Group(), 1.8); g.add(orbit);
+      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; part(new T.SphereGeometry(.07 + (i % 3) * .04, 8, 6), toon(c), orbit, [Math.cos(a) * 1.45, 1 + (i % 2) * .6, Math.sin(a) * 1.45], null, null, false); }
+    },
+    russian(g, c) {  // 物理：俄羅斯藍貓＋原子軌道＋閃電尾巴
+      const x = cat(g, { fur: 0x7C8FA6, eye: 0x2ECC71, muzzleM: toon(0x93A5BA), bellyM: toon(0x93A5BA) });
+      [[1.25, 0, 0], [1.25, 0, 1.05], [1.25, 0, -1.05]].forEach((r, i) => {
+        const ring = new T.Group(); ring.rotation.set(r[0], r[1], r[2]); ring.position.y = .55; g.add(ring);
+        const tor = spin(new T.Group(), 1.6 + i * .5); tor.userData.axis = 'z'; ring.add(tor);
+        part(new T.TorusGeometry(1.65, .03, 6, 48), toon(0xFFD400), tor, [0, 0, 0], null, null, false);
+        part(new T.SphereGeometry(.1, 10, 8), new T.MeshBasicMaterial({ color: c }), tor, [1.65, 0, 0], null, null, false);
+      });
+      const bolt = new T.Group(); bolt.position.set(.6, 1.15, -.2); x.tailG.add(bolt);
+      [[0, 0, .5], [.08, -.18, -.5], [0, -.36, .5]].forEach(b => part(new T.BoxGeometry(.08, .26, .05), toon(0xFFD400), bolt, [b[0], b[1], 0], [0, 0, b[2]], null, false));
+    },
+    persian(g, c) {  // 地科：白色波斯貓＋星環＋月亮＋星星魔杖
+      const x = cat(g, { fur: 0xFFFFFF, eye: 0x4AA3FF, tailR: .17, muzzleM: toon(0xF4F4F4) });
+      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; part(new T.SphereGeometry(.2, 10, 8), toon(0xFFFFFF), g, [Math.cos(a) * .55, .15, Math.sin(a) * .5], null, null, false); }
+      const ring = spin(part(new T.TorusGeometry(1.6, .05, 6, 48), toon(c), g, [0, .4, 0], [1.3, .25, 0], null, false), 1.2); ring.userData.axis = 'z';
+      const orbit = spin(new T.Group(), .9); orbit.position.y = .6; g.add(orbit);
+      part(new T.SphereGeometry(.2, 14, 10), toon(0xF1E7B0), orbit, [1.8, .5, 0]);
+      const h = inHand(x.armR, [0, 0, -.4]); g.add(h);
+      part(new T.CylinderGeometry(.035, .035, .8, 6), toon(0xE5C14A), h, [0, .3, 0], null, null, false);
+      const star = spin(new T.Group(), 2); star.position.y = .78; h.add(star);
+      for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; const m = part(new T.ConeGeometry(.07, .22, 4), toon(0xFFD400), star, [Math.sin(a) * .1, Math.cos(a) * .1, 0], [0, 0, -a], null, false); }
+    },
+    ghost(g, c) {    // 錯題：幽靈貓＋紅眼＋鎖鏈
+      const wm = toon(0xE9ECF5, { transparent: true, opacity: .82 });
+      const x = cat(g, { fur: 0xE9ECF5, eye: 0xFF2E2E, slit: true, belly: false, muzzleM: wm });
+      R.mats.forEach(m => { if (m.color.getHex() === 0xE9ECF5) { m.transparent = true; m.opacity = .82; } });
+      part(new T.ConeGeometry(.6, 1.1, 16, 1, true), wm, g, [0, -.95, -.05], [Math.PI, 0, 0]);
+      for (let i = 0; i < 7; i++) part(new T.TorusGeometry(.09, .03, 6, 12), toon(0x555555), g, [-.5 + i * .14, -.55 - Math.sin(i * .9) * .08, .5], [0, i % 2 ? Math.PI / 2 : 0, 0], null, false);
+      [-1, 1].forEach(k => part(new T.ConeGeometry(.08, .3, 6), toon(0xFF2E2E), x.head, [k * .35, .62, .72], [.6, 0, 0], null, false));
+    },
+    mix(g, c) {      // 預設：米克斯（棕虎斑）
+      const st = toon(0x5A3B2A);
+      cat(g, { fur: 0xB98A5E, eye: 0xE9A93A, patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [.9, .2, .2], .2, st, [.5, 1.6, .6]], ['h', [-.9, .2, .2], .2, st, [.5, 1.6, .6]]] });
+    }
+  };
+
+  /* --- 啟動／停止 --- */
+  function start(el, kind, hex) {
+    stop();
+    if (!T) return false;
+    try {
+      if (!renderer) {
+        renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        const g = new Uint8Array([70, 160, 255]);
+        gradTex = new T.DataTexture(g, 3, 1, T.LuminanceFormat);
+        gradTex.minFilter = gradTex.magFilter = T.NearestFilter; gradTex.needsUpdate = true;
+      }
+    } catch (e) { renderer = null; return false; }
+    const scene = new T.Scene();
+    const camera = new T.PerspectiveCamera(34, 2, .1, 100);
+    camera.position.set(0, .7, 7); camera.lookAt(0, .3, 0);
+    scene.add(new T.HemisphereLight(0xffffff, 0x666666, .8));
+    const dl = new T.DirectionalLight(0xffffff, .9); dl.position.set(3, 5, 4); scene.add(dl);
+    R = { el, scene, camera, mats: [], spinners: [], tweens: [], parts: [], t: 0, last: 0, flash: 0, shake: 0, angry: 0, dead: false,
+      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, ry: 0, raf: 0, blinkT: 2, hurt: 0, mad: 0, face: null, tail: null,
+      outline: new T.MeshBasicMaterial({ color: 0x000000, side: T.BackSide }) };
+    const c = new T.Color(hex), d = c.clone().multiplyScalar(.55), l = c.clone().lerp(new T.Color(0xffffff), .45);
+    const boss = new T.Group(), body = new T.Group();
+    (CATS[kind] || CATS.mix)(body, hex);
+    const box = new T.Box3().setFromObject(body), size = box.getSize(new T.Vector3()), mid = box.getCenter(new T.Vector3());
+    const fit = Math.min(1.15, 2.7 / size.y, 3.4 / Math.max(size.x, size.z));
+    body.scale.setScalar(fit); body.position.set(-mid.x * fit, (.2 - mid.y) * fit, -mid.z * fit);
+    boss.add(body); scene.add(boss); R.boss = boss;
+    const sh = new T.Mesh(new T.CircleGeometry(1.1, 24), new T.MeshBasicMaterial({ color: 0, transparent: true, opacity: .18 }));
+    sh.rotation.x = -Math.PI / 2; sh.position.y = -1.45; scene.add(sh); R.shadow = sh;
+    R.pgeo = new T.TetrahedronGeometry(.13, 0);
+    R.pmat = [new T.MeshBasicMaterial({ color: c }), new T.MeshBasicMaterial({ color: 0xFFD400 }), new T.MeshBasicMaterial({ color: 0xffffff }), new T.MeshBasicMaterial({ color: 0x000000 })];
+    el.appendChild(renderer.domElement);
+    resize();
+    R.last = performance.now();
+    loop();
+    return true;
+  }
+  function resize() {
+    if (!R || !renderer) return;
+    const w = R.el.clientWidth || 300, h = R.el.clientHeight || 200;
+    renderer.setSize(w, h, false); renderer.domElement.style.width = '100%'; renderer.domElement.style.height = '100%';
+    R.camera.aspect = w / h; R.camera.updateProjectionMatrix();
+  }
+  function stop() {
+    if (!R) return;
+    cancelAnimationFrame(R.raf);
+    R.scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.dispose) o.material.dispose(); });
+    if (renderer && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+    R = null;
+  }
+
+  /* --- 每格畫面 --- */
+  function loop() {
+    if (!R) return;
+    R.raf = requestAnimationFrame(loop);
+    if (document.hidden) return;
+    const now = performance.now(), dt = Math.min(.05, (now - R.last) / 1000); R.last = now;
+    R.t += dt;
+    const cur = R.tweens; R.tweens = [];          // done() 裡新增的動作會放進新的 R.tweens
+    const alive = cur.filter(tw => {
+      if (tw.wait > 0) { tw.wait -= dt; return true; }
+      tw.t += dt; const p = Math.min(1, tw.t / tw.dur); tw.fn(p);
+      if (p >= 1) { tw.done && tw.done(); return false; }
+      return true;
+    });
+    if (!R) return;
+    R.tweens = alive.concat(R.tweens);
+    const o = R.off, b = R.boss, idle = REDUCE ? 0 : 1;
+    R.ry += dt * (R.angry ? 1.3 : .55) * idle;
+    const jitter = R.angry && !REDUCE ? (Math.random() - .5) * .06 : 0;
+    b.position.set(o.x + jitter, o.y + Math.sin(R.t * 2) * .1 * idle, o.z);
+    b.rotation.set(o.rx, R.ry + o.ry, o.rz);
+    b.scale.setScalar(o.s);
+    if (R.face) {
+      R.blinkT -= dt; let open = 1;
+      if (R.blinkT < .14) open = Math.abs(R.blinkT - .07) / .07;
+      if (R.blinkT <= 0) R.blinkT = 2.5 + Math.random() * 2.5;
+      R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt);
+      const hurt = R.hurt > 0, mad = R.angry || R.mad > 0;
+      R.face.eyes.forEach(e => { e.visible = !hurt; e.scale.y = Math.max(.08, open); });
+      R.face.xs.forEach(e => { e.visible = hurt; });
+      R.face.brows.forEach(e => { e.visible = mad; });
+    }
+    if (R.tail) R.tail.rotation.z = Math.sin(R.t * (R.angry ? 10 : 4)) * .35 * idle;
+    if (R.armL) R.armL.position.y = -.25 + Math.sin(R.t * 3) * .05 * idle;
+    R.spinners.forEach(([m, s]) => { if (m.userData.axis === 'z') m.rotation.z += dt * s * idle; else m.rotation.y += dt * s * idle; });
+    R.shadow.scale.setScalar(Math.max(.2, 1 - Math.max(0, o.y) * .25));
+    R.shadow.visible = b.visible;
+    R.flash = Math.max(0, R.flash - dt * 4);
+    const red = new T.Color(0xFF2E2E);
+    R.mats.forEach(m => {
+      m.color.copy(m.userData.base).lerp(red, R.angry * .45);
+      m.emissive.setRGB(R.flash, R.flash, R.flash);
+    });
+    R.parts = R.parts.filter(p => {
+      p.life -= dt; if (p.life <= 0) { R.scene.remove(p.m); return false; }
+      p.v.y -= 7 * dt; p.m.position.addScaledVector(p.v, dt);
+      p.m.rotation.x += dt * 8; p.m.rotation.y += dt * 6;
+      p.m.scale.setScalar(Math.max(.01, p.life / p.max) * p.size);
+      return true;
+    });
+    R.shake = Math.max(0, R.shake - dt * 1.2);
+    R.camera.position.x = Math.sin(R.t * 55) * R.shake;
+    R.camera.position.y = .7 + Math.cos(R.t * 47) * R.shake * .6;
+    R.camera.lookAt(0, .3, 0);
+    renderer.render(R.scene, R.camera);
+  }
+
+  /* --- 動作 --- */
+  const tween = (dur, fn, done, wait, keep) => R.tweens.push({ dur, fn, done, wait: wait || 0, t: 0, keep: !!keep });
+  function reset() {
+    if (!R) return false;
+    R.tweens = R.tweens.filter(t => t.keep); Object.assign(R.off, { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 });
+    if (!R.dead) R.boss.visible = true;
+    return true;
+  }
+  function burst(n, speed, pos, size) {
+    const at = pos || R.boss.position;
+    for (let i = 0; i < n; i++) {
+      const m = new T.Mesh(R.pgeo, R.pmat[i % R.pmat.length]);
+      m.position.copy(at); m.position.y += .3;
+      const v = new T.Vector3(Math.random() - .5, Math.random() * .8 + .2, Math.random() - .3).normalize().multiplyScalar(speed * (.6 + Math.random() * .7));
+      const life = .6 + Math.random() * .6, sz = (size || 1) * (.7 + Math.random() * .9);
+      R.scene.add(m); R.parts.push({ m, v, life, max: life, size: sz });
+    }
+  }
+  function beam() {
+    const from = new T.Vector3(-4.2, -2.2, 2.5), to = new T.Vector3(0, .3, 0);
+    const dir = to.clone().sub(from), len = dir.length();
+    const grp = new T.Group();
+    const outer = new T.Mesh(new T.CylinderGeometry(.5, .5, len, 16, 1, true), new T.MeshBasicMaterial({ color: 0xFFD400, transparent: true, opacity: .9 }));
+    const inner = new T.Mesh(new T.CylinderGeometry(.22, .22, len, 12, 1, true), new T.MeshBasicMaterial({ color: 0xffffff }));
+    grp.add(outer, inner);
+    grp.position.copy(from.clone().add(to).multiplyScalar(.5));
+    grp.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), dir.normalize());
+    R.scene.add(grp);
+    tween(.7, p => {
+      const k = p < .2 ? p / .2 : p < .6 ? 1 : 1 - (p - .6) / .4;
+      grp.scale.set(Math.max(.01, k), 1, Math.max(.01, k)); outer.material.opacity = .9 * k;
+    }, () => { R && R.scene.remove(grp); }, 0, true);
+  }
+  function shatter() {
+    if (!R) return;
+    R.dead = true; R.flash = 1; R.shake = .45;
+    burst(46, 7, R.boss.position, 2);
+    R.boss.visible = false;
+  }
+  return {
+    load, start, stop, resize,
+    available: () => !!T,
+    running: () => !!R,
+    hit1(final) {
+      if (!reset()) return;
+      R.flash = 1; R.shake = .08; R.hurt = .7; burst(8, 4);
+      tween(.45, p => {
+        const k = p < .25 ? p / .25 : 1 - (p - .25) / .75;
+        R.off.z = -1 * k; R.off.rx = -.35 * k; R.off.rz = .3 * Math.sin(p * 22) * (1 - p);
+      }, final ? shatter : null);
+    },
+    hit2(final) {
+      if (!reset()) return;
+      R.flash = 1; R.shake = .16; R.hurt = 1; burst(18, 5.5);
+      tween(.85, p => {
+        R.off.y = 2 * 4 * p * (1 - p); R.off.ry = Math.PI * 2 * easeOut(p);
+        R.off.z = -.8 * Math.sin(Math.PI * p); R.off.rz = .5 * Math.sin(Math.PI * p);
+      }, final ? shatter : null);
+    },
+    ult(final) {
+      if (!reset()) return;
+      R.hurt = 2.4;
+      tween(.2, p => { R.off.s = 1 + .15 * Math.sin(p * Math.PI * 6); }, null, .45);       // 被氣勢震住
+      tween(.01, () => {}, () => { if (!R) return; beam(); R.shake = .25; }, .6);
+      tween(.6, p => {                                                                   // 被打飛
+        if (p === 0) return;
+        R.off.x = 5.5 * easeOut(p); R.off.y = 3 * easeOut(p); R.off.z = -7 * easeOut(p);
+        R.off.rz = 9 * p; R.off.rx = 6 * p;
+      }, () => {
+        if (!R) return;
+        R.flash = 1; R.shake = .4; burst(30, 6.5, new T.Vector3(0, .3, 0), 1.4);
+        if (final) { R.dead = true; R.boss.visible = false; return; }
+        Object.assign(R.off, { x: 0, y: 5, z: 0, rx: 0, ry: 0, rz: 0, s: 1 });
+        tween(.55, p => { R.off.y = 5 * Math.pow(1 - p, 2); }, () => { if (R) { R.shake = .12; burst(10, 3, new T.Vector3(0, -1.2, 0)); } }, .7);
+      }, .85);
+    },
+    attack() {
+      if (!reset()) return;
+      R.mad = .9;
+      tween(.55, p => {
+        const k = Math.sin(Math.PI * Math.min(1, p * 1.3));
+        R.off.z = 2.6 * k; R.off.s = 1 + .3 * k; R.off.rx = .45 * k;
+      });
+      tween(.01, () => {}, () => { if (R) R.shake = .22; }, .2);
+    },
+    setAngry(on) { if (R) R.angry = on ? 1 : 0; }
+  };
+})();
+window.addEventListener('resize', () => Boss3D.resize());
+
+
 /* ===== 戰鬥（測驗） ===== */
 let S = null, C = null;
 const SET = { last: null, all: null, rev: null };
@@ -688,14 +1149,25 @@ function startQuiz(refs, opt) {
   };
   SET.all = toRefs(S.items);
   setTheme(opt.sub);
+  const x = subOf(opt.sub), stage = document.createElement('div');
+  stage.className = 'panel stage';
+  stage.innerHTML = `<span class="name">${esc(S.boss)}</span><div class="cv"></div><div class="load">BOSS 登場中…</div>`;
+  S.stageEl = stage; S.ult = x.ult;
   renderQ();
+  const mine = S;
+  Boss3D.load().then(ok => {
+    if (S !== mine) return;
+    const started = ok && Boss3D.start(stage.querySelector('.cv'), x.kind, x.c);
+    if (started) { stage.querySelector('.load').remove(); Boss3D.setAngry(S.bossHp / S.n <= .25); }
+    else { stage.remove(); S.stageEl = null; }
+  });
 }
 function hudHtml() {
   const bp = S.bossHp / S.n * 100;
   const hearts = Array.from({ length: S.maxHp }, (_, i) => `<span class="${i < S.hp ? '' : 'lost'}">♥</span>`).join('');
   return `<div class="panel hud" id="hud">
       <div class="row"><span class="who">BOSS</span><div class="hpbar ${bp <= 25 ? 'low' : ''}"><i style="width:${bp}%"></i></div><span class="num">${S.bossHp}/${S.n}</span></div>
-      <div class="row"><span class="who">YOU</span><div class="hearts" aria-label="剩餘生命 ${S.hp}">${hearts}</div><span class="num">${S.i + 1}/${S.n}</span></div>
+      <div class="row"><span class="who">YOU</span><div class="hearts" aria-label="剩餘生命 ${S.hp}">${hearts}</div>${S.combo >= 2 ? `<span class="combo pop">${S.combo}<small>COMBO</small></span>` : ''}<span class="num">${S.i + 1}/${S.n}</span></div>
     </div>`;
 }
 function renderQ() {
@@ -703,6 +1175,7 @@ function renderQ() {
   S.answered = false;
   app.innerHTML = `<header class="top"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button>
       <h1>${esc(S.boss)}｜${esc(S.title)}</h1></header>
+    <div id="stageSlot"></div>
     ${hudHtml()}
     <div class="panel qcard">
       ${S.multi ? srcTag(it) : ''}
@@ -713,7 +1186,15 @@ function renderQ() {
       `<button class="opt" data-act="pick" data-k="${k}"><span class="lt">${LETTER[k]}</span><span>${fmt(it.q.options[oi])}</span></button>`).join('')}
     </div>
     <div id="fb"></div>`;
+  const slot = document.getElementById('stageSlot');
+  if (slot && S.stageEl) { slot.replaceWith(S.stageEl); Boss3D.resize(); }
   window.scrollTo(0, 0);
+}
+function showCutin(name) {
+  const c = document.getElementById('cutin');
+  c.querySelector('b').textContent = name;
+  c.classList.remove('show'); void c.offsetWidth; c.classList.add('show');
+  clearTimeout(showCutin.t); showCutin.t = setTimeout(() => c.classList.remove('show'), 1300);
 }
 function showFx(big, small, good) {
   const fx = document.getElementById('fx');
@@ -721,16 +1202,11 @@ function showFx(big, small, good) {
   fx.style.setProperty('--fxbg', good ? '#FFD400' : '#FF2E2E');
   fx.style.setProperty('--fxt', good ? '#fff' : '#FFD400');
   fx.querySelector('b').textContent = big; fx.querySelector('span').textContent = small;
+  fx.classList.toggle('mini', !!(S && S.stageEl && Boss3D.running()));
   fx.classList.remove('show'); void fx.offsetWidth; fx.classList.add('show');
   clearTimeout(showFx.t); showFx.t = setTimeout(() => fx.classList.remove('show'), 750);
 }
-function showCombo(n) {
-  const el = document.getElementById('combo');
-  if (n < 2) { el.classList.remove('on'); return; }
-  el.querySelector('b').textContent = n;
-  el.classList.add('on'); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-}
-const hideCombo = () => document.getElementById('combo').classList.remove('on');
+
 function pick(k) {
   if (!S || S.answered) return;
   S.answered = true;
@@ -745,18 +1221,32 @@ function pick(k) {
   if (ok) {
     S.correct++; S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo); S.bossHp--;
     S.exp += 10 + Math.min(S.combo, 10) * 2;
+    const lastQ = S.i === S.items.length - 1, final = S.bossHp <= 0 || lastQ, move = S.combo % 3 === 0 ? 'ult' : S.combo % 3 === 2 ? 'hit2' : 'hit1';
     const cw = COMBO_WORDS.filter(c => S.combo >= c[0]).pop();
-    const w = cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
-    say = w[1]; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(30);
+    const w = move === 'hit2' ? ['DOUBLE!', '二連擊！'] : cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
+    if (move === 'ult') {
+      say = `必殺技「${S.ult}」命中！`;
+      showCutin(S.ult); SFX.ult(); vibrate([80, 40, 160]);
+    } else {
+      say = w[1]; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
+    }
+    if (final) S.bossHp = 0;
+    Boss3D[move](final);
+    Boss3D.setAngry(!final && S.bossHp / S.n <= .25);
+    if (final) setTimeout(() => { showFx('K.O.!', 'BOSS 被擊倒了！', true); SFX.win(); }, move === 'ult' ? 1500 : 650);
   } else {
     S.wrong.push({ b: it.bid, q: it.q.id }); S.combo = 0; S.hp--;
     const w = pickOne(HURT_WORDS);
     say = w[1] + (S.hp > 0 ? `　正解是 ${LETTER[right]}` : '　你倒下了…');
     showFx(w[0], w[1], false); SFX.hurt(); vibrate([60, 40, 60]);
+    Boss3D.attack();
+    if (S.hp > 0 && S.i === S.items.length - 1) {          // 撐到最後一題還活著＝勝利，補上最後一擊
+      S.bossHp = 0;
+      setTimeout(() => { Boss3D.hit1(true); showFx('K.O.!', '撐到最後，BOSS 倒下了！', true); SFX.win(); }, 900);
+    }
     const fl = document.getElementById('flash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
     app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
   }
-  showCombo(S.combo);
   const hud = document.getElementById('hud'); if (hud) hud.outerHTML = hudHtml();
   const done = S.hp <= 0 || S.i === S.items.length - 1;
   const fb = document.getElementById('fb');
@@ -773,7 +1263,8 @@ function next() {
 }
 const RANK_ORDER = ['C', 'B', 'A', 'S'];
 function result() {
-  hideCombo();
+  Boss3D.stop();
+
   const n = S.n, win = S.hp > 0, pct = S.correct / n;
   const rank = !win ? null : pct >= 1 ? 'S' : pct >= .85 ? 'A' : pct >= .7 ? 'B' : 'C';
   const LINES = {
@@ -812,7 +1303,7 @@ function result() {
   SET.retry = { refs: SET.all, title: S.title, boss: S.boss, sub: S.sub, recordBid: S.recordBid };
   S = null;
   window.scrollTo(0, 0);
-  setTimeout(() => { win ? SFX.win() : SFX.lose(); }, 200);
+  if (!win) setTimeout(SFX.lose, 200);
   if (up) setTimeout(showLevelUp, 1100);
 }
 function showLevelUp() {
@@ -823,6 +1314,7 @@ function showLevelUp() {
 
 /* ===== 作戰筆記（錯題重點） ===== */
 function review(refs, title) {
+  Boss3D.stop();
   const items = resolve(refs), multi = isMulti(items);
   SET.rev = { title, refs: toRefs(items), sub: multi ? '' : (items[0] || {}).sub };
   setTheme(SET.rev.sub);
@@ -846,6 +1338,7 @@ function review(refs, title) {
 
 /* ===== 修練（單字卡） ===== */
 function cards(refs) {
+  Boss3D.stop();
   const items = resolve(refs);
   if (!items.length) { toast('沒有卡片'); return; }
   C = { items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) })), multi: isMulti(items), i: 0 };
@@ -898,7 +1391,7 @@ function cprev() { if (C && C.i > 0) { C.i--; renderCard(); } }
 /* ===== 事件 ===== */
 const bankOf = id => db.banks[id] || {};
 const quizOpt = (id, extra) => { const b = bankOf(id); return { title: b.title + (extra || ''), boss: subOf(b.subject).boss, sub: b.subject }; };
-const REVENGE = { title: '全部錯題', boss: '錯題怨靈', sub: '' };
+const REVENGE = { title: '全部錯題', boss: '幽靈怨念喵', sub: '錯題' };
 const ACT = {
   home, importView, doImport,
   copyPrompt: () => copyText(PROMPT),
@@ -922,7 +1415,7 @@ const ACT = {
   cardsAllLast: () => cards(SET.all),
   cardsReview: () => cards(SET.rev.refs),
   quizReview: () => startQuiz(SET.rev.refs, SET.rev.title === '全部錯題' ? REVENGE
-    : { title: SET.rev.title + '・錯題', boss: subOf(SET.rev.sub).boss, sub: SET.rev.sub }),
+    : { title: SET.rev.title.replace(/・錯題$/, '') + '・錯題', boss: subOf(SET.rev.sub).boss, sub: SET.rev.sub }),
   flip: (d, el) => { if (el.dataset.swiped) { delete el.dataset.swiped; return; } el.classList.toggle('on'); },
   cnext, cprev,
   zoom: (d, el) => {
