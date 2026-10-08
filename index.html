@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#ffffff">
 <title>背書小幫手</title>
@@ -263,7 +263,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 #zoom .x{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:#000;color:#fff;font-size:20px}
 
 /* ===== 匯入 ===== */
-textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--bd);background:var(--paper);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,monospace}
+textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--bd);background:var(--paper);color:var(--ink);font:16px/1.5 ui-monospace,Menlo,monospace}
 .steps{padding-left:22px;font-size:15px;font-weight:700}
 .err{color:var(--hurt);font-size:14px;font-weight:700;min-height:1em}
 .sec-h{display:flex;align-items:center;gap:8px;margin:6px 0 8px}
@@ -294,6 +294,11 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+/* 手機禁止縮放：捏合、點兩下都不放大；看大圖改用點圖切換 */
+html,body{touch-action:pan-x pan-y}
+button,a,label,.btn{touch-action:manipulation}
+#zoom img.big{width:200%;max-width:none;min-height:0}
+#zoom::before{content:"點圖片可放大／還原";position:fixed;left:12px;top:calc(22px + env(safe-area-inset-top));color:#fff;font-size:13px;font-weight:900;text-shadow:0 0 4px #000;z-index:1}
 </style>
 </head>
 <body>
@@ -1743,6 +1748,15 @@ if (bankUrl) {
     .then(t => { const b = normalize(t); const existed = addBank(b); home(); toast((existed ? '已更新：' : '已載入：') + b.title); })
     .catch(() => toast('題庫載入失敗，請確認檔案路徑'));
 }
+})();
+// 手機禁止縮放（iOS Safari 會忽略 viewport 的 user-scalable，另外擋手勢）
+document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+// 大圖：點一下放大 200%（可上下左右捲動），再點一下還原；關閉時還原
+(() => {
+  const z = document.getElementById('zoom'), zi = z.querySelector('img');
+  zi.addEventListener('click', () => zi.classList.toggle('big'));
+  z.querySelector('.x').addEventListener('click', () => zi.classList.remove('big'));
 })();
 </script>
 </body>
