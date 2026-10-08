@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-hira-daku",
+  "title": "日文50音｜平假名 濁音・半濁音",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「が」怎麼念？",
+      "options": [
+        "ka",
+        "ga",
+        "za",
+        "da"
+      ],
+      "answer": 1,
+      "explain": "「が」念 ga；其他選項分別是 か＝ka、ざ＝za、だ＝da。",
+      "point": "「が」念 ga。容易搞混：か＝ka、ざ＝za、だ＝da。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "か行加゛變g"
+    },
+    {
+      "q": "要找鑰匙（kagi），哪一個才對？",
+      "options": [
+        "かき",
+        "がき",
+        "かぎ",
+        "かじ"
+      ],
+      "answer": 2,
+      "explain": "ぎ＝gi；き＝ki、が＝ga、じ＝ji。",
+      "point": "かぎ＝鑰匙；かき＝柿子。只差兩點意思就變了。",
+      "mnemonic": "き加兩點，鑰匙就「卡(gi)」住了"
+    },
+    {
+      "q": "讀音「ji」的假名是哪一個？",
+      "options": [
+        "し",
+        "ず",
+        "じ",
+        "ぜ"
+      ],
+      "answer": 2,
+      "explain": "ji 寫成「じ」；し＝shi、ず＝zu、ぜ＝ze。",
+      "point": "「じ」念 ji。容易搞混：し＝shi、ず＝zu、ぜ＝ze。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "さ行加゛變z"
+    },
+    {
+      "q": "便當店的「ごはん」，怎麼念？",
+      "options": [
+        "kohan",
+        "gopan",
+        "gohan",
+        "gohun"
+      ],
+      "answer": 2,
+      "explain": "ご＝go、は＝ha、ん＝n。",
+      "point": "ごはん＝米飯／一餐。こ加゛變ご。",
+      "mnemonic": "吃飯要用力，所以加兩點"
+    },
+    {
+      "q": "「ず」怎麼念？",
+      "options": [
+        "zu",
+        "su",
+        "ji",
+        "zo"
+      ],
+      "answer": 0,
+      "explain": "「ず」念 zu；其他選項分別是 す＝su、じ＝ji、ぞ＝zo。",
+      "point": "「ず」念 zu。容易搞混：す＝su、じ＝ji、ぞ＝zo。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "さ行加゛變z"
+    },
+    {
+      "q": "日式料理店的「てんぷら」，怎麼念？",
+      "options": [
+        "tenbura",
+        "denpura",
+        "tenfura",
+        "tenpura"
+      ],
+      "answer": 3,
+      "explain": "ぷ＝pu（小圈）；ぶ才是bu。",
+      "point": "てんぷら＝天婦羅。゜→p、゛→b。",
+      "mnemonic": "小圈像炸物冒出的油泡，噗(pu)"
+    },
+    {
+      "q": "讀音「da」的假名是哪一個？",
+      "options": [
+        "た",
+        "だ",
+        "ざ",
+        "ば"
+      ],
+      "answer": 1,
+      "explain": "da 寫成「だ」；た＝ta、ざ＝za、ば＝ba。",
+      "point": "「だ」念 da。容易搞混：た＝ta、ざ＝za、ば＝ba。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "た行加゛變d；ぢ・づ很少用，念ji・zu"
+    },
+    {
+      "q": "花店的「ばら」，怎麼念？",
+      "options": [
+        "bara",
+        "para",
+        "hara",
+        "bura"
+      ],
+      "answer": 0,
+      "explain": "ば＝ba（兩點）；ぱ＝pa、は＝ha。",
+      "point": "ばら＝玫瑰。",
+      "mnemonic": "玫瑰有刺，兩點像兩根刺"
+    },
+    {
+      "q": "「で」怎麼念？",
+      "options": [
+        "te",
+        "ze",
+        "be",
+        "de"
+      ],
+      "answer": 3,
+      "explain": "「で」念 de；其他選項分別是 て＝te、ぜ＝ze、べ＝be。",
+      "point": "「で」念 de。容易搞混：て＝te、ぜ＝ze、べ＝be。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "た行加゛變d；ぢ・づ很少用，念ji・zu"
+    },
+    {
+      "q": "餐廳點「みず」，怎麼念？",
+      "options": [
+        "misu",
+        "miju",
+        "mitsu",
+        "mizu"
+      ],
+      "answer": 3,
+      "explain": "ず＝zu；す＝su、つ＝tsu。",
+      "point": "みず＝水。す加゛變ず。",
+      "mnemonic": "水滴兩滴→す加兩點"
+    },
+    {
+      "q": "讀音「ba」的假名是哪一個？",
+      "options": [
+        "ぱ",
+        "は",
+        "だ",
+        "ば"
+      ],
+      "answer": 3,
+      "explain": "ba 寫成「ば」；ぱ＝pa、は＝ha、だ＝da。",
+      "point": "「ば」念 ba。容易搞混：ぱ＝pa、は＝ha、だ＝da。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "は行加゛變b"
+    },
+    {
+      "q": "「はなぢ」怎麼念？",
+      "options": [
+        "hanaji",
+        "hanachi",
+        "hanaki",
+        "hanashi"
+      ],
+      "answer": 0,
+      "explain": "ぢ念ji，和じ同音；只在少數詞裡出現。",
+      "point": "はなぢ＝鼻血（はな＋ち，ち濁化成ぢ）。ぢ・づ很少用，念ji・zu。",
+      "mnemonic": "鼻(はな)流血(ち)，連起來ち就濁化變ぢ"
+    },
+    {
+      "q": "「ぴ」怎麼念？",
+      "options": [
+        "bi",
+        "pi",
+        "hi",
+        "gi"
+      ],
+      "answer": 1,
+      "explain": "「ぴ」念 pi；其他選項分別是 び＝bi、ひ＝hi、ぎ＝gi。",
+      "point": "「ぴ」念 pi。容易搞混：び＝bi、ひ＝hi、ぎ＝gi。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "は行加゜變p，那個小圈像嘴巴噗一聲"
+    },
+    {
+      "q": "文具店的「えんぴつ」，怎麼念？",
+      "options": [
+        "enbitsu",
+        "enhitsu",
+        "enpitsu",
+        "enpichu"
+      ],
+      "answer": 2,
+      "explain": "ぴ＝pi（小圈）、つ＝tsu。",
+      "point": "えんぴつ＝鉛筆。",
+      "mnemonic": "鉛筆寫字「噗噗」→゜念p"
+    },
+    {
+      "q": "讀音「bo」的假名是哪一個？",
+      "options": [
+        "ぽ",
+        "ぼ",
+        "ほ",
+        "ど"
+      ],
+      "answer": 1,
+      "explain": "bo 寫成「ぼ」；ぽ＝po、ほ＝ho、ど＝do。",
+      "point": "「ぼ」念 bo。容易搞混：ぽ＝po、ほ＝ho、ど＝do。 濁音規則：か→g、さ→z、た→d、は→b，は行加゜→p。",
+      "mnemonic": "は行加゛變b"
+    },
+    {
+      "q": "天氣預報說「かぜ」很強，怎麼念？",
+      "options": [
+        "kaze",
+        "kase",
+        "kaje",
+        "gaze"
+      ],
+      "answer": 0,
+      "explain": "ぜ＝ze；せ＝se。か沒有加點，所以是ka。",
+      "point": "かぜ＝風（也指感冒）。",
+      "mnemonic": "風吹得「Z」字形→ぜ念ze"
+    }
+  ]
+}

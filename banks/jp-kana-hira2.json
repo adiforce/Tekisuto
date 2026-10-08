@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-hira2",
+  "title": "日文50音｜平假名 清音（た〜ほ行）",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「ち」怎麼念？",
+      "options": [
+        "sa",
+        "chi",
+        "ra",
+        "ro"
+      ],
+      "answer": 1,
+      "explain": "「ち」念 chi；其他選項分別是 さ＝sa、ら＝ra、ろ＝ro。",
+      "point": "「ち」念 chi，字源是「知」。容易搞混：さ＝sa、ら＝ra、ろ＝ro。",
+      "mnemonic": "「知」草寫；さ左右翻過來就是ち"
+    },
+    {
+      "q": "貓咪咖啡廳的招牌寫著「ねこ」，怎麼念？",
+      "options": [
+        "nuko",
+        "neko",
+        "nako",
+        "noko"
+      ],
+      "answer": 1,
+      "explain": "ね＝ne、こ＝ko。ぬ是nu，兩個字都有尾巴圈，要看左半邊。",
+      "point": "ねこ＝貓。ね左邊是一豎，ぬ左邊是め的形狀。",
+      "mnemonic": "ね的尾巴圈就是貓捲起來的尾巴"
+    },
+    {
+      "q": "讀音「tsu」的平假名是哪一個？",
+      "options": [
+        "つ",
+        "し",
+        "う",
+        "の"
+      ],
+      "answer": 0,
+      "explain": "tsu 寫成「つ」；し＝shi、う＝u、の＝no。",
+      "point": "「つ」念 tsu，字源是「川」。容易搞混：し＝shi、う＝u、の＝no。",
+      "mnemonic": "「川」草寫，一道海浪，衝(tsu)浪"
+    },
+    {
+      "q": "要去碼頭搭船（fune），牌子上哪個才對？",
+      "options": [
+        "ふぬ",
+        "ふれ",
+        "ふね",
+        "ふわ"
+      ],
+      "answer": 2,
+      "explain": "ね＝ne；ぬ＝nu、れ＝re、わ＝wa。",
+      "point": "ふね＝船。ね、れ、わ左邊一樣，差在尾巴：ね打圈、れ外甩、わ內收。",
+      "mnemonic": "打圈ね、外甩れ、內收わ"
+    },
+    {
+      "q": "「ぬ」怎麼念？",
+      "options": [
+        "nu",
+        "me",
+        "a",
+        "ne"
+      ],
+      "answer": 0,
+      "explain": "「ぬ」念 nu；其他選項分別是 め＝me、あ＝a、ね＝ne。",
+      "point": "「ぬ」念 nu，字源是「奴」。容易搞混：め＝me、あ＝a、ね＝ne。",
+      "mnemonic": "め＋尾巴打圈＝ぬ"
+    },
+    {
+      "q": "花店門口寫「はな」，怎麼念？",
+      "options": [
+        "hona",
+        "hana",
+        "nana",
+        "hani"
+      ],
+      "answer": 1,
+      "explain": "は＝ha、な＝na。ほ（ho）比は多一橫。",
+      "point": "はな＝花。",
+      "mnemonic": "哈(ha)哈，拿(na)一束花"
+    },
+    {
+      "q": "讀音「ne」的平假名是哪一個？",
+      "options": [
+        "れ",
+        "わ",
+        "ね",
+        "ぬ"
+      ],
+      "answer": 2,
+      "explain": "ne 寫成「ね」；れ＝re、わ＝wa、ぬ＝nu。",
+      "point": "「ね」念 ne，字源是「祢」。容易搞混：れ＝re、わ＝wa、ぬ＝nu。",
+      "mnemonic": "尾巴打圈，像貓(ねこ)捲起來的尾巴"
+    },
+    {
+      "q": "地下鐵入口寫「ちかてつ」，怎麼念？",
+      "options": [
+        "sakatetsu",
+        "chikatetsu",
+        "chikatotsu",
+        "chikatesu"
+      ],
+      "answer": 1,
+      "explain": "ち＝chi、か＝ka、て＝te、つ＝tsu。",
+      "point": "ちかてつ＝地下鐵。ち念chi，つ念tsu。",
+      "mnemonic": "ち是さ翻面；つ是一道浪"
+    },
+    {
+      "q": "「は」怎麼念？",
+      "options": [
+        "ha",
+        "ho",
+        "ke",
+        "na"
+      ],
+      "answer": 0,
+      "explain": "「は」念 ha；其他選項分別是 ほ＝ho、け＝ke、な＝na。",
+      "point": "「は」念 ha，字源是「波」。容易搞混：ほ＝ho、け＝ke、な＝na。",
+      "mnemonic": "「波」草寫，哈(ha)"
+    },
+    {
+      "q": "「ひと」這個詞怎麼念？",
+      "options": [
+        "hite",
+        "fito",
+        "hitsu",
+        "hito"
+      ],
+      "answer": 3,
+      "explain": "ひ＝hi、と＝to。",
+      "point": "ひと＝人。",
+      "mnemonic": "ひ像笑開的嘴，人(ひと)見人笑"
+    },
+    {
+      "q": "讀音「ho」的平假名是哪一個？",
+      "options": [
+        "は",
+        "ま",
+        "け",
+        "ほ"
+      ],
+      "answer": 3,
+      "explain": "ho 寫成「ほ」；は＝ha、ま＝ma、け＝ke。",
+      "point": "「ほ」念 ho，字源是「保」。容易搞混：は＝ha、ま＝ma、け＝ke。",
+      "mnemonic": "「保」草寫；は右邊多一橫就是ほ"
+    },
+    {
+      "q": "鐘錶店的招牌寫「とけい」，怎麼念？",
+      "options": [
+        "tekei",
+        "tokai",
+        "takei",
+        "tokei"
+      ],
+      "answer": 3,
+      "explain": "と＝to、け＝ke、い＝i。",
+      "point": "とけい＝時鐘、手錶。と和て容易搞混：と念to，て念te。",
+      "mnemonic": "と像腳趾被刺，痛得看時間"
+    },
+    {
+      "q": "「た」怎麼念？",
+      "options": [
+        "na",
+        "ni",
+        "ta",
+        "ko"
+      ],
+      "answer": 2,
+      "explain": "「た」念 ta；其他選項分別是 な＝na、に＝ni、こ＝ko。",
+      "point": "「た」念 ta，字源是「太」。容易搞混：な＝na、に＝ni、こ＝ko。",
+      "mnemonic": "「太」草寫：左邊像ナ、右邊像こ"
+    },
+    {
+      "q": "「なつ」這個季節怎麼念？",
+      "options": [
+        "nashi",
+        "notsu",
+        "nachi",
+        "natsu"
+      ],
+      "answer": 3,
+      "explain": "な＝na、つ＝tsu。",
+      "point": "なつ＝夏天。",
+      "mnemonic": "夏天去衝(tsu)浪"
+    },
+    {
+      "q": "讀音「te」的平假名是哪一個？",
+      "options": [
+        "と",
+        "そ",
+        "て",
+        "く"
+      ],
+      "answer": 2,
+      "explain": "te 寫成「て」；と＝to、そ＝so、く＝ku。",
+      "point": "「て」念 te，字源是「天」。容易搞混：と＝to、そ＝so、く＝ku。",
+      "mnemonic": "「天」草寫；て也是「手」的讀音"
+    },
+    {
+      "q": "夜空中的「ほし」，怎麼念？",
+      "options": [
+        "hoshi",
+        "hashi",
+        "hosu",
+        "noshi"
+      ],
+      "answer": 0,
+      "explain": "ほ＝ho、し＝shi。は（ha）少一橫。",
+      "point": "ほし＝星星。ほ比は右邊多一橫。",
+      "mnemonic": "星星比較多，所以ほ比は多一橫"
+    }
+  ]
+}
