@@ -122,6 +122,18 @@ textarea{width:100%;min-height:200px;margin-top:12px;padding:12px;border-radius:
 .steps{padding-left:20px;color:var(--sub);font-size:15px}
 .err{color:var(--ng);font-size:14px;min-height:1em}
 
+/* 附圖 */
+.qimg{display:block;width:100%;padding:6px;margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:zoom-in;position:relative}
+.qimg img{display:block;width:100%;max-height:46vh;object-fit:contain}
+.qimg::after{content:"🔍 點圖放大";position:absolute;right:8px;bottom:8px;font-size:12px;background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:99px}
+.qimg.broken{cursor:default;background:var(--card)} .qimg.broken img{display:none}
+.qimg.broken::after{content:"圖片載入失敗（題庫需放在 GitHub 上）";position:static;display:block;text-align:center;background:none;color:var(--sub);padding:16px}
+.rv .qimg{margin:10px 0 0}
+#zoom{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;z-index:30;overflow:auto;-webkit-overflow-scrolling:touch}
+#zoom.show{display:block}
+#zoom img{display:block;width:100%;min-height:100%;object-fit:contain;background:#fff}
+#zoom .x{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:22px}
+
 /* 浮層 */
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:15px;opacity:0;transition:.25s;pointer-events:none;max-width:90vw;z-index:20}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -134,6 +146,7 @@ textarea{width:100%;min-height:200px;margin-top:12px;padding:12px;border-radius:
 <body>
 <div id="app"></div>
 <div id="toast"></div>
+<div id="zoom"><button class="x" aria-label="關閉">✕</button><img alt="放大圖"></div>
 <div id="sheet"><div class="box" id="sheetBox"></div></div>
 
 <script>
@@ -165,7 +178,8 @@ const PROMPT = `請根據我上傳的課本內容出題，只輸出一份 JSON�
 3. answer 是正確選項的位置，從 0 開始算
 4. 每題都要有 point 和 mnemonic，口訣要短、好記，好笑也可以
 5. 每一課的 id 都不同，同一課重出題時 id 保持一樣
-6. 使用繁體中文`;
+6. 使用繁體中文
+7. 需要附圖的題目可加 "image": "banks/img/檔名.jpg"`;
 
 /* ===== 示範題庫 ===== */
 const SAMPLE = {
@@ -256,7 +270,9 @@ function normalize(raw) {
     seen.add(qid);
     return {
       id: qid, q: String(text), options: opts.map(String), answer: a,
-      explain: String(q.explain || ''), point: String(q.point || ''), mnemonic: String(q.mnemonic || '')
+      explain: String(q.explain || ''), point: String(q.point || ''), mnemonic: String(q.mnemonic || ''),
+      image: String(q.image || ''),
+      lock: !!q.lock
     };
   });
   return { v: 2, id, title, subject: String(o.subject || ''), questions };
@@ -322,6 +338,9 @@ function resolve(refs) {
 }
 const toRefs = items => items.map(it => ({ b: it.bid, q: it.q.id }));
 const isMulti = items => new Set(items.map(it => it.bid)).size > 1;
+const imgTag = q => q.image
+  ? `<button class="qimg" data-act="zoom" data-src="${esc(q.image)}"><img src="${esc(q.image)}" alt="題目附圖" loading="lazy" onerror="this.parentNode.classList.add('broken')"></button>`
+  : '';
 const srcTag = it => `<span class="src">${esc(it.bt)}</span>`;
 
 /* ===== 首頁 ===== */
@@ -416,7 +435,7 @@ function startQuiz(refs, title, recordBid) {
   S = {
     title, recordBid: recordBid || null, multi: isMulti(items),
     i: 0, correct: 0, wrong: [], answered: false,
-    items: shuffle(items).map(it => ({ ...it, order: shuffle(it.q.options.map((_, i) => i)) }))
+    items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
   SET.all = toRefs(S.items);
   renderQ();
@@ -428,6 +447,7 @@ function renderQ() {
       <h1 class="small">${esc(S.title)}</h1><span class="sub">${S.i + 1} / ${n}</span></header>
     <div class="bar"><i style="width:${S.i / n * 100}%"></i></div>
     ${S.multi ? srcTag(it) : ''}
+    ${imgTag(it.q)}
     <div class="qtext">${fmt(it.q.q)}</div>
     <div class="opts">${it.order.map((oi, k) =>
       `<button class="opt" data-act="pick" data-k="${k}"><span class="lt">${LETTER[k]}</span><span>${fmt(it.q.options[oi])}</span></button>`).join('')}
@@ -493,6 +513,7 @@ function review(refs, title) {
     h += `<article class="rv">
       ${multi ? srcTag(it) : ''}
       <div class="rv-q"><span class="num">${i + 1}</span><span>${fmt(q.q)}</span></div>
+      ${imgTag(q)}
       <div class="rv-a">✔ ${fmt(q.options[q.answer])}</div>
       ${q.point ? `<div class="pt"><b>重點</b><p>${fmt(q.point)}</p></div>` : ''}
       ${q.mnemonic ? `<div class="mn"><b>💡 口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
@@ -518,6 +539,7 @@ function renderCard() {
     <div class="flip" id="card" data-act="flip"><div class="inner">
       <div class="face front"><div class="hint">點一下翻面，左右滑換張</div>
         ${C.multi ? `<div style="text-align:center">${srcTag(it)}</div>` : ''}
+        ${imgTag(q)}
         <div class="qtext">${fmt(q.q)}</div></div>
       <div class="face back">
         <div class="ans">${fmt(q.options[q.answer])}</div>
@@ -570,6 +592,10 @@ const ACT = {
   quizReview: () => startQuiz(SET.rev.refs, SET.rev.title.replace(/^錯題重點｜/, '').replace(/重點$/, '') + (SET.rev.title.startsWith('全部') ? '' : '・錯題')),
   flip: (d, el) => { if (el.dataset.swiped) { delete el.dataset.swiped; return; } el.classList.toggle('on'); },
   cnext, cprev,
+  zoom: (d, el) => {
+    if (el.classList.contains('broken')) return;
+    const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
+  },
   bankMenu: d => {
     const b = db.banks[d.id]; if (!b) return;
     sheet(b.title, [
@@ -586,6 +612,11 @@ app.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const fn = ACT[el.dataset.act]; if (fn) fn(el.dataset, el, e);
 });
+
+document.getElementById('zoom').addEventListener('click', e => {
+  if (e.target.tagName !== 'IMG' || e.target.closest('.x')) e.currentTarget.classList.remove('show');
+});
+document.getElementById('zoom').querySelector('.x').addEventListener('click', e => { e.stopPropagation(); document.getElementById('zoom').classList.remove('show'); });
 
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
