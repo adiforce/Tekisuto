@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-kata-daku",
+  "title": "日文50音｜片假名 濁音・半濁音",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「ガ」怎麼念？",
+      "options": [
+        "ka",
+        "ga",
+        "za",
+        "da"
+      ],
+      "answer": 1,
+      "explain": "「ガ」念 ga；其他選項分別是 カ＝ka、ザ＝za、ダ＝da。",
+      "point": "「ガ」念 ga。容易搞混：カ＝ka、ザ＝za、ダ＝da。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "か行加゛變g"
+    },
+    {
+      "q": "公車站牌寫「バス」，怎麼念？",
+      "options": [
+        "pasu",
+        "basu",
+        "hasu",
+        "bazu"
+      ],
+      "answer": 1,
+      "explain": "バ＝ba、ス＝su。",
+      "point": "バス＝公車（bus）。",
+      "mnemonic": "バ的兩點像公車的兩個輪子"
+    },
+    {
+      "q": "讀音「ji」的片假名是哪一個？",
+      "options": [
+        "ジ",
+        "シ",
+        "ズ",
+        "ゼ"
+      ],
+      "answer": 0,
+      "explain": "ji 寫成「ジ」；シ＝shi、ズ＝zu、ゼ＝ze。",
+      "point": "「ジ」念 ji。容易搞混：シ＝shi、ズ＝zu、ゼ＝ze。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "さ行加゛變z"
+    },
+    {
+      "q": "麵包店的「パン」，怎麼念？",
+      "options": [
+        "pan",
+        "ban",
+        "han",
+        "pon"
+      ],
+      "answer": 0,
+      "explain": "パ＝pa（小圈）、ン＝n。",
+      "point": "パン＝麵包。゜→p。",
+      "mnemonic": "麵包膨起來像小圈圈"
+    },
+    {
+      "q": "「ズ」怎麼念？",
+      "options": [
+        "su",
+        "zu",
+        "ji",
+        "zo"
+      ],
+      "answer": 1,
+      "explain": "「ズ」念 zu；其他選項分別是 ス＝su、ジ＝ji、ゾ＝zo。",
+      "point": "「ズ」念 zu。容易搞混：ス＝su、ジ＝ji、ゾ＝zo。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "さ行加゛變z"
+    },
+    {
+      "q": "電玩店的「ゲーム」，怎麼念？",
+      "options": [
+        "kēmu",
+        "gāmu",
+        "gēmu",
+        "gēmo"
+      ],
+      "answer": 2,
+      "explain": "ゲ＝ge、ー拉長、ム＝mu。",
+      "point": "ゲーム＝遊戲（game）。ケ加゛變ゲ。",
+      "mnemonic": "打電動手指按兩下→兩點"
+    },
+    {
+      "q": "讀音「da」的片假名是哪一個？",
+      "options": [
+        "ダ",
+        "タ",
+        "ザ",
+        "バ"
+      ],
+      "answer": 0,
+      "explain": "da 寫成「ダ」；タ＝ta、ザ＝za、バ＝ba。",
+      "point": "「ダ」念 da。容易搞混：タ＝ta、ザ＝za、バ＝ba。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "た行加゛變d；ぢ・づ很少用，念ji・zu"
+    },
+    {
+      "q": "客廳裡的「テレビ」，怎麼念？",
+      "options": [
+        "terehi",
+        "terebi",
+        "terepi",
+        "derebi"
+      ],
+      "answer": 1,
+      "explain": "テ＝te、レ＝re、ビ＝bi。",
+      "point": "テレビ＝電視。ビ是ヒ加゛。",
+      "mnemonic": "電視螢幕兩點→ビ"
+    },
+    {
+      "q": "「デ」怎麼念？",
+      "options": [
+        "te",
+        "ze",
+        "be",
+        "de"
+      ],
+      "answer": 3,
+      "explain": "「デ」念 de；其他選項分別是 テ＝te、ゼ＝ze、ベ＝be。",
+      "point": "「デ」念 de。容易搞混：テ＝te、ゼ＝ze、ベ＝be。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "た行加゛變d；ぢ・づ很少用，念ji・zu"
+    },
+    {
+      "q": "門上貼著「ドア」，怎麼念？",
+      "options": [
+        "toa",
+        "dowa",
+        "doa",
+        "boa"
+      ],
+      "answer": 2,
+      "explain": "ド＝do、ア＝a。",
+      "point": "ドア＝門（door）。ト加゛變ド。",
+      "mnemonic": "敲門「咚(do)」兩聲→兩點"
+    },
+    {
+      "q": "讀音「ba」的片假名是哪一個？",
+      "options": [
+        "パ",
+        "ハ",
+        "バ",
+        "ダ"
+      ],
+      "answer": 2,
+      "explain": "ba 寫成「バ」；パ＝pa、ハ＝ha、ダ＝da。",
+      "point": "「バ」念 ba。容易搞混：パ＝pa、ハ＝ha、ダ＝da。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "は行加゛變b"
+    },
+    {
+      "q": "想點披薩（piza），菜單上哪個才對？",
+      "options": [
+        "ビザ",
+        "ピサ",
+        "ヒザ",
+        "ピザ"
+      ],
+      "answer": 3,
+      "explain": "ピ＝pi、ザ＝za。ビザ是簽證（biza）。",
+      "point": "ピザ＝披薩；ビザ＝簽證。゜→p、゛→b。",
+      "mnemonic": "披薩是圓的→ピ有小圓圈"
+    },
+    {
+      "q": "「ピ」怎麼念？",
+      "options": [
+        "pi",
+        "bi",
+        "hi",
+        "gi"
+      ],
+      "answer": 0,
+      "explain": "「ピ」念 pi；其他選項分別是 ビ＝bi、ヒ＝hi、ギ＝gi。",
+      "point": "「ピ」念 pi。容易搞混：ビ＝bi、ヒ＝hi、ギ＝gi。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "は行加゜變p，那個小圈像嘴巴噗一聲"
+    },
+    {
+      "q": "服飾店的「ズボン」，怎麼念？",
+      "options": [
+        "subon",
+        "zupon",
+        "zubon",
+        "zuhon"
+      ],
+      "answer": 2,
+      "explain": "ズ＝zu、ボ＝bo、ン＝n。",
+      "point": "ズボン＝褲子。",
+      "mnemonic": "褲子兩條腿→兩點"
+    },
+    {
+      "q": "讀音「bo」的片假名是哪一個？",
+      "options": [
+        "ポ",
+        "ホ",
+        "ド",
+        "ボ"
+      ],
+      "answer": 3,
+      "explain": "bo 寫成「ボ」；ポ＝po、ホ＝ho、ド＝do。",
+      "point": "「ボ」念 bo。容易搞混：ポ＝po、ホ＝ho、ド＝do。 片假名的濁音規則和平假名一樣：゛→g/z/d/b，゜→p。",
+      "mnemonic": "は行加゛變b"
+    },
+    {
+      "q": "「ブログ」怎麼念？",
+      "options": [
+        "purogu",
+        "furogu",
+        "burokku",
+        "burogu"
+      ],
+      "answer": 3,
+      "explain": "ブ＝bu、ロ＝ro、グ＝gu。",
+      "point": "ブログ＝部落格（blog）。",
+      "mnemonic": "ブ兩點、プ小圈：blog是b開頭"
+    }
+  ]
+}

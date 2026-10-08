@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-hira1",
+  "title": "日文50音｜平假名 清音（あ〜そ行）",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「あ」怎麼念？",
+      "options": [
+        "a",
+        "o",
+        "me",
+        "nu"
+      ],
+      "answer": 0,
+      "explain": "「あ」念 a；其他選項分別是 お＝o、め＝me、ぬ＝nu。",
+      "point": "「あ」念 a，字源是「安」。容易搞混：お＝o、め＝me、ぬ＝nu。",
+      "mnemonic": "「安」草寫變來；嘴張大喊「啊」。比お少右上那一點"
+    },
+    {
+      "q": "壽司店門簾上寫著「すし」，怎麼念？",
+      "options": [
+        "sashi",
+        "seshi",
+        "sushi",
+        "soshi"
+      ],
+      "answer": 2,
+      "explain": "す＝su、し＝shi，合起來是 sushi。",
+      "point": "すし＝壽司。し念shi，不念si。",
+      "mnemonic": "す是打了個圈的「寸」，し是魚鉤：用魚鉤釣魚來做壽司"
+    },
+    {
+      "q": "讀音「o」的平假名是哪一個？",
+      "options": [
+        "お",
+        "あ",
+        "す",
+        "む"
+      ],
+      "answer": 0,
+      "explain": "o 寫成「お」；あ＝a、す＝su、む＝mu。",
+      "point": "「お」念 o，字源是「於」。容易搞混：あ＝a、す＝su、む＝mu。",
+      "mnemonic": "「於」草寫；比あ多右上一點，「喔」多一顆痣"
+    },
+    {
+      "q": "車站的指標寫著「えき」，怎麼念？",
+      "options": [
+        "aki",
+        "eke",
+        "oki",
+        "eki"
+      ],
+      "answer": 3,
+      "explain": "え＝e、き＝ki。aki是「あき」（秋天）。",
+      "point": "えき＝車站。",
+      "mnemonic": "「欸～我在車站掉了鑰匙(き)」"
+    },
+    {
+      "q": "「き」怎麼念？",
+      "options": [
+        "sa",
+        "ki",
+        "chi",
+        "ma"
+      ],
+      "answer": 1,
+      "explain": "「き」念 ki；其他選項分別是 さ＝sa、ち＝chi、ま＝ma。",
+      "point": "「き」念 ki，字源是「幾」。容易搞混：さ＝sa、ち＝chi、ま＝ma。",
+      "mnemonic": "「幾」草寫，像一把鑰匙；比さ多一橫"
+    },
+    {
+      "q": "下雨天，店門口的桶子上寫「かさ」，那是什麼的讀音？",
+      "options": [
+        "kesa",
+        "kosa",
+        "kisa",
+        "kasa"
+      ],
+      "answer": 3,
+      "explain": "か＝ka、さ＝sa，かさ就是雨傘。",
+      "point": "かさ＝雨傘。か來自「加」，さ來自「左」。",
+      "mnemonic": "「卡(ka)在左(sa)邊的雨傘」"
+    },
+    {
+      "q": "讀音「sa」的平假名是哪一個？",
+      "options": [
+        "き",
+        "ち",
+        "さ",
+        "ら"
+      ],
+      "answer": 2,
+      "explain": "sa 寫成「さ」；き＝ki、ち＝chi、ら＝ra。",
+      "point": "「さ」念 sa，字源是「左」。容易搞混：き＝ki、ち＝chi、ら＝ra。",
+      "mnemonic": "「左」草寫；き少一橫就是さ"
+    },
+    {
+      "q": "居酒屋菜單上寫「おさけ」，怎麼念？",
+      "options": [
+        "asake",
+        "osake",
+        "osaki",
+        "osoke"
+      ],
+      "answer": 1,
+      "explain": "お＝o、さ＝sa、け＝ke。",
+      "point": "おさけ＝酒；前面的お是讓說法更客氣的接頭語。",
+      "mnemonic": "お比あ多一點，就像酒客多喝了一杯"
+    },
+    {
+      "q": "「し」怎麼念？",
+      "options": [
+        "tsu",
+        "ku",
+        "mo",
+        "shi"
+      ],
+      "answer": 3,
+      "explain": "「し」念 shi；其他選項分別是 つ＝tsu、く＝ku、も＝mo。",
+      "point": "「し」念 shi，字源是「之」。容易搞混：つ＝tsu、く＝ku、も＝mo。",
+      "mnemonic": "「之」草寫，像一根魚鉤；念shi不是si"
+    },
+    {
+      "q": "朋友想吃西瓜（suika），水果攤上哪個牌子是對的？",
+      "options": [
+        "すいこ",
+        "すいか",
+        "すいき",
+        "おいか"
+      ],
+      "answer": 1,
+      "explain": "す＝su、い＝i、か＝ka。",
+      "point": "すいか＝西瓜。",
+      "mnemonic": "す中間有圈，像西瓜子"
+    },
+    {
+      "q": "讀音「so」的平假名是哪一個？",
+      "options": [
+        "そ",
+        "ろ",
+        "る",
+        "え"
+      ],
+      "answer": 0,
+      "explain": "so 寫成「そ」；ろ＝ro、る＝ru、え＝e。",
+      "point": "「そ」念 so，字源是「曽」。容易搞混：ろ＝ro、る＝ru、え＝e。",
+      "mnemonic": "「曽」草寫，像一道Z字閃電"
+    },
+    {
+      "q": "超市零食區的看板寫「おかし」，怎麼念？",
+      "options": [
+        "akashi",
+        "okasu",
+        "okishi",
+        "okashi"
+      ],
+      "answer": 3,
+      "explain": "お＝o、か＝ka、し＝shi。",
+      "point": "おかし＝零食、點心。",
+      "mnemonic": "お有一顆痣、し是魚鉤：魚鉤勾零食"
+    },
+    {
+      "q": "「く」怎麼念？",
+      "options": [
+        "he",
+        "ku",
+        "shi",
+        "tsu"
+      ],
+      "answer": 1,
+      "explain": "「く」念 ku；其他選項分別是 へ＝he、し＝shi、つ＝tsu。",
+      "point": "「く」念 ku，字源是「久」。容易搞混：へ＝he、し＝shi、つ＝tsu。",
+      "mnemonic": "像張開的鳥嘴「<」，咕咕叫"
+    },
+    {
+      "q": "日劇角色驚訝地大喊「うそ！」，怎麼念？",
+      "options": [
+        "uso",
+        "usu",
+        "oso",
+        "use"
+      ],
+      "answer": 0,
+      "explain": "う＝u、そ＝so。",
+      "point": "うそ＝騙人的吧／不會吧！",
+      "mnemonic": "そ像閃電，「嗚(u)～搜(so)！」被雷打到的驚訝"
+    },
+    {
+      "q": "讀音「ke」的平假名是哪一個？",
+      "options": [
+        "は",
+        "ほ",
+        "け",
+        "に"
+      ],
+      "answer": 2,
+      "explain": "ke 寫成「け」；は＝ha、ほ＝ho、に＝ni。",
+      "point": "「け」念 ke，字源是「計」。容易搞混：は＝ha、ほ＝ho、に＝ni。",
+      "mnemonic": "「計」草寫：左邊一直條＋右邊一個十字"
+    },
+    {
+      "q": "形容天空顏色的「あおい」，怎麼念？",
+      "options": [
+        "oai",
+        "aei",
+        "aoi",
+        "oui"
+      ],
+      "answer": 2,
+      "explain": "あ＝a、お＝o、い＝i。あ和お只差右上那一點。",
+      "point": "あおい＝藍色的。",
+      "mnemonic": "あ沒痣、お有痣，依序讀 a-o-i"
+    }
+  ]
+}

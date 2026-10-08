@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-kata3",
+  "title": "日文50音｜片假名 清音（マ〜ン）",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「ン」怎麼念？",
+      "options": [
+        "n",
+        "so",
+        "shi",
+        "tsu"
+      ],
+      "answer": 0,
+      "explain": "「ン」念 n；其他選項分別是 ソ＝so、シ＝shi、ツ＝tsu。",
+      "point": "「ン」念 n，字源是「尓」。容易搞混：ソ＝so、シ＝shi、ツ＝tsu。",
+      "mnemonic": "一點在左，長筆由下往上撇；ソ則由上往下"
+    },
+    {
+      "q": "水果攤的「メロン」，怎麼念？",
+      "options": [
+        "meron",
+        "naron",
+        "maron",
+        "meroso"
+      ],
+      "answer": 0,
+      "explain": "メ＝me、ロ＝ro、ン＝n。ソ（so）長得像ン。",
+      "point": "メロン＝哈密瓜（melon）。",
+      "mnemonic": "メ像在瓜上劃一個叉"
+    },
+    {
+      "q": "讀音「me」的片假名是哪一個？",
+      "options": [
+        "メ",
+        "ナ",
+        "ヌ",
+        "ノ"
+      ],
+      "answer": 0,
+      "explain": "me 寫成「メ」；ナ＝na、ヌ＝nu、ノ＝no。",
+      "point": "「メ」念 me，字源是「女」。容易搞混：ナ＝na、ヌ＝nu、ノ＝no。",
+      "mnemonic": "取「女」下半，像打一個叉"
+    },
+    {
+      "q": "飲料櫃的「ミルク」，怎麼念？",
+      "options": [
+        "shiruku",
+        "miruku",
+        "mireku",
+        "nuruku"
+      ],
+      "answer": 1,
+      "explain": "ミ＝mi、ル＝ru、ク＝ku。シ（shi）也是三筆點。",
+      "point": "ミルク＝牛奶（milk）。ミ是「三」斜排，シ兩點加一撇。",
+      "mnemonic": "ミ就是三，三瓶牛奶"
+    },
+    {
+      "q": "片假名「ル」對應的平假名是哪一個？",
+      "options": [
+        "れ",
+        "り",
+        "は",
+        "る"
+      ],
+      "answer": 3,
+      "explain": "「ル」和「る」都念 ru；其他選項對應 レ＝re、リ＝ri、ハ＝ha。",
+      "point": "「ル」念 ru，字源是「流」。容易搞混：レ＝re、リ＝ri、ハ＝ha。",
+      "mnemonic": "取「流」右下兩筆"
+    },
+    {
+      "q": "拉麵店門簾寫「ラーメン」，怎麼念？",
+      "options": [
+        "tēmen",
+        "rāmesu",
+        "wāmen",
+        "rāmen"
+      ],
+      "answer": 3,
+      "explain": "ラ＝ra、ー拉長、メ＝me、ン＝n。テ（te）長得像ラ。",
+      "point": "ラーメン＝拉麵。ラ比テ少一橫。",
+      "mnemonic": "拉(ra)麵要拉長，所以後面有ー"
+    },
+    {
+      "q": "「レ」怎麼念？",
+      "options": [
+        "ru",
+        "ri",
+        "n",
+        "re"
+      ],
+      "answer": 3,
+      "explain": "「レ」念 re；其他選項分別是 ル＝ru、リ＝ri、ン＝n。",
+      "point": "「レ」念 re，字源是「礼」。容易搞混：ル＝ru、リ＝ri、ン＝n。",
+      "mnemonic": "取「礼」右邊的乚"
+    },
+    {
+      "q": "酒單上的「ワイン」，怎麼念？",
+      "options": [
+        "wain",
+        "uain",
+        "fain",
+        "waiso"
+      ],
+      "answer": 0,
+      "explain": "ワ＝wa、イ＝i、ン＝n。ウ（u）比ワ多頭上一點。",
+      "point": "ワイン＝葡萄酒（wine）。",
+      "mnemonic": "ワ像一個沒有蓋子的酒杯"
+    },
+    {
+      "q": "讀音「ro」的片假名是哪一個？",
+      "options": [
+        "コ",
+        "ユ",
+        "エ",
+        "ロ"
+      ],
+      "answer": 3,
+      "explain": "ro 寫成「ロ」；コ＝ko、ユ＝yu、エ＝e。",
+      "point": "「ロ」念 ro，字源是「呂」。容易搞混：コ＝ko、ユ＝yu、エ＝e。",
+      "mnemonic": "取「呂」的「口」"
+    },
+    {
+      "q": "飲料杯上的「レモン」，怎麼念？",
+      "options": [
+        "rumon",
+        "rekon",
+        "remon",
+        "remoso"
+      ],
+      "answer": 2,
+      "explain": "レ＝re、モ＝mo、ン＝n。ル（ru）有兩筆。",
+      "point": "レモン＝檸檬（lemon）。レ一筆、ル兩筆。",
+      "mnemonic": "レ一筆像一片檸檬，ル兩筆像兩片"
+    },
+    {
+      "q": "片假名「ワ」對應的平假名是哪一個？",
+      "options": [
+        "う",
+        "ふ",
+        "わ",
+        "く"
+      ],
+      "answer": 2,
+      "explain": "「ワ」和「わ」都念 wa；其他選項對應 ウ＝u、フ＝fu、ク＝ku。",
+      "point": "「ワ」念 wa，字源是「和」。容易搞混：ウ＝u、フ＝fu、ク＝ku。",
+      "mnemonic": "取「和」右邊的口；比ウ少頭上一點"
+    },
+    {
+      "q": "訂房網站上，飯店（hoteru）的寫法是哪一個？",
+      "options": [
+        "ホテレ",
+        "ホテル",
+        "オテル",
+        "ホテリ"
+      ],
+      "answer": 1,
+      "explain": "ホ＝ho、テ＝te、ル＝ru。レ＝re、リ＝ri、オ＝o。",
+      "point": "ホテル＝飯店（hotel）。ル兩筆一長一短，リ兩筆都直。",
+      "mnemonic": "ル像兩條腿走進飯店"
+    },
+    {
+      "q": "「ユ」怎麼念？",
+      "options": [
+        "ko",
+        "e",
+        "yu",
+        "yo"
+      ],
+      "answer": 2,
+      "explain": "「ユ」念 yu；其他選項分別是 コ＝ko、エ＝e、ヨ＝yo。",
+      "point": "「ユ」念 yu，字源是「由」。容易搞混：コ＝ko、エ＝e、ヨ＝yo。",
+      "mnemonic": "取「由」下半"
+    },
+    {
+      "q": "玩具店的「ヨーヨー」，怎麼念？",
+      "options": [
+        "yūyū",
+        "kōkō",
+        "yōyō",
+        "yōyū"
+      ],
+      "answer": 2,
+      "explain": "ヨ＝yo，三橫朝右；ユ＝yu、コ＝ko。",
+      "point": "ヨーヨー＝溜溜球（yo-yo）。ヨ有三橫、コ兩橫、ユ開口朝上。",
+      "mnemonic": "溜溜球甩出去像ヨ的三條線"
+    },
+    {
+      "q": "讀音「yo」的片假名是哪一個？",
+      "options": [
+        "ユ",
+        "ヨ",
+        "コ",
+        "ヲ"
+      ],
+      "answer": 1,
+      "explain": "yo 寫成「ヨ」；ユ＝yu、コ＝ko、ヲ＝o。",
+      "point": "「ヨ」念 yo，字源是「与」。容易搞混：ユ＝yu、コ＝ko、ヲ＝o。",
+      "mnemonic": "取「与」，三橫朝右"
+    },
+    {
+      "q": "相機店的「カメラ」，怎麼念？",
+      "options": [
+        "kanera",
+        "kamera",
+        "kamewa",
+        "kumera"
+      ],
+      "answer": 1,
+      "explain": "カ＝ka、メ＝me、ラ＝ra。ナ（na）長得像メ。",
+      "point": "カメラ＝相機（camera）。",
+      "mnemonic": "メ像相機對焦的十字叉"
+    }
+  ]
+}

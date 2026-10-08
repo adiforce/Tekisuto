@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-youon",
+  "title": "日文50音｜拗音（ゃゅょ）",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「きゃ」怎麼念？",
+      "options": [
+        "kiya",
+        "ka",
+        "kya",
+        "kyo"
+      ],
+      "answer": 2,
+      "explain": "き＋小ゃ合成一拍，念kya。kiya是大字「きや」。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。",
+      "mnemonic": "小ゃ是黏在旁邊的小跟班，跟き一起發一個音"
+    },
+    {
+      "q": "新幹線的電子看板寫「とうきょう」，怎麼念？",
+      "options": [
+        "Tokiyo",
+        "Tōkyō",
+        "Tōkyū",
+        "Kyōto"
+      ],
+      "answer": 1,
+      "explain": "と＋う拉長＝tō；き＋小ょ＋う＝kyō。",
+      "point": "とうきょう＝東京。う接在お段後面會拉長音。",
+      "mnemonic": "東京兩個字都是長音"
+    },
+    {
+      "q": "「しゅ」怎麼念？",
+      "options": [
+        "shiyu",
+        "shu",
+        "su",
+        "sho"
+      ],
+      "answer": 1,
+      "explain": "し＋小ゅ＝shu；しょ才是sho。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。 しゃ・しゅ・しょ＝sha・shu・sho。",
+      "mnemonic": "ゅ對u、ょ對o"
+    },
+    {
+      "q": "茶館的「おちゃ」，怎麼念？",
+      "options": [
+        "ochiya",
+        "osha",
+        "ocho",
+        "ocha"
+      ],
+      "answer": 3,
+      "explain": "ち＋小ゃ＝cha。",
+      "point": "おちゃ＝茶。",
+      "mnemonic": "ちゃ就是cha，茶的音"
+    },
+    {
+      "q": "「ちょ」怎麼念？",
+      "options": [
+        "cho",
+        "chiyo",
+        "to",
+        "chu"
+      ],
+      "answer": 0,
+      "explain": "ち＋小ょ＝cho；ちゅ是chu。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。 ちゃ・ちゅ・ちょ＝cha・chu・cho。",
+      "mnemonic": "ょ像「よ」縮小，對應o"
+    },
+    {
+      "q": "「しゃしん」怎麼念？",
+      "options": [
+        "shashin",
+        "shishin",
+        "sashin",
+        "shoshin"
+      ],
+      "answer": 0,
+      "explain": "し＋小ゃ＝sha、し＝shi、ん＝n。",
+      "point": "しゃしん＝照片。",
+      "mnemonic": "拍照「咻(sha)」一聲"
+    },
+    {
+      "q": "讀音「nyu」的寫法是哪一個？",
+      "options": [
+        "にゆ",
+        "にゅ",
+        "ぬ",
+        "にょ"
+      ],
+      "answer": 1,
+      "explain": "に＋小ゅ＝nyu。にゆ是兩拍ni-yu，ぬ是nu。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。",
+      "mnemonic": "小ゅ要寫小，寫大就多一拍"
+    },
+    {
+      "q": "頭痛想去醫院（byōin），要找哪個招牌？",
+      "options": [
+        "びよういん",
+        "びょういん",
+        "ぴょういん",
+        "びょうえん"
+      ],
+      "answer": 1,
+      "explain": "びょう＝byō；びよういん是 bi-yō-in，意思是美容院。",
+      "point": "びょういん＝醫院；びよういん＝美容院。ょ寫小、寫大意思完全不同。",
+      "mnemonic": "小ょ去醫院，大よ去美容院"
+    },
+    {
+      "q": "讀音「ryo」的寫法是哪一個？",
+      "options": [
+        "りょ",
+        "りよ",
+        "ろ",
+        "りゅ"
+      ],
+      "answer": 0,
+      "explain": "り＋小ょ＝ryo；りゅ是ryu。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。 りょかん（旅館）就是ryokan。",
+      "mnemonic": "ょ→o、ゅ→u、ゃ→a"
+    },
+    {
+      "q": "車站的「でんしゃ」，怎麼念？",
+      "options": [
+        "densha",
+        "denshiya",
+        "tensha",
+        "densho"
+      ],
+      "answer": 0,
+      "explain": "で＝de、ん＝n、しゃ＝sha。",
+      "point": "でんしゃ＝電車。",
+      "mnemonic": "電車一路「唰(sha)」過去"
+    },
+    {
+      "q": "「じゃ」怎麼念？",
+      "options": [
+        "sha",
+        "cha",
+        "jiya",
+        "ja"
+      ],
+      "answer": 3,
+      "explain": "じ＋小ゃ＝ja；しゃ＝sha、ちゃ＝cha。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。 じゃ・じゅ・じょ＝ja・ju・jo。",
+      "mnemonic": "じ有兩點→濁音j"
+    },
+    {
+      "q": "溫泉地的「りょかん」，怎麼念？",
+      "options": [
+        "riyokan",
+        "rokan",
+        "ryukan",
+        "ryokan"
+      ],
+      "answer": 3,
+      "explain": "り＋小ょ＝ryo。",
+      "point": "りょかん＝日式旅館。",
+      "mnemonic": "りょ一拍，不是ri-yo兩拍"
+    },
+    {
+      "q": "「ぴゅ」怎麼念？",
+      "options": [
+        "byu",
+        "hyu",
+        "pyu",
+        "pyo"
+      ],
+      "answer": 2,
+      "explain": "ぴ有小圈＝p，加小ゅ＝pyu。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。 ゜→p、゛→b。",
+      "mnemonic": "小圈噗(p)一聲"
+    },
+    {
+      "q": "早餐店的「ぎゅうにゅう」，怎麼念？",
+      "options": [
+        "gyūnyō",
+        "giunyū",
+        "kyūnyū",
+        "gyūnyū"
+      ],
+      "answer": 3,
+      "explain": "ぎゅ＝gyu、う拉長；にゅ＝nyu、う拉長。",
+      "point": "ぎゅうにゅう＝牛奶。ぎ有兩點→g，き才是k。",
+      "mnemonic": "兩個「ゅう」連在一起，牛奶喝兩口"
+    },
+    {
+      "q": "「ひょ」怎麼念？",
+      "options": [
+        "hiyo",
+        "byo",
+        "hyo",
+        "hyu"
+      ],
+      "answer": 2,
+      "explain": "ひ＋小ょ＝hyo；びょ＝byo。",
+      "point": "拗音＝い段假名＋小寫ゃゅょ，合成一拍；寫成大字就變兩拍。",
+      "mnemonic": "沒有點就是清音h"
+    },
+    {
+      "q": "飲料櫃的「ジュース」，怎麼念？",
+      "options": [
+        "shūsu",
+        "chūsu",
+        "jūsu",
+        "jiyūsu"
+      ],
+      "answer": 2,
+      "explain": "ジ＋小ュ＝ju、ー拉長、ス＝su。",
+      "point": "ジュース＝果汁。片假名也有拗音：ジュ＝ju。",
+      "mnemonic": "ジ有兩點＝j，シュ才是shu"
+    }
+  ]
+}

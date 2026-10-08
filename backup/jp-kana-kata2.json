@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-kata2",
+  "title": "日文50音｜片假名 清音（タ〜ホ行）",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「ツ」怎麼念？",
+      "options": [
+        "shi",
+        "tsu",
+        "so",
+        "n"
+      ],
+      "answer": 1,
+      "explain": "「ツ」念 tsu；其他選項分別是 シ＝shi、ソ＝so、ン＝n。",
+      "point": "「ツ」念 tsu，字源是「川」。容易搞混：シ＝shi、ソ＝so、ン＝n。",
+      "mnemonic": "兩點排在上面，長筆由上往下"
+    },
+    {
+      "q": "路邊車頂的燈寫「タクシー」，怎麼念？",
+      "options": [
+        "kakushī",
+        "takusō",
+        "takushī",
+        "takutsū"
+      ],
+      "answer": 2,
+      "explain": "タ＝ta、ク＝ku、シ＝shi、ー拉長。",
+      "point": "タクシー＝計程車（taxi）。タ比ク多中間一筆。",
+      "mnemonic": "タ是「夕」，晚上搭計程車"
+    },
+    {
+      "q": "讀音「chi」的片假名是哪一個？",
+      "options": [
+        "テ",
+        "キ",
+        "チ",
+        "モ"
+      ],
+      "answer": 2,
+      "explain": "chi 寫成「チ」；テ＝te、キ＝ki、モ＝mo。",
+      "point": "「チ」念 chi，字源是「千」。容易搞混：テ＝te、キ＝ki、モ＝mo。",
+      "mnemonic": "取「千」"
+    },
+    {
+      "q": "球場的看板寫「テニス」，怎麼念？",
+      "options": [
+        "chenisu",
+        "tenisu",
+        "teniso",
+        "temisu"
+      ],
+      "answer": 1,
+      "explain": "テ＝te、ニ＝ni、ス＝su。チ（chi）長得像テ。",
+      "point": "テニス＝網球（tennis）。テ來自「天」，チ來自「千」。",
+      "mnemonic": "ニ就是「二」，網球雙打兩個人"
+    },
+    {
+      "q": "片假名「ヌ」對應的平假名是哪一個？",
+      "options": [
+        "ぬ",
+        "す",
+        "め",
+        "ふ"
+      ],
+      "answer": 0,
+      "explain": "「ヌ」和「ぬ」都念 nu；其他選項對應 ス＝su、メ＝me、フ＝fu。",
+      "point": "「ヌ」念 nu，字源是「奴」。容易搞混：ス＝su、メ＝me、フ＝fu。",
+      "mnemonic": "取「奴」右邊的「又」"
+    },
+    {
+      "q": "餐具區的「ナイフ」，怎麼念？",
+      "options": [
+        "meifu",
+        "naiu",
+        "naisu",
+        "naifu"
+      ],
+      "answer": 3,
+      "explain": "ナ＝na、イ＝i、フ＝fu。メ（me）像打叉，ナ像十字。",
+      "point": "ナイフ＝刀子（knife）。",
+      "mnemonic": "ナ是十字、メ是叉叉，刀子劃十字"
+    },
+    {
+      "q": "「ネ」怎麼念？",
+      "options": [
+        "ne",
+        "ho",
+        "o",
+        "su"
+      ],
+      "answer": 0,
+      "explain": "「ネ」念 ne；其他選項分別是 ホ＝ho、オ＝o、ス＝su。",
+      "point": "「ネ」念 ne，字源是「祢」。容易搞混：ホ＝ho、オ＝o、ス＝su。",
+      "mnemonic": "取「祢」左邊的礻"
+    },
+    {
+      "q": "文具店的「ノート」，怎麼念？",
+      "options": [
+        "mēto",
+        "nōi",
+        "nōto",
+        "sōto"
+      ],
+      "answer": 2,
+      "explain": "ノ＝no、ー拉長、ト＝to。",
+      "point": "ノート＝筆記本（note）。ノ只有一撇。",
+      "mnemonic": "ノ一撇就像翻開筆記本的那一頁"
+    },
+    {
+      "q": "讀音「na」的片假名是哪一個？",
+      "options": [
+        "メ",
+        "ケ",
+        "ヤ",
+        "ナ"
+      ],
+      "answer": 3,
+      "explain": "na 寫成「ナ」；メ＝me、ケ＝ke、ヤ＝ya。",
+      "point": "「ナ」念 na，字源是「奈」。容易搞混：メ＝me、ケ＝ke、ヤ＝ya。",
+      "mnemonic": "取「奈」上半，像一個歪的十字"
+    },
+    {
+      "q": "西裝店的「ネクタイ」，怎麼念？",
+      "options": [
+        "hokutai",
+        "nukutai",
+        "nekuchi",
+        "nekutai"
+      ],
+      "answer": 3,
+      "explain": "ネ＝ne、ク＝ku、タ＝ta、イ＝i。ホ（ho）長得像ネ。",
+      "point": "ネクタイ＝領帶（necktie）。ネ取自「礻」，ホ取自「木」。",
+      "mnemonic": "ネ頭上有一點，像領帶結"
+    },
+    {
+      "q": "片假名「ホ」對應的平假名是哪一個？",
+      "options": [
+        "お",
+        "ほ",
+        "ね",
+        "な"
+      ],
+      "answer": 1,
+      "explain": "「ホ」和「ほ」都念 ho；其他選項對應 オ＝o、ネ＝ne、ナ＝na。",
+      "point": "「ホ」念 ho，字源是「保」。容易搞混：オ＝o、ネ＝ne、ナ＝na。",
+      "mnemonic": "取「保」右下的「木」"
+    },
+    {
+      "q": "家電賣場想找暖氣（hītā），哪個才對？",
+      "options": [
+        "ヒーター",
+        "セーター",
+        "トーター",
+        "ヒーヌー"
+      ],
+      "answer": 0,
+      "explain": "ヒ＝hi、タ＝ta。セーター是毛衣（sētā）。",
+      "point": "ヒーター＝暖氣機（heater）；セーター＝毛衣。ヒ和セ很像，セ的橫線會穿出去。",
+      "mnemonic": "都是冬天用的：ヒーター插電，セーター穿身上"
+    },
+    {
+      "q": "「タ」怎麼念？",
+      "options": [
+        "ku",
+        "nu",
+        "ta",
+        "wa"
+      ],
+      "answer": 2,
+      "explain": "「タ」念 ta；其他選項分別是 ク＝ku、ヌ＝nu、ワ＝wa。",
+      "point": "「タ」念 ta，字源是「多」。容易搞混：ク＝ku、ヌ＝nu、ワ＝wa。",
+      "mnemonic": "取「多」上半的「夕」"
+    },
+    {
+      "q": "情人節卡片上的「ハート」，怎麼念？",
+      "options": [
+        "sōto",
+        "hāto",
+        "hōto",
+        "hātsu"
+      ],
+      "answer": 1,
+      "explain": "ハ＝ha、ー拉長、ト＝to。ソ（so）長得像ハ。",
+      "point": "ハート＝愛心（heart）。ハ就是「八」，兩筆往外開。",
+      "mnemonic": "ハ是「八」，愛心從中間打開"
+    },
+    {
+      "q": "讀音「ni」的片假名是哪一個？",
+      "options": [
+        "コ",
+        "ユ",
+        "エ",
+        "ニ"
+      ],
+      "answer": 3,
+      "explain": "ni 寫成「ニ」；コ＝ko、ユ＝yu、エ＝e。",
+      "point": "「ニ」念 ni，字源是「二」。容易搞混：コ＝ko、ユ＝yu、エ＝e。",
+      "mnemonic": "就是「二」"
+    },
+    {
+      "q": "旅行社的廣告寫「ツアー」，怎麼念？",
+      "options": [
+        "tsuā",
+        "shiā",
+        "soā",
+        "chiā"
+      ],
+      "answer": 0,
+      "explain": "ツ＝tsu、ア＝a、ー拉長。",
+      "point": "ツアー＝旅行團（tour）。ツ兩點在上、長筆由上往下；シ點在左、長筆由下往上。",
+      "mnemonic": "ツ從上面衝(tsu)下來"
+    }
+  ]
+}

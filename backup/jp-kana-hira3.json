@@ -1,0 +1,215 @@
+{
+  "id": "jp-kana-hira3",
+  "title": "日文50音｜平假名 清音（ま〜ん）",
+  "subject": "國文",
+  "questions": [
+    {
+      "q": "「め」怎麼念？",
+      "options": [
+        "nu",
+        "no",
+        "me",
+        "a"
+      ],
+      "answer": 2,
+      "explain": "「め」念 me；其他選項分別是 ぬ＝nu、の＝no、あ＝a。",
+      "point": "「め」念 me，字源是「女」。容易搞混：ぬ＝nu、の＝no、あ＝a。",
+      "mnemonic": "「女」草寫；め沒圈，加了尾巴圈就變ぬ"
+    },
+    {
+      "q": "登山步道的牌子寫「やま」，怎麼念？",
+      "options": [
+        "yama",
+        "yuma",
+        "yoma",
+        "yamu"
+      ],
+      "answer": 0,
+      "explain": "や＝ya、ま＝ma。",
+      "point": "やま＝山。",
+      "mnemonic": "「呀(ya)！媽(ma)，好高的山」"
+    },
+    {
+      "q": "讀音「mu」的平假名是哪一個？",
+      "options": [
+        "す",
+        "お",
+        "あ",
+        "む"
+      ],
+      "answer": 3,
+      "explain": "mu 寫成「む」；す＝su、お＝o、あ＝a。",
+      "point": "「む」念 mu，字源是「武」。容易搞混：す＝su、お＝o、あ＝a。",
+      "mnemonic": "「武」草寫，牛「哞」(mu)"
+    },
+    {
+      "q": "賞花季節到處都是「さくら」，怎麼念？",
+      "options": [
+        "sakura",
+        "sakuro",
+        "sakuru",
+        "sukura"
+      ],
+      "answer": 0,
+      "explain": "ら＝ra；ろ＝ro、る＝ru。",
+      "point": "さくら＝櫻花。ら像拉開的弓。",
+      "mnemonic": "拉(ra)弓射櫻花"
+    },
+    {
+      "q": "「る」怎麼念？",
+      "options": [
+        "ro",
+        "ru",
+        "ra",
+        "so"
+      ],
+      "answer": 1,
+      "explain": "「る」念 ru；其他選項分別是 ろ＝ro、ら＝ra、そ＝so。",
+      "point": "「る」念 ru，字源是「留」。容易搞混：ろ＝ro、ら＝ra、そ＝so。",
+      "mnemonic": "尾巴打圈的是る(ru)，沒圈的是ろ(ro)"
+    },
+    {
+      "q": "停車場的告示寫「くるま」，怎麼念？",
+      "options": [
+        "kuruma",
+        "kuroma",
+        "karuma",
+        "kuruha"
+      ],
+      "answer": 0,
+      "explain": "る有尾巴圈念ru；ろ沒圈念ro。",
+      "point": "くるま＝車子。",
+      "mnemonic": "車輪是圓的，所以くるま的る有圈"
+    },
+    {
+      "q": "讀音「ro」的平假名是哪一個？",
+      "options": [
+        "る",
+        "ろ",
+        "う",
+        "そ"
+      ],
+      "answer": 1,
+      "explain": "ro 寫成「ろ」；る＝ru、う＝u、そ＝so。",
+      "point": "「ろ」念 ro，字源是「呂」。容易搞混：る＝ru、う＝u、そ＝so。",
+      "mnemonic": "る去掉尾巴的圈就是ろ"
+    },
+    {
+      "q": "「ゆめ」這個詞怎麼念？",
+      "options": [
+        "yunu",
+        "yome",
+        "yume",
+        "yumo"
+      ],
+      "answer": 2,
+      "explain": "ゆ＝yu、め＝me。め加尾巴圈才是ぬ（nu）。",
+      "point": "ゆめ＝夢。",
+      "mnemonic": "め是「女」，作夢的女孩"
+    },
+    {
+      "q": "「れ」怎麼念？",
+      "options": [
+        "re",
+        "ne",
+        "wa",
+        "nu"
+      ],
+      "answer": 0,
+      "explain": "「れ」念 re；其他選項分別是 ね＝ne、わ＝wa、ぬ＝nu。",
+      "point": "「れ」念 re，字源是「礼」。容易搞混：ね＝ne、わ＝wa、ぬ＝nu。",
+      "mnemonic": "「礼」草寫，尾巴往外甩"
+    },
+    {
+      "q": "自我介紹時說的「わたし」，怎麼念？",
+      "options": [
+        "netashi",
+        "retashi",
+        "watashi",
+        "matashi"
+      ],
+      "answer": 2,
+      "explain": "わ＝wa；ね＝ne、れ＝re。",
+      "point": "わたし＝我。",
+      "mnemonic": "わ尾巴往內收，指向自己"
+    },
+    {
+      "q": "讀音「wa」的平假名是哪一個？",
+      "options": [
+        "ね",
+        "わ",
+        "れ",
+        "ぬ"
+      ],
+      "answer": 1,
+      "explain": "wa 寫成「わ」；ね＝ne、れ＝re、ぬ＝nu。",
+      "point": "「わ」念 wa，字源是「和」。容易搞混：ね＝ne、れ＝re、ぬ＝nu。",
+      "mnemonic": "尾巴彎回來；れ往外甩、わ往內收、ね打圈"
+    },
+    {
+      "q": "「ほんを よむ」裡的「を」念什麼？",
+      "options": [
+        "wa",
+        "u",
+        "n",
+        "o"
+      ],
+      "answer": 3,
+      "explain": "を當助詞用，念o，和お同音。",
+      "point": "を只當助詞（表示受詞），念o。ほんをよむ＝看書。",
+      "mnemonic": "を是「遠」的草寫，只出現在助詞位置"
+    },
+    {
+      "q": "「よ」怎麼念？",
+      "options": [
+        "ma",
+        "ho",
+        "yo",
+        "mi"
+      ],
+      "answer": 2,
+      "explain": "「よ」念 yo；其他選項分別是 ま＝ma、ほ＝ho、み＝mi。",
+      "point": "「よ」念 yo，字源是「与」。容易搞混：ま＝ma、ほ＝ho、み＝mi。",
+      "mnemonic": "「与」草寫，喲(yo)"
+    },
+    {
+      "q": "想寫「日本」（nihon），哪一個才對？",
+      "options": [
+        "にはん",
+        "にまん",
+        "にほそ",
+        "にほん"
+      ],
+      "answer": 3,
+      "explain": "に＝ni、ほ＝ho、ん＝n。",
+      "point": "にほん＝日本。ん是唯一單獨一個子音的假名。",
+      "mnemonic": "ん排在50音最後，「嗯」一聲收尾"
+    },
+    {
+      "q": "讀音「n」的平假名是哪一個？",
+      "options": [
+        "え",
+        "そ",
+        "へ",
+        "ん"
+      ],
+      "answer": 3,
+      "explain": "n 寫成「ん」；え＝e、そ＝so、へ＝he。",
+      "point": "「ん」念 n，字源是「无」。容易搞混：え＝e、そ＝so、へ＝he。",
+      "mnemonic": "「无」草寫，排在最後，嗯(n)"
+    },
+    {
+      "q": "「よる」這個時間詞怎麼念？",
+      "options": [
+        "yoro",
+        "yoru",
+        "yora",
+        "maru"
+      ],
+      "answer": 1,
+      "explain": "よ＝yo、る＝ru。",
+      "point": "よる＝晚上。よ和ま容易搞混。",
+      "mnemonic": "晚上「喲(yo)」一聲，月亮是圓的→る有圈"
+    }
+  ]
+}
