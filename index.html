@@ -121,6 +121,15 @@ header.top h1.small{font-size:16px;font-weight:600;white-space:nowrap;overflow:h
 textarea{width:100%;min-height:200px;margin-top:12px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:14px/1.5 ui-monospace,Menlo,monospace}
 .steps{padding-left:20px;color:var(--sub);font-size:15px}
 .err{color:var(--ng);font-size:14px;min-height:1em}
+.sec-h{display:flex;align-items:center;gap:8px;margin:8px 0 4px}
+.sec-h h2{font-size:17px;margin:0;flex:1}
+.gh-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.gh-row:last-of-type{border-bottom:0}
+.gh-info{flex:1;min-width:0}
+.gh-info b{font-size:16px;line-height:1.4}
+.btn.sm{min-height:40px;padding:8px 14px;font-size:15px;flex:none}
+.gh-ok{color:var(--ok);font-size:14px;white-space:nowrap;flex:none}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 16px 12px;margin-bottom:22px}
 
 /* 附圖 */
 .qimg{display:block;width:100%;padding:6px;margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:zoom-in;position:relative}
@@ -392,6 +401,9 @@ function home() {
 function importView() {
   window.scrollTo(0, 0);
   app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>匯入題庫</h1></header>
+    <div class="sec-h"><h2>線上題庫</h2><button class="icon" data-act="ghRefresh" aria-label="重新整理">↻</button></div>
+    <div class="box" id="gh"><p class="sub">讀取中…</p></div>
+    <div class="sec-h"><h2>自己貼上 JSON</h2></div>
     <ol class="steps">
       <li>按下面按鈕複製出題指令，連同課本照片一起傳給 AI</li>
       <li>把 AI 回的 JSON 整段貼進下面，按「匯入」</li>
@@ -410,6 +422,63 @@ function importView() {
     r.onload = () => { document.getElementById('raw').value = r.result; doImport(); };
     r.readAsText(f);
   };
+  ghLoad(false);
+}
+
+/* ===== 從 GitHub 匯入：讀 banks/index.json（由 GitHub Actions 自動產生） ===== */
+const INDEX_URL = 'banks/index.json';
+let ghCache = null;
+const bankSig = b => JSON.stringify([b.title, b.subject, b.questions]);
+function ghStatus(b) {
+  const l = db.banks[b.id];
+  if (!l) return 'new';
+  return bankSig(l) === bankSig(b) ? 'same' : 'update';
+}
+async function ghLoad(force) {
+  const box = document.getElementById('gh'); if (!box) return;
+  if (ghCache && !force) { renderGh(); return; }
+  box.innerHTML = '<p class="sub">讀取中…</p>';
+  try {
+    const r = await fetch(INDEX_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (r.status === 404) throw new Error('找不到題庫清單（banks/index.json），請確認 GitHub Actions 已執行完成');
+    if (!r.ok) throw new Error('讀取題庫清單失敗（' + r.status + '）');
+    const idx = await r.json();
+    const files = (idx.files || []).filter(f => f.file);
+    ghCache = await Promise.all(files.map(async f => {
+      if (f.error) return { name: f.file, err: f.error };
+      try {
+        const res = await fetch('banks/' + encodeURIComponent(f.file) + '?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) throw new Error('讀取失敗（' + res.status + '）');
+        return { name: f.file, bank: normalize(await res.text()) };
+      } catch (e) {
+        return { name: f.file, err: e instanceof SyntaxError ? 'JSON 格式錯誤' : (e.message || '讀取失敗') };
+      }
+    }));
+    const key = x => x.bank ? (x.bank.subject + '\u0000' + x.bank.title) : '\uffff' + x.name;
+    ghCache.sort((a, b) => key(a).localeCompare(key(b), 'zh-Hant'));
+    renderGh();
+  } catch (e) {
+    ghCache = null;
+    const msg = location.protocol === 'file:' ? '要放在 GitHub Pages 上開啟，才能讀取題庫清單'
+      : (e instanceof SyntaxError ? '題庫清單格式錯誤' : (e.message && !/fetch/i.test(e.message) ? e.message : '讀取失敗，請確認網路連線'));
+    if (document.getElementById('gh')) document.getElementById('gh').innerHTML = `<p class="err">${esc(msg)}</p>`;
+  }
+}
+function renderGh() {
+  const box = document.getElementById('gh'); if (!box || !ghCache) return;
+  if (!ghCache.length) { box.innerHTML = '<p class="sub">banks 資料夾裡還沒有題庫</p>'; return; }
+  const pend = ghCache.filter(x => x.bank && ghStatus(x.bank) !== 'same').length;
+  box.innerHTML = ghCache.map((x, i) => {
+    if (x.err) return `<div class="gh-row"><div class="gh-info"><b>${esc(x.name)}</b><div class="err">${esc(x.err)}</div></div></div>`;
+    const b = x.bank, st = ghStatus(b);
+    const btn = st === 'same' ? '<span class="gh-ok">✔ 已匯入</span>'
+      : `<button class="btn sm ${st === 'new' ? 'primary' : ''}" data-act="ghImport" data-n="${i}">${st === 'new' ? '匯入' : '更新'}</button>`;
+    return `<div class="gh-row"><div class="gh-info">
+        ${b.subject ? `<span class="tag">${esc(b.subject)}</span>` : ''}
+        <div><b>${esc(b.title)}</b></div>
+        <div class="sub">${b.questions.length} 題${st === 'update' ? ' · GitHub 上有新版本' : ''}</div>
+      </div>${btn}</div>`;
+  }).join('') + (pend > 1 ? `<button class="btn primary wide" data-act="ghImportAll" style="margin-top:12px">全部匯入／更新（${pend} 份）</button>` : '');
 }
 function doImport() {
   const raw = document.getElementById('raw').value;
@@ -592,6 +661,16 @@ const ACT = {
   quizReview: () => startQuiz(SET.rev.refs, SET.rev.title.replace(/^錯題重點｜/, '').replace(/重點$/, '') + (SET.rev.title.startsWith('全部') ? '' : '・錯題')),
   flip: (d, el) => { if (el.dataset.swiped) { delete el.dataset.swiped; return; } el.classList.toggle('on'); },
   cnext, cprev,
+  ghRefresh: () => ghLoad(true),
+  ghImport: d => {
+    const x = ghCache && ghCache[+d.n]; if (!x || !x.bank) return;
+    const ex = addBank(x.bank); renderGh(); toast((ex ? '已更新：' : '已匯入：') + x.bank.title);
+  },
+  ghImportAll: () => {
+    let n = 0;
+    (ghCache || []).forEach(x => { if (x.bank && ghStatus(x.bank) !== 'same') { addBank(x.bank); n++; } });
+    renderGh(); toast(`已匯入／更新 ${n} 份題庫`);
+  },
   zoom: (d, el) => {
     if (el.classList.contains('broken')) return;
     const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
