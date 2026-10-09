@@ -55,6 +55,12 @@ button{font:inherit;color:inherit}
 .span2{grid-column:1/-1}
 .tag{display:inline-block;font-size:13px;font-weight:900;padding:1px 10px;border:2px solid var(--ink);background:var(--c);color:var(--c-ink);transform:skew(-10deg)}
 .tag>span{display:inline-block;transform:skew(10deg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.chip{appearance:none;flex:none;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0 var(--ink);white-space:nowrap}
+.chip small{font-size:12px;opacity:.7;margin-left:4px}
+.chip.on{background:var(--c);color:var(--c-ink)}
+.chip:active{transform:translate(2px,2px);box-shadow:none}
+.chip:focus-visible{outline:3px solid var(--c);outline-offset:2px}
 
 header.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px;min-height:46px}
 header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -383,6 +389,15 @@ const SUBJECTS = {
 const DEFAULT_SUB = { c: '#3A3A3A', ink: '#fff', boss: '米克斯修練喵', kind: 'mix', ult: '知識爆裂拳' };
 const subOf = s => SUBJECTS[(s || '').trim()] || DEFAULT_SUB;
 const subVars = s => { const x = subOf(s); return `--c:${x.c};--c-ink:${x.ink}`; };
+const subName = s => (s || '').trim() || '未分類';
+/* 科目篩選列：items 是科目名稱陣列，cur 是目前選的（'' = 全部） */
+function subChips(items, cur, act) {
+  const cnt = {}; items.forEach(n => cnt[n] = (cnt[n] || 0) + 1);
+  const ord = Object.keys(SUBJECTS); const rk = n => { const i = ord.indexOf(n); return i < 0 ? 99 : i; };
+  const names = Object.keys(cnt).sort((x, y) => rk(x) - rk(y)); if (names.length < 2) return '';
+  const chip = (n, label, k) => `<button class="chip ${cur === n ? 'on' : ''}" style="${subVars(n)}" data-act="${act}" data-s="${esc(n)}" aria-pressed="${cur === n}">${esc(label)}<small>${k}</small></button>`;
+  return `<div class="chips" role="group" aria-label="依科目篩選">${chip('', '全部', items.length)}${names.map(n => chip(n, n, cnt[n])).join('')}</div>`;
+}
 function setTheme(s) { const x = subOf(s); document.documentElement.style.setProperty('--c', x.c); document.documentElement.style.setProperty('--c-ink', x.ink); }
 
 /* ===== 等級 ===== */
@@ -623,7 +638,9 @@ function home() {
       </div>
     </section>`;
   }
-  for (const id of list) {
+  if (db.subHome && !list.some(id => subName(db.banks[id].subject) === db.subHome)) db.subHome = '';
+  h += subChips(list.map(id => subName(db.banks[id].subject)), db.subHome || '', 'subHome');
+  for (const id of list.filter(id => !db.subHome || subName(db.banks[id].subject) === db.subHome)) {
     const b = db.banks[id], w = (db.wrong[id] || []).length, best = db.best[id], eid = esc(id), x = subOf(b.subject);
     h += `<section class="panel bank" style="${subVars(b.subject)}">
       <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
@@ -729,8 +746,12 @@ async function ghLoad(force) {
 function renderGh() {
   const box = document.getElementById('gh'); if (!box || !ghCache) return;
   if (!ghCache.length) { box.innerHTML = '<p class="sub">banks 資料夾裡還沒有題庫</p>'; return; }
-  const pend = ghCache.filter(x => x.bank && ghStatus(x.bank) !== 'same').length;
-  box.innerHTML = ghCache.map((x, i) => {
+  const subs = ghCache.map(x => x.bank ? subName(x.bank.subject) : '格式錯誤');
+  if (db.subGh && !subs.includes(db.subGh)) db.subGh = '';
+  const cur = db.subGh || '', show = (x, i) => !cur || subs[i] === cur;
+  const pend = ghCache.filter((x, i) => show(x, i) && x.bank && ghStatus(x.bank) !== 'same').length;
+  box.innerHTML = subChips(subs, cur, 'subGh') + ghCache.map((x, i) => {
+    if (!show(x, i)) return '';
     if (x.err) return `<div class="gh-row"><div class="gh-info"><b>${esc(x.name)}</b><div class="err">${esc(x.err)}</div></div></div>`;
     const b = x.bank, st = ghStatus(b);
     const btn = st === 'same' ? '<span class="gh-ok">✔ 已匯入</span>'
@@ -740,7 +761,7 @@ function renderGh() {
         <div><b>${esc(b.title)}</b></div>
         <div class="sub">${b.questions.length} 題${st === 'update' ? '　GitHub 上有新版本' : ''}</div>
       </div>${btn}</div>`;
-  }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">全部匯入／更新（${pend} 份）</button>` : '');
+  }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">${cur ? '匯入／更新全部' + esc(cur) : '全部匯入／更新'}（${pend} 份）</button>` : '');
 }
 
 /* ===== 3D BOSS（three.js r128，從 CDN 載入；失敗就只用 2D 特效） ===== */
@@ -1702,13 +1723,16 @@ const ACT = {
     const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
   },
   ghRefresh: () => ghLoad(true),
+  subHome: d => { db.subHome = d.s; save(); home(); },
+  subGh: d => { db.subGh = d.s; save(); renderGh(); },
   ghImport: d => {
     const x = ghCache && ghCache[+d.n]; if (!x || !x.bank) return;
     const ex = addBank(x.bank); renderGh(); toast((ex ? '已更新：' : '已匯入：') + x.bank.title);
   },
   ghImportAll: () => {
     let n = 0;
-    (ghCache || []).forEach(x => { if (x.bank && ghStatus(x.bank) !== 'same') { addBank(x.bank); n++; } });
+    const cur = db.subGh || '';
+    (ghCache || []).forEach(x => { if (x.bank && (!cur || subName(x.bank.subject) === cur) && ghStatus(x.bank) !== 'same') { addBank(x.bank); n++; } });
     renderGh(); toast(`已匯入／更新 ${n} 份題庫`);
   },
   bankMenu: d => {
