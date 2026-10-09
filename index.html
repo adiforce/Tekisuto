@@ -75,12 +75,15 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .me{display:flex;gap:14px;align-items:center;padding:14px 16px;margin-bottom:22px;background:var(--hit)}
 .me .lv{font-family:var(--display);font-size:46px;line-height:.9;text-align:center;min-width:72px}
 .me .lv small{display:block;font-family:"Noto Sans TC";font-size:12px;font-weight:900}
+.me .hero{display:block;width:96px;height:96px;margin:-6px -4px 0;image-rendering:pixelated}
+.me .lv .n{font-size:26px}
+.me .cards{display:inline-block;margin:4px 0 0;padding:1px 10px;border:var(--bd);background:#fff;color:#000;font-size:16px;font-weight:900}
 .me .info{flex:1;min-width:0}
 .me .ttl{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block}
 .exp{height:14px;border:var(--bd);background:var(--paper);border-radius:99px;overflow:hidden;margin:6px 0 2px}
 .exp i{display:block;height:100%;background:var(--ink);transition:width .6s}
 .me .nums{font-size:13px;font-weight:700}
-.me .coins{display:inline-block;margin-top:4px;padding:1px 10px;border:var(--bd);background:#FFD400;color:#000;font-size:16px;font-weight:900}
+.me .coins{display:inline-block;margin:4px 6px 0 0;padding:1px 10px;border:var(--bd);background:#FFD400;color:#000;font-size:16px;font-weight:900}
 .say .coin{display:inline-block;margin-left:8px;padding:0 8px;border:2px solid #000;background:#FFD400;color:#000;font-size:14px;font-weight:900;vertical-align:middle}
 .say .coin.none{background:#ddd;color:#555}
 
@@ -134,6 +137,8 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .opt.ng .lt{background:var(--ink);color:#fff}
 .opt:disabled{cursor:default}
 .opt.dim{opacity:.45}
+.opt.cut{opacity:.3;text-decoration:line-through}
+.cutbtn{display:block;margin:0 0 10px auto}
 .fb{margin:18px 0 14px;padding:14px 16px;position:relative}
 .fb .say{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block;margin-bottom:4px}
 .fb.ok{background:#FFF6BF}
@@ -224,6 +229,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 #lvup.show{display:flex}
 #lvup .box{background:var(--hit);border:4px solid var(--ink);box-shadow:8px 8px 0 #000;padding:26px 22px;text-align:center;max-width:340px;width:100%;animation:boom .6s cubic-bezier(.2,1.8,.5,1)}
 #lvup .box b{display:block;font-family:var(--display);font-size:60px;line-height:1}
+#lvup .hero{display:block;width:168px;height:168px;margin:6px auto 0;image-rendering:pixelated}
+#lvup .rw{font-size:17px;font-weight:900;margin-bottom:12px;line-height:1.7}
+#lvup .rw:empty{display:none}
 #lvup .box .t{font-size:26px;font-weight:900;margin:6px 0 10px;transform:skew(-6deg)}
 #lvup .unlock{font-size:17px;font-weight:900;margin-bottom:14px;line-height:1.6}
 #lvup .unlock:empty{display:none}
@@ -318,7 +326,7 @@ button,a,label,.btn{touch-action:manipulation}
 <div id="flash"></div>
 <div id="claw"><i></i><i></i><i></i></div>
 <div id="cutin"><div class="band"><small>必殺技</small><b></b></div></div>
-<div id="lvup"><div class="box"><b>LEVEL UP!</b><div class="t"></div><div class="unlock"></div><button class="btn wide" data-close>繼續</button></div></div>
+<div id="lvup"><div class="box"><b>LEVEL UP!</b><img class="hero" alt="勇者貓"><div class="t"></div><div class="rw"></div><div class="unlock"></div><button class="btn wide" data-close>繼續</button></div></div>
 <div id="toast"></div>
 <div id="zoom"><button class="x" aria-label="關閉">✕</button><img alt="放大圖"></div>
 <div id="sheet"><div class="box2" id="sheetBox"></div></div>
@@ -420,6 +428,245 @@ const TIER_ULT = ['能量光束', '電光光束', '十字光束', '流星雨', '
 const ULT_SUFFIX = ['', '・改', '・真', '・極', '・超', '・神', '・終極奧義'];
 const tierOf = lv => lv < 3 ? 0 : lv < 5 ? 1 : lv < 8 ? 2 : lv < 12 ? 3 : lv < 16 ? 4 : lv < 20 ? 5 : 6;
 const myTier = () => tierOf(levelOf(db.exp).lv);
+
+/* ===== 勇者貓：每個等級一張點陣圖，等級越高裝備越多 ===== */
+const Hero = (() => {
+  const SC = .5625, W = 48, OX = 6, OY = 7;          // 設計座標 64x64 → 實際 36x36，畫在 48x48 畫布中間，四周留給翅膀、光環
+  const OL = '#3A2410';
+  const buf = () => new Array(W * W).fill(null);
+  const putN = (b, x, y, c) => { x += OX; y += OY; if (x >= 0 && y >= 0 && x < W && y < W) b[y * W + x] = c; };
+  const hasN = (b, x, y) => { x += OX; y += OY; return x >= 0 && y >= 0 && x < W && y < W && !!b[y * W + x]; };
+  const put = (b, x, y, c) => putN(b, Math.floor((x + .5) * SC), Math.floor((y + .5) * SC), c);
+  function ell(b, cx, cy, rx, ry, c, sh, hi, clip) {
+    cx *= SC; cy *= SC; rx *= SC; ry *= SC;
+    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
+      const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry;
+      if (dx * dx + dy * dy > 1 || (clip && !hasN(b, x, y))) continue;
+      const s = dx * .45 + dy;
+      putN(b, x, y, sh && s > .62 ? sh : hi && s < -.78 ? hi : c);
+    }
+  }
+  function tri(b, pts, c) {
+    pts = pts.map(p => [p[0] * SC, p[1] * SC]);
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    for (let y = Math.floor(Math.min(...ys)); y <= Math.max(...ys); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.max(...xs); x++) {
+      const px = x + .5, py = y + .5;
+      const s = pts.map((p, i) => { const q = pts[(i + 1) % 3]; return (q[0] - p[0]) * (py - p[1]) - (q[1] - p[1]) * (px - p[0]); });
+      if (s.every(v => v >= 0) || s.every(v => v <= 0)) putN(b, x, y, c);
+    }
+  }
+  function rect(b, x, y, w, h, c, clip) {
+    const x0 = Math.round(x * SC), y0 = Math.round(y * SC), x1 = Math.max(x0 + 1, Math.round((x + w) * SC)), y1 = Math.max(y0 + 1, Math.round((y + h) * SC));
+    for (let j = y0; j < y1; j++) for (let i = x0; i < x1; i++) if (!clip || hasN(b, i, j)) putN(b, i, j, c);
+  }
+  function outline(b, c) {
+    const o = b.slice(), g = (x, y) => x >= 0 && y >= 0 && x < W && y < W && b[y * W + x];
+    for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) if (!b[y * W + x] && (g(x + 1, y) || g(x - 1, y) || g(x, y + 1) || g(x, y - 1))) o[y * W + x] = c;
+    return o;
+  }
+  const over = (d, s) => { s.forEach((c, i) => { if (c) d[i] = c; }); return d; };
+  const L = (out, fn) => { const b = buf(); fn(b); over(out, outline(b, OL)); };
+  function star(b, cx, cy, r, c) { for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2 - Math.PI / 2, a1 = a + .63, a2 = a - .63; tri(b, [[cx + Math.cos(a) * r, cy + Math.sin(a) * r], [cx + Math.cos(a1) * r * .42, cy + Math.sin(a1) * r * .42], [cx + Math.cos(a2) * r * .42, cy + Math.sin(a2) * r * .42]], c); } ell(b, cx, cy, r * .45, r * .45, c); }
+
+  let FUR, FUR_SH, FUR_HI, CREAM, CREAM_SH;
+  const setFur = gold => gold ? ([FUR, FUR_SH, FUR_HI, CREAM, CREAM_SH] = ['#FFFFFF', '#DCD6EA', '#FFFFFF', '#FFF8E0', '#EDE4C8'])
+    : ([FUR, FUR_SH, FUR_HI, CREAM, CREAM_SH] = ['#F2D3A8', '#DDB683', '#FBE6C8', '#FFF4E2', '#EEDDC2']);
+  // 金屬等級：皮→鐵→鋼→金→白金→神
+  const METAL = [
+    null,
+    { c: '#9A6A3A', sh: '#7A4E26', hi: '#B9875A' },        // 1 皮
+    { c: '#9AA3AE', sh: '#727B86', hi: '#C8CFD8' },        // 2 鐵
+    { c: '#C5D3E2', sh: '#8FA0B4', hi: '#EEF4FA' },        // 3 鋼
+    { c: '#F2C230', sh: '#C48F12', hi: '#FFE680' },        // 4 金
+    { c: '#E8F0FF', sh: '#A9B8D8', hi: '#FFFFFF' },        // 5 白金
+    { c: '#FFE14D', sh: '#E09A10', hi: '#FFFFFF' }         // 6 神
+  ];
+  // 每個等級的裝備（Lv20 之後維持 Lv20，再加星星和變色光環）
+  function gear(lv) {
+    const g = {
+      band: lv >= 2 && lv < 7,
+      sword: lv >= 3 ? (lv >= 20 ? 'god' : lv >= 19 ? 'thunder' : lv >= 15 ? 'fire' : lv >= 11 ? 'glow' : lv >= 8 ? 'steel' : lv >= 5 ? 'iron' : 'wood') : null,
+      cape: lv >= 4 ? (lv >= 16 ? '#7A3FD9' : lv >= 12 ? '#D8342C' : lv >= 8 ? '#2E6FD8' : '#C8402C') : null,
+      capeLong: lv >= 8,
+      armor: lv >= 20 ? 6 : lv >= 16 ? 5 : lv >= 12 ? 4 : lv >= 8 ? 3 : lv >= 5 ? 1 : 0,
+      shield: lv >= 6 ? (lv >= 16 ? 5 : lv >= 12 ? 4 : lv >= 9 ? 3 : 1) : 0,
+      helm: lv >= 7 ? (lv >= 20 ? 6 : lv >= 16 ? 5 : lv >= 12 ? 4 : lv >= 8 ? 3 : 2) : 0,
+      plume: lv >= 10,
+      boots: lv >= 10,
+      aura: lv >= 13 ? (lv >= 20 ? 'rainbow' : lv >= 16 ? '#A070FF' : '#3FC8F0') : null,
+      wings: lv >= 14 ? (lv >= 20 ? 'gold' : lv >= 16 ? 'big' : 'small') : null,
+      crown: lv >= 17,
+      orbs: lv >= 18 ? (lv >= 20 ? 4 : 2) : 0,
+      stars: Math.max(0, Math.min(8, lv - 20)),
+      hue: lv > 20 ? (lv - 20) * 37 % 360 : 0,
+      dragon: lv >= 30, sun: lv >= 40, goldFur: lv >= 50
+    };
+    return g;
+  }
+
+  function draw(lv) {
+    const g = gear(lv), out = buf();
+    setFur(g.goldFur);
+    const A = g.armor ? METAL[g.armor] : null;
+    // 光環（最後面）
+    if (g.aura) {
+      const b = buf();
+      for (let r = 31; r >= 19; r -= .5) for (let a = 0; a < Math.PI * 2; a += .015) {
+        const col = g.aura === 'rainbow' ? `hsl(${(a * 57.3 + g.hue) % 360},95%,${r > 28 ? 62 : 82}%)` : (r > 28 ? g.aura : light(g.aura));
+        put(b, 32 + Math.cos(a) * r, 34 + Math.sin(a) * r, col);
+      }
+      over(out, b);
+    }
+    // Lv40：背後出現星空徽章（Lv50 變成金色日出）
+    if (g.sun) {
+      const b = buf(), gold = g.goldFur;
+      for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) {
+        const d = Math.hypot(x + .5 - W / 2, y + .5 - W / 2 - 1);
+        if (d > 23.5) continue;
+        b[y * W + x] = d > 21.5 ? '#3A2410' : d > 19.5 ? (gold ? '#FF7A00' : '#F2C230') : gold ? (y < 20 ? '#FFB347' : '#FFD27A') : (y < 22 ? '#1E2A6E' : '#2E3F96');
+      }
+      if (!gold) { [[9, 10], [38, 8], [6, 30], [41, 33], [14, 4]].forEach(([x, y]) => { b[y * W + x] = '#FFFFFF'; }); [[33, 14], [12, 22]].forEach(([x, y]) => { b[y * W + x] = '#FFE680'; }); }
+      over(out, b);
+    }
+    // 翅膀
+    if (g.wings) {
+      const big = g.wings !== 'small', col = g.wings === 'gold' ? '#FFE680' : '#FFFFFF', sh = g.wings === 'gold' ? '#E0A820' : '#C9D3E6';
+      L(out, b => [-1, 1].forEach(k => {
+        const rx = 32 + k * 12, ry = 40, n = big ? 5 : 3, span = big ? 20 : 16;
+        for (let i = 0; i < n; i++) {
+          const a = (-60 + i * (big ? 28 : 34)) * Math.PI / 180, ex = rx + k * Math.cos(a) * span, ey = ry + Math.sin(a) * span * .9;
+          tri(b, [[rx, ry - 3], [rx, ry + 3], [ex, ey]], i % 2 ? sh : col);
+          ell(b, ex - k * 1.5, ey, big ? 3 : 2.4, big ? 3 : 2.4, i % 2 ? sh : col);
+        }
+      }));
+    }
+    // 披風
+    if (g.cape) L(out, b => {
+      const bot = g.capeLong ? 62 : 56;
+      tri(b, [[20, 41], [44, 41], [8, bot]], g.cape); tri(b, [[44, 41], [56, bot], [8, bot]], g.cape);
+      rect(b, 8, bot - 2, 48, 2, shade(g.cape, .25));
+    });
+    // 尾巴
+    L(out, b => [[42, 56], [47, 55], [51, 52], [53, 48], [53, 44], [51, 41]].forEach((p, i) => ell(b, p[0], p[1], 3.8, 3.8, i % 2 ? FUR_SH : FUR)));
+    // 腳＋靴子
+    L(out, b => {
+      ell(b, 26.5, 59, 4.5, 3.2, FUR, FUR_SH); ell(b, 37.5, 59, 4.5, 3.2, FUR, FUR_SH);
+      if (g.boots) { const M = METAL[Math.max(2, g.armor)]; ell(b, 26.5, 59.5, 4.8, 3, M.c, M.sh); ell(b, 37.5, 59.5, 4.8, 3, M.c, M.sh); }
+    });
+    // 身體＋盔甲
+    L(out, b => {
+      ell(b, 32, 51, 11.5, 9, FUR, FUR_SH, FUR_HI);
+      ell(b, 32, 53, 6.5, 6, CREAM, CREAM_SH);
+      if (A) {
+        ell(b, 32, 51, 10.5, 8.5, A.c, A.sh, A.hi, true);
+        rect(b, 31, 44, 2, 13, A.sh, true);                          // 中線
+        if (g.armor >= 3) { ell(b, 32, 49, 3, 3, g.armor >= 4 ? '#D8342C' : '#3A8EE6'); put(b, 31, 48, '#FFFFFF'); }   // 胸前寶石
+        if (g.armor >= 3) [-1, 1].forEach(k => ell(b, 32 + k * 10, 45, 4, 3, A.c, A.sh, A.hi));   // 護肩
+      }
+    });
+    // 盾（左手，畫面左邊）
+    if (g.shield) L(out, b => {
+      const M = METAL[g.shield];
+      ell(b, 15, 49, 7, 8.5, M.c, M.sh, M.hi);
+      tri(b, [[8.5, 52], [21.5, 52], [15, 60]], M.c);
+      if (g.shield >= 3) { rect(b, 14, 43, 2, 13, g.shield >= 4 ? '#D8342C' : '#2E6FD8'); rect(b, 10, 48, 10, 2, g.shield >= 4 ? '#D8342C' : '#2E6FD8'); }
+      if (g.shield >= 5) star(b, 15, 49, 3.2, '#FFE14D');
+    });
+    // 手
+    L(out, b => { ell(b, 21, 51, 3.4, 3.2, FUR, FUR_SH); ell(b, 44, 51, 3.4, 3.2, FUR, FUR_SH); });
+    // 頭
+    L(out, b => {
+      const earDown = g.helm >= 2;
+      if (!earDown) { tri(b, [[9, 22], [13, 3], [27, 13]], FUR); tri(b, [[55, 22], [51, 3], [37, 13]], FUR); }
+      else { tri(b, [[9, 20], [11, 8], [24, 13]], FUR); tri(b, [[55, 20], [53, 8], [40, 13]], FUR); }
+      ell(b, 32, 26, 22.5, 16.5, FUR, FUR_SH, FUR_HI);
+      ell(b, 17, 32, 9, 8, FUR, FUR_SH); ell(b, 47, 32, 9, 8, FUR, FUR_SH);
+      if (!earDown) { tri(b, [[13, 16], [14.5, 7], [22, 13]], '#FF9FB2'); tri(b, [[51, 16], [49.5, 7], [42, 13]], '#FF9FB2'); }
+      rect(b, 31, 11, 2, 3, '#E2A86A', true); rect(b, 27, 12, 2, 2, '#E2A86A', true); rect(b, 35, 12, 2, 2, '#E2A86A', true);
+      ell(b, 32, 36, 8, 4.5, CREAM, CREAM_SH); ell(b, 29, 34, 4, 3, CREAM); ell(b, 35, 34, 4, 3, CREAM);
+      if (g.band) { rect(b, 9, 13, 46, 3, '#D8342C', true); rect(b, 9, 16, 46, 1, '#9E2019', true); }
+    });
+    if (g.band) L(out, b => { tri(b, [[54, 14], [61, 11], [60, 17]], '#D8342C'); tri(b, [[54, 15], [60, 20], [56, 22]], '#D8342C'); });
+    // 頭盔
+    if (g.helm) L(out, b => {
+      const M = METAL[g.helm];
+      ell(b, 32, 13, 19, 10, M.c, M.sh, M.hi);
+      rect(b, 13, 13, 38, 5, M.c); rect(b, 12, 17, 40, 2, M.sh);
+      rect(b, 31, 3, 2, 15, M.sh);
+      if (g.helm >= 4) { ell(b, 32, 9, 2.6, 2.6, g.helm >= 5 ? '#B98CFF' : '#D8342C'); }
+      [-1, 1].forEach(k => tri(b, [[32 + k * 17, 12], [32 + k * 20, 1], [32 + k * 13, 8]], M.c));   // 頭盔上的小貓耳
+    });
+    if (g.plume && !g.crown) L(out, b => { ell(b, 32, -1, 3, 4, '#D8342C', '#9E2019'); ell(b, 35, -4, 3, 3.5, '#D8342C', '#9E2019'); ell(b, 38, -2, 2.6, 3, '#E85A4A'); });
+    if (g.crown) L(out, b => {
+      rect(b, 23, -2, 18, 5, '#FFD400'); rect(b, 23, 2, 18, 1, '#C48F12');
+      [[23, -2], [29, -2], [35, -2], [41, -2]].forEach((p, i) => tri(b, [[p[0] - (i ? 1.5 : 0), p[1]], [p[0] + (i < 3 ? 1.5 : 0), p[1]], [p[0], p[1] - 5]], '#FFD400'));
+      ell(b, 32, .5, 1.8, 1.8, '#D8342C'); ell(b, 26.5, .5, 1.3, 1.3, '#3A8EE6'); ell(b, 37.5, .5, 1.3, 1.3, '#3A8EE6');
+    });
+    // 臉
+    face(out, lv);
+    // 劍：右手斜舉，畫在頭前面
+    if (g.sword) L(out, b => {
+      const S = { wood: ['#C9965A', '#8B5A2B'], iron: ['#C3CAD3', '#7E8792'], steel: ['#EEF4FA', '#9AA8B8'], glow: ['#C8F6FF', '#3FB8E8'],
+        fire: ['#FFC04D', '#E8481C'], thunder: ['#FFF27A', '#D9A800'], god: ['#FFFFFF', '#FFC400'] }[g.sword];
+      const len = g.sword === 'wood' ? 16 : g.sword === 'iron' ? 20 : 24, hx = 47, hy = 47, dx = .5, dy = -1, n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n;
+      for (let i = 0; i <= len * 2; i++) { const t = i / 2, x = hx + ux * t, y = hy + uy * t; ell(b, x, y, 1.9, 1.9, S[0]); }
+      for (let i = 0; i <= len * 2; i++) { const t = i / 2; put(b, hx + ux * t + 1.3, hy + uy * t + .6, S[1]); }
+      const tx = hx + ux * (len + 3), ty = hy + uy * (len + 3); ell(b, tx, ty, 1.2, 1.2, S[0]);
+      if (g.sword === 'fire') for (let i = 1; i < 6; i++) { const x = hx + ux * i * 4, y = hy + uy * i * 4; tri(b, [[x + 2, y], [x + 2, y + 3], [x + 6, y - 2]], i % 2 ? '#FFD400' : '#FF6A00'); tri(b, [[x - 2, y], [x - 2, y - 3], [x - 5, y + 1]], i % 2 ? '#FF6A00' : '#FFD400'); }
+      if (g.sword === 'thunder') [6, 13, 19].forEach(i => { const x = hx + ux * i + 3, y = hy + uy * i; tri(b, [[x, y], [x + 4, y - 3], [x + 1, y + 2]], '#FFF27A'); });
+      if (g.sword === 'glow' || g.sword === 'god') for (let i = 3; i < len; i += 5) put(b, hx + ux * i - 1, hy + uy * i, '#FFFFFF');
+      const guard = g.sword === 'wood' ? '#6B4220' : g.sword === 'iron' ? '#5A5F68' : '#F2C230';
+      for (let k = -4.5; k <= 4.5; k += .5) { put(b, hx - uy * k, hy + ux * k + 1, guard); put(b, hx - uy * k, hy + ux * k + 2, guard); }   // 護手，跟劍身垂直
+      for (let i = 1; i <= 4; i++) put(b, hx - ux * i, hy - uy * i + 1.5, '#6B3E1E');
+      if (g.sword === 'god') ell(b, hx, hy + 1.5, 1.8, 1.8, '#D8342C');
+    });
+    L(out, b => ell(b, 45, 51, 3.4, 3.2, FUR, FUR_SH));     // 右手握在劍柄上
+    // Lv30：左上角的小龍夥伴
+    if (g.dragon) L(out, b => {
+      const D = '#4FC86A', Dd = '#2E8E48', x = -3, y = -3;
+      tri(b, [[x + 2, y + 4], [x + 9, y - 3], [x + 10, y + 5]], '#A8F0B8'); tri(b, [[x - 4, y + 3], [x + 2, y - 4], [x + 3, y + 5]], '#A8F0B8');   // 翅膀
+      ell(b, x + 3, y + 10, 5, 4.5, D, Dd);                              // 身體
+      ell(b, x + 9, y + 15, 2.5, 2.5, D, Dd); ell(b, x + 12, y + 17, 1.8, 1.8, Dd);   // 尾巴
+      ell(b, x - 1, y + 5, 5, 4.2, D, Dd);                               // 頭
+      tri(b, [[x - 4, y + 2], [x - 6, y - 3], [x - 1, y + 1]], '#FFE680'); tri(b, [[x + 1, y + 1], [x + 1, y - 4], [x + 3, y + 2]], '#FFE680');   // 角
+      ell(b, x + 3, y + 11, 2.6, 2.4, '#C8F5D0');
+    });
+    if (g.dragon) put(out, -5, 2, '#000000');
+    // 浮游寶珠
+    if (g.orbs) L(out, b => (g.dragon ? [[60, 26], [4, 30], [58, 8], [2, 44]] : [[4, 30], [60, 26], [6, 12], [58, 8]]).slice(0, g.orbs).forEach((p, i) => { ell(b, p[0], p[1], 3, 3, ['#7AF0FF', '#FF7AD9', '#B6FF7A', '#FFD400'][i]); put(b, p[0] - 1, p[1] - 1, '#FFFFFF'); }));
+    // Lv20 之後：每升一級多一顆星星
+    if (g.stars) L(out, b => { for (let i = 0; i < g.stars; i++) { const a = -Math.PI / 2 + (i - (g.stars - 1) / 2) * .42; star(b, 32 + Math.cos(a) * 34, 32 + Math.sin(a) * 34 + 2, 3, `hsl(${(g.hue + i * 40) % 360},95%,62%)`); } });
+    return out;
+  }
+  function face(b, lv) {
+    const E = [[22, 27], [42, 27]];
+    E.forEach(([x, y]) => {
+      ell(b, x, y, 6, 6.5, OL); ell(b, x, y, 5.1, 5.6, '#E9A93A'); ell(b, x, y + 1.8, 4.3, 3.4, '#C98820');
+      ell(b, x, y + .3, 3.1, 3.8, '#0A0A0A'); rect(b, x - 3, y - 4, 3, 3, '#FFFFFF'); rect(b, x + 2, y + 2, 2, 2, '#FFFFFF');
+    });
+    if (lv >= 5) for (let i = 0; i < 5; i++) { rect(b, 17 + i, 19 - (i >> 2), 1, 1.4, OL); rect(b, 47 - i, 19 - (i >> 2), 1, 1.4, OL); }   // 有自信的眉毛
+    rect(b, 13, 34, 4, 2, '#FF8FA3'); rect(b, 47, 34, 4, 2, '#FF8FA3');
+    const cx = Math.round(32 * SC), ny = Math.floor(32.5 * SC);
+    [[-1, 0], [0, 0], [1, 0], [0, 1]].forEach(([x, y]) => putN(b, cx + x, ny + y, '#FF9FB2'));
+    [[-2, 2], [0, 2], [2, 2], [-1, 3], [1, 3]].forEach(([x, y]) => putN(b, cx + x, ny + y, OL));
+    [[4, 31], [5, 34], [55, 31], [54, 34]].forEach(([x, y]) => rect(b, x, y, 6, 1, '#FFFFFF'));
+  }
+  const light = c => { const v = parseInt(c.slice(1), 16), f = s => Math.round(((v >> s) & 255) * .45 + 255 * .55); return '#' + ((1 << 24) + (f(16) << 16) + (f(8) << 8) + f(0)).toString(16).slice(1); };
+  function shade(c, k) {
+    const v = parseInt(c.slice(1), 16), f = s => Math.round(((v >> s) & 255) * (1 - k));
+    return '#' + ((1 << 24) + (f(16) << 16) + (f(8) << 8) + f(0)).toString(16).slice(1);
+  }
+  const cache = {};
+  function url(lv) {
+    lv = Math.max(1, lv | 0);
+    if (cache[lv]) return cache[lv];
+    const cv = document.createElement('canvas'); cv.width = cv.height = W;
+    const ctx = cv.getContext('2d'), px = draw(lv);
+    px.forEach((c, i) => { if (c) { ctx.fillStyle = c; ctx.fillRect(i % W, (i / W) | 0, 1, 1); } });
+    return (cache[lv] = cv.toDataURL());
+  }
+  return { url, gear };
+})();
 
 /* ===== 工具 ===== */
 const app = document.getElementById('app');
@@ -531,7 +778,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, coins: 0, qwin: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, coins: 0, qwin: {}, cards: 0 };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -574,10 +821,21 @@ function addBank(b) {
   return existed;
 }
 // 加經驗值；有升級就回傳升級前的等級，沒升級回傳 0
+// 每升一級抽一次：40% 刪去卡、40% 金幣 +10、20% 沒有
+let lvRewards = [];
 function gainExp(n) {
   const before = levelOf(db.exp).lv;
-  db.exp += n; save();
-  return levelOf(db.exp).lv > before ? before : 0;
+  db.exp += n;
+  const after = levelOf(db.exp).lv;
+  lvRewards = [];
+  for (let lv = before + 1; lv <= after; lv++) {
+    const r = Math.random();
+    if (r < .4) { db.cards = (db.cards || 0) + 1; lvRewards.push('✂️ 刪去卡 ×1'); }
+    else if (r < .8) { db.coins = (db.coins || 0) + 10; lvRewards.push('💰 金幣 +10'); }
+    else lvRewards.push('這次什麼都沒有…');
+  }
+  save();
+  return after > before ? before : 0;
 }
 
 /* ===== 金幣：每題第 1 次答對 +2、第 2 次 +1、之後 0；整關通關每次 +5 ===== */
@@ -620,12 +878,12 @@ function home() {
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音效開關">${db.sound ? '🔊' : '🔇'}</button></div>
     <section class="panel me">
-      <div class="lv"><small>LV</small>${L.lv}</div>
+      <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
-        <div class="coins">💰 ${db.coins || 0} 元</div>
+        <div class="coins">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}
         <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
     </section>`;
@@ -781,7 +1039,7 @@ function renderGh() {
 
 /* ===== 雲端紀錄：進度存到 Google 試算表（Apps Script），題庫不存，匯入時從 GitHub 抓 ===== */
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw923EWK5I6juwYzz0tywW1McYuaD2WpKSueoR5RybEioYCo/exec';
-const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin'];
+const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards'];
 const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
 let syncList = null;
 const netMsg = e => /fetch|network|load failed/i.test(e.message || '') ? '連不上 Google，請確認網路' : (e.message || '失敗');
@@ -1547,6 +1805,7 @@ function renderQ() {
       ${imgTag(it.q)}
       <div class="qtext">${fmt(it.q.q)}</div>
     </div>
+    ${db.cards ? `<button class="btn sm cutbtn" data-act="useCut">✂️ 刪去卡 ×${db.cards}</button>` : ''}
     <div class="opts">${it.order.map((oi, k) =>
       `<button class="opt" data-act="pick" data-k="${k}"><span class="lt">${LETTER[k]}</span><span>${fmt(it.q.options[oi])}</span></button>`).join('')}
     </div>
@@ -1573,11 +1832,23 @@ function showFx(big, small, good) {
   clearTimeout(showFx.t); showFx.t = setTimeout(() => fx.classList.remove('show'), 750);
 }
 
+function useCut(btn) {
+  if (!S || S.answered || !db.cards) return;
+  const it = S.items[S.i]; if (it.cut != null) return;
+  const opts = app.querySelectorAll('.opt');
+  const cand = it.order.map((oi, k) => k).filter(k => it.order[k] !== it.q.answer);
+  const k = pickOne(cand); it.cut = k;
+  opts[k].classList.add('cut'); opts[k].disabled = true;
+  db.cards--; save();
+  btn.disabled = true; btn.textContent = '✂️ 已刪去一個選項';
+  SFX.hit && SFX.hit(1);
+}
 function pick(k) {
   if (!S || S.answered) return;
   S.answered = true;
   const it = S.items[S.i], ok = it.order[k] === it.q.answer;
   const right = it.order.indexOf(it.q.answer);
+  const cb = app.querySelector('.cutbtn'); if (cb) cb.disabled = true;
   app.querySelectorAll('.opt').forEach((bt, j) => {
     bt.disabled = true;
     if (j === right) bt.classList.add('ok'); else if (j === k) bt.classList.add('ng'); else bt.classList.add('dim');
@@ -1680,6 +1951,8 @@ function result() {
 function showLevelUp(before) {
   const L = levelOf(db.exp), box = document.getElementById('lvup'), t = tierOf(L.lv);
   box.querySelector('.t').textContent = `Lv.${L.lv}　${titleOf(L.lv)}`;
+  box.querySelector('.hero').src = Hero.url(L.lv);
+  box.querySelector('.rw').innerHTML = lvRewards.length ? '升級獎勵<br>' + lvRewards.map(esc).join('<br>') : '';
   box.querySelector('.unlock').innerHTML = before && tierOf(before) < t
     ? `新招式解鎖！<br>攻擊：${TIER_HIT[t]}<br>大招：${TIER_ULT[t]}` : '';
   box.classList.add('show'); SFX.lvup(); vibrate([40, 30, 40, 30, 80]);
@@ -1796,6 +2069,7 @@ const ACT = {
     const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
   },
   ghRefresh: () => ghLoad(true),
+  useCut: (d, el) => useCut(el),
   syncView, syncList: () => loadSyncList(), syncSave: (d, el) => syncSave(el), syncLoad: d => syncLoad(+d.n), syncRestore,
   subHome: d => { db.subHome = d.s; save(); home(); },
   subGh: d => { db.subGh = d.s; save(); renderGh(); },
