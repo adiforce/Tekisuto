@@ -799,7 +799,7 @@ const Boss3D = (() => {
   const lerp = (a, b, t) => a + (b - a) * t;
 
   /* --- 點陣貓：72x72 格子，用形狀畫＋自動描邊＋簡單陰影，每次狀態改變才重畫 --- */
-  const W = 72, GX = 4, GY = 7;                    // 貓本體畫在 64x64 範圍，上下左右留空間給配件
+  const SC = .75, W = 54, GX = 3, GY = 5;           // 設計座標是 64x64，實際畫在 48x48（每格更大顆），上下左右留空間給配件
   const hexStr = v => typeof v === 'number' ? '#' + v.toString(16).padStart(6, '0') : v;
   function mix(c, to, k) {                         // 顏色往 to 混 k（0～1）
     const a = parseInt(c.slice(1), 16), b = parseInt(to.slice(1), 16);
@@ -808,27 +808,34 @@ const Boss3D = (() => {
   }
   const dark = (c, k) => mix(c, '#000000', k), light = (c, k) => mix(c, '#FFFFFF', k);
   const buf = () => new Array(W * W).fill(null);
-  const idx = (x, y) => { x = Math.floor(x) + GX; y = Math.floor(y) + GY; return x < 0 || y < 0 || x >= W || y >= W ? -1 : y * W + x; };
-  const put = (b, x, y, c) => { const i = idx(x, y); if (i >= 0) b[i] = c; };
-  const has = (b, x, y) => { const i = idx(x, y); return i >= 0 && !!b[i]; };
+  // N 結尾＝實際格子座標；沒有 N＝64x64 設計座標，會自動縮放
+  const idxN = (x, y) => { x += GX; y += GY; return x < 0 || y < 0 || x >= W || y >= W ? -1 : y * W + x; };
+  const putN = (b, x, y, c) => { const i = idxN(x, y); if (i >= 0) b[i] = c; };
+  const hasN = (b, x, y) => { const i = idxN(x, y); return i >= 0 && !!b[i]; };
+  const put = (b, x, y, c) => putN(b, Math.floor((x + .5) * SC), Math.floor((y + .5) * SC), c);
   function ell(b, cx, cy, rx, ry, c, sh, hi, clip) {          // 實心橢圓：右下陰影、左上亮面；clip＝只畫在已經有顏色的地方
+    cx *= SC; cy *= SC; rx *= SC; ry *= SC;
     for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
       const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry;
-      if (dx * dx + dy * dy > 1 || (clip && !has(b, x, y))) continue;
+      if (dx * dx + dy * dy > 1 || (clip && !hasN(b, x, y))) continue;
       const s = dx * .45 + dy;
-      put(b, x, y, sh && s > .62 ? sh : hi && s < -.78 ? hi : c);
+      putN(b, x, y, sh && s > .62 ? sh : hi && s < -.78 ? hi : c);
     }
   }
   const patch = (b, cx, cy, rx, ry, c) => ell(b, cx, cy, rx, ry, c, null, null, true);
   function tri(b, pts, c) {
+    pts = pts.map(p => [p[0] * SC, p[1] * SC]);
     const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
     for (let y = Math.floor(Math.min(...ys)); y <= Math.max(...ys); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.max(...xs); x++) {
       const px = x + .5, py = y + .5;
       const s = pts.map((p, i) => { const q = pts[(i + 1) % 3]; return (q[0] - p[0]) * (py - p[1]) - (q[1] - p[1]) * (px - p[0]); });
-      if (s.every(v => v >= 0) || s.every(v => v <= 0)) put(b, x, y, c);
+      if (s.every(v => v >= 0) || s.every(v => v <= 0)) putN(b, x, y, c);
     }
   }
-  const rect = (b, x, y, w, h, c, clip) => { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (!clip || has(b, x + i, y + j)) put(b, x + i, y + j, c); };
+  function rect(b, x, y, w, h, c, clip) {
+    const x0 = Math.round(x * SC), y0 = Math.round(y * SC), x1 = Math.max(x0 + 1, Math.round((x + w) * SC)), y1 = Math.max(y0 + 1, Math.round((y + h) * SC));
+    for (let j = y0; j < y1; j++) for (let i = x0; i < x1; i++) if (!clip || hasN(b, i, j)) putN(b, i, j, c);
+  }
   function line(b, x0, y0, x1, y1, c, w) {
     const n = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))) * 2 + 1;
     for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n, y = y0 + (y1 - y0) * i / n; rect(b, Math.round(x - (w - 1) / 2), Math.round(y - (w - 1) / 2), w || 1, w || 1, c); }
@@ -923,7 +930,7 @@ const Boss3D = (() => {
       persian: { fur: '#FFFFFF', sh: '#E4E0EE', cream: '#F6F5FA', eye: '#4AA3FF', eye2: '#2F7FD8', ol: '#3A3550', tailR: 4.6, ruff: true,
         acc(b, dy) {                               // 月亮
           ell(b, 53, 4 + dy, 4, 4, '#F1D96A');
-          for (let y = dy - 2; y <= dy + 9; y++) for (let x = 50; x <= 60; x++) { const ex = x + .5 - 55, ey = y + .5 - (3 + dy); if (ex * ex + ey * ey < 11) { const i = idx(x, y); if (i >= 0) b[i] = null; } }
+          ell(b, 55, 3 + dy, 3.3, 3.3, null);
         },
         hold(b) { line(b, 14, 56, 17, 45, '#E5C14A', 2); star(b, 13, 40, 5.5, '#FFD400'); put(b, 12, 39, '#FFFFFF'); } },   // 星星魔杖
       fold: { fur: '#EDE4D8', sh: '#D6CABA', eye: '#E9A93A', eye2: '#C98820', tail: '#9A8F86', foldEars: true, glasses: true, earC: '#9A8F86',
@@ -1023,12 +1030,13 @@ const Boss3D = (() => {
     if (S.glasses) rect(b, 30, 26 + dy, 4, 1, '#2B2B2B');
     if (f.brows) for (let i = 0; i < 5; i++) { rect(b, 16 + i, 18 + (i >> 1) + dy, 1, 2, ol); rect(b, 48 - i, 18 + (i >> 1) + dy, 1, 2, ol); }
     else { rect(b, 13, 34 + dy, 4, 2, '#FF8FA3'); rect(b, 47, 34 + dy, 4, 2, '#FF8FA3'); }      // 腮紅
-    rect(b, 31, 32 + dy, 3, 1, '#FF9FB2'); put(b, 32, 33 + dy, '#FF9FB2');
-    if (f.hiss) { ell(b, 32, 37.5 + dy, 3, 2.6, ol); ell(b, 32, 37.8 + dy, 2.1, 1.7, '#B0263A'); put(b, 30, 36 + dy, '#FFFFFF'); put(b, 34, 36 + dy, '#FFFFFF'); }
+    const n = Math.round(dy * SC);                  // 鼻子、嘴巴、牙齒直接用實際格子畫，比較乾淨
+    [[23, 24], [24, 24], [25, 24], [24, 25]].forEach(([x, y]) => putN(b, x, y + n, '#FF9FB2'));
+    if (f.hiss) { ell(b, 32, 37.5 + dy, 3, 2.6, ol); ell(b, 32, 37.8 + dy, 2.1, 1.7, '#B0263A'); putN(b, 23, 27 + n, '#FFFFFF'); putN(b, 25, 27 + n, '#FFFFFF'); }
     else {
-      [[32, 34], [31, 35], [30, 35], [29, 34], [33, 35], [34, 35], [35, 34]].forEach(([x, y]) => put(b, x, y + dy, ol));          // :3 嘴
-      if (f.pose === 'ko') { rect(b, 31, 36 + dy, 3, 2, '#FF7A90'); put(b, 32, 38 + dy, '#FF7A90'); }                              // 吐舌頭
-      else if (S.claws) { put(b, 33, 36, '#FFFFFF'); put(b, 34, 36, '#FFFFFF'); put(b, 34, 37, '#FFFFFF'); put(b, 35, 36, ol); put(b, 35, 37, ol); put(b, 34, 38, ol); put(b, 33, 37, ol); }   // 只剩一顆小虎牙
+      [[22, 26], [24, 26], [26, 26], [23, 27], [25, 27]].forEach(([x, y]) => putN(b, x, y + n, ol));                        // w 嘴
+      if (f.pose === 'ko') [[23, 28], [24, 28], [24, 29]].forEach(([x, y]) => putN(b, x, y + n, '#FF7A90'));                 // 吐舌頭
+      else if (S.claws) { putN(b, 25, 28, '#FFFFFF'); putN(b, 26, 28, ol); putN(b, 25, 29, ol); }                                                 // 只剩一顆白白的小牙
     }
     [[4, 31], [5, 34], [55, 31], [54, 34]].forEach(([x, y]) => rect(b, x, y + dy, 6, 1, S.whisker));
   }
