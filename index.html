@@ -283,6 +283,8 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 .gh-info{flex:1;min-width:0}
 .gh-info b{font-size:16px;line-height:1.4;font-weight:900}
 .gh-ok{font-size:14px;font-weight:900;white-space:nowrap;flex:none}
+.sync-in{width:100%;margin:10px 0;padding:10px 12px;border:var(--bd);background:var(--paper);color:var(--ink);font:16px/1.4 inherit}
+.gh-row.mine .gh-info b::after{content:'（這台）';font-size:13px;font-weight:700;color:var(--sub)}
 
 /* ===== 浮層 ===== */
 #toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
@@ -616,7 +618,7 @@ function home() {
   const list = db.order.filter(id => db.banks[id]);
   const L = levelOf(db.exp);
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
-      <button class="icon" data-act="toggleSound" aria-label="音效開關">${db.sound ? '🔊' : '🔇'}</button></div>
+      <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音效開關">${db.sound ? '🔊' : '🔇'}</button></div>
     <section class="panel me">
       <div class="lv"><small>LV</small>${L.lv}</div>
       <div class="info">
@@ -775,6 +777,127 @@ function renderGh() {
         <div class="sub">${b.questions.length} 題${st === 'update' ? '　GitHub 上有新版本' : ''}</div>
       </div>${btn}</div>`;
   }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">${cur ? '匯入／更新全部' + esc(cur) : '全部匯入／更新'}（${pend} 份）</button>` : '');
+}
+
+/* ===== 雲端紀錄：進度存到 Google 試算表（Apps Script），題庫不存，匯入時從 GitHub 抓 ===== */
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw923EWK5I6juwYzz0tywW1McYuaD2WpKSueoR5RybEioYCo/exec';
+const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin'];
+const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
+let syncList = null;
+const netMsg = e => /fetch|network|load failed/i.test(e.message || '') ? '連不上 Google，請確認網路' : (e.message || '失敗');
+const progOf = () => {
+  const o = { v: 1 }; PROG.forEach(k => { o[k] = db[k]; });
+  o.banks = db.order.filter(id => db.banks[id]).map(id => ({ id, title: db.banks[id].title }));
+  return o;
+};
+function applyProg(p) {
+  PROG.forEach(k => { if (p[k] !== undefined) db[k] = p[k]; });
+  // 這台裝置有、但紀錄裡沒有的題庫：保留題庫，排在最後
+  const want = new Set(db.order);
+  Object.keys(db.banks).forEach(id => { if (!want.has(id)) db.order.push(id); });
+  for (const id of Object.keys(db.wrong)) {
+    const b = db.banks[id]; if (!b) continue;
+    const ids = new Set(b.questions.map(q => q.id));
+    db.wrong[id] = db.wrong[id].filter(x => ids.has(x));
+  }
+}
+async function syncGet(params) {
+  const r = await fetch(SYNC_URL + '?' + new URLSearchParams(Object.assign({ t: Date.now() }, params)), { cache: 'no-store' });
+  if (!r.ok) throw new Error('連線失敗（' + r.status + '）');
+  const j = await r.json(); if (!j.ok) throw new Error(j.error || '讀取失敗');
+  return j;
+}
+// 從 GitHub 把缺的題庫抓回來，回傳還是找不到的題庫
+async function fetchMissing(list) {
+  const miss = list.filter(x => !db.banks[x.id]);
+  if (!miss.length) return [];
+  const need = new Set(miss.map(x => x.id));
+  try {
+    const r = await fetch(INDEX_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error();
+    const files = ((await r.json()).files || []).filter(f => f.file && !f.error);
+    // 檔名通常就是 id，先抓對得上的，剩下的再全部掃一次
+    const first = files.filter(f => need.has(f.file.replace(/\.json$/i, ''))), rest = files.filter(f => !first.includes(f));
+    for (const group of [first, rest]) {
+      if (!need.size) break;
+      await Promise.all(group.map(async f => {
+        try {
+          const res = await fetch('banks/' + encodeURIComponent(f.file) + '?t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) return;
+          const b = normalize(await res.text());
+          if (need.has(b.id)) { db.banks[b.id] = b; need.delete(b.id); }
+        } catch (e) {}
+      }));
+    }
+  } catch (e) {}
+  return miss.filter(x => need.has(x.id));
+}
+function syncView() {
+  Boss3D.stop(); window.scrollTo(0, 0); setTheme('');
+  const name = localStorage.getItem(SYNC_NAME) || '', bak = localStorage.getItem(SYNC_BAK);
+  let bakAt = ''; try { bakAt = bak ? new Date(JSON.parse(bak).at).toLocaleString('zh-TW', { hour12: false }) : ''; } catch (e) {}
+  app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>雲端紀錄</h1></header>
+    <div class="sec-h"><h2>匯出進度</h2></div>
+    <div class="panel box">
+      <p class="sub">存經驗值、金幣、錯題、評級和題庫清單（題庫本身不存）。同一個名字會蓋掉舊的。</p>
+      <input class="sync-in" id="syncName" maxlength="20" placeholder="輸入名字" value="${esc(name)}">
+      <button class="btn go wide" data-act="syncSave">匯出</button>
+    </div>
+    <div class="sec-h"><h2>匯入進度</h2><button class="icon" data-act="syncList" aria-label="重新整理">↻</button></div>
+    <div class="panel box" id="syncBox"><p class="sub">讀取中…</p></div>
+    ${bak ? `<div class="sec-h"><h2>還原</h2></div>
+    <div class="panel box"><p class="sub">匯入前的進度（${esc(bakAt)}）</p><button class="btn wide" data-act="syncRestore">還原成匯入前</button></div>` : ''}`;
+  loadSyncList();
+}
+async function loadSyncList() {
+  const box = document.getElementById('syncBox'); if (!box) return;
+  box.innerHTML = '<p class="sub">讀取中…</p>';
+  try { syncList = (await syncGet({ action: 'list' })).list || []; renderSyncList(); }
+  catch (e) { syncList = null; box.innerHTML = `<p class="err">${esc(netMsg(e))}</p>`; }
+}
+function renderSyncList() {
+  const box = document.getElementById('syncBox'); if (!box || !syncList) return;
+  if (!syncList.length) { box.innerHTML = '<p class="sub">還沒有人匯出過</p>'; return; }
+  const me = localStorage.getItem(SYNC_NAME) || '';
+  box.innerHTML = syncList.map((x, i) => `<div class="gh-row ${x.name === me ? 'mine' : ''}"><div class="gh-info">
+      <div><b>${esc(x.name)}</b></div><div class="sub">${esc(x.at || '')}${x.info ? '　' + esc(x.info) : ''}</div>
+    </div><button class="btn sm go" data-act="syncLoad" data-n="${i}">匯入</button></div>`).join('');
+}
+async function syncSave(btn) {
+  const name = (document.getElementById('syncName').value || '').trim();
+  if (!name) { toast('請先輸入名字'); return; }
+  try {
+    btn.disabled = true; btn.textContent = '檢查中…';
+    if (!syncList) syncList = (await syncGet({ action: 'list' })).list || [];
+    const old = syncList.find(x => x.name === name);
+    if (old && !confirm(`「${name}」已經有紀錄（${old.at}），要用這台的進度蓋掉嗎？`)) return;
+    btn.textContent = '匯出中…';
+    const L = levelOf(db.exp);
+    const r = await fetch(SYNC_URL, { method: 'POST', body: JSON.stringify({ name, data: JSON.stringify(progOf()), info: `LV ${L.lv}・💰${db.coins || 0}・題庫 ${db.order.length}` }) });
+    const j = await r.json(); if (!j.ok) throw new Error(j.error || '匯出失敗');
+    localStorage.setItem(SYNC_NAME, name);
+    toast('已匯出：' + name); syncList = null; loadSyncList();
+  } catch (e) { toast(netMsg(e)); }
+  finally { btn.disabled = false; btn.textContent = '匯出'; }
+}
+async function syncLoad(n) {
+  const x = syncList && syncList[n]; if (!x) return;
+  if (!confirm(`用「${x.name}」的進度取代這台裝置的進度？\n（目前的進度會先備份，可以還原一次）`)) return;
+  const box = document.getElementById('syncBox'); if (box) box.innerHTML = '<p class="sub">匯入中…</p>';
+  try {
+    const p = JSON.parse((await syncGet({ action: 'load', name: x.name })).data);
+    localStorage.setItem(SYNC_BAK, JSON.stringify(Object.assign(progOf(), { at: Date.now() })));
+    const lost = await fetchMissing(p.banks || []);
+    applyProg(p); save();
+    localStorage.setItem(SYNC_NAME, x.name);
+    if (lost.length) alert('這些題庫在 GitHub 上找不到，進度先留著，之後匯入同 id 的題庫就會接上：\n' + lost.map(b => '・' + b.title).join('\n'));
+    home(); toast('已匯入：' + x.name);
+  } catch (e) { toast(e instanceof SyntaxError ? '紀錄格式錯誤' : netMsg(e)); syncView(); }
+}
+function syncRestore() {
+  if (!confirm('還原成匯入前的進度？')) return;
+  try { applyProg(JSON.parse(localStorage.getItem(SYNC_BAK))); save(); localStorage.removeItem(SYNC_BAK); home(); toast('已還原'); }
+  catch (e) { toast('備份讀取失敗'); }
 }
 
 /* ===== 點陣 BOSS（three.js r128 舞台＋點陣貓貼圖，從 CDN 載入；失敗就只用 2D 特效） ===== */
@@ -1673,6 +1796,7 @@ const ACT = {
     const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
   },
   ghRefresh: () => ghLoad(true),
+  syncView, syncList: () => loadSyncList(), syncSave: (d, el) => syncSave(el), syncLoad: d => syncLoad(+d.n), syncRestore,
   subHome: d => { db.subHome = d.s; save(); home(); },
   subGh: d => { db.subGh = d.s; save(); renderGh(); },
   ghImport: d => {
