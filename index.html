@@ -73,6 +73,20 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .logo h1 small{display:block;font-size:14px;letter-spacing:.3em;color:var(--ink);-webkit-text-stroke:0;text-shadow:none;margin-bottom:6px}
 
 .me{display:flex;gap:14px;align-items:center;padding:14px 16px;margin-bottom:22px;background:var(--hit)}
+.me[data-act]{cursor:pointer;position:relative}
+.me .go-prof{position:absolute;right:10px;top:8px;font-size:13px;font-weight:900}
+.prof-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 18px}
+.prof-sum div{border:var(--bd);background:var(--paper);padding:8px 4px;text-align:center}
+.prof-sum b{display:block;font-family:var(--display);font-size:26px;line-height:1.1}
+.prof-sum small{font-size:12px;font-weight:900}
+.st-row{padding:12px 0;border-bottom:2px dashed var(--ink)}
+.st-row:last-child{border-bottom:0}
+.st-row b{font-size:16px;font-weight:900;line-height:1.4}
+.st-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px;text-align:center}
+.st-nums span{font-size:12px;font-weight:700;color:var(--sub)}
+.st-nums em{display:block;font-style:normal;font-family:var(--display);font-size:20px;color:var(--ink)}
+.st-bar{height:8px;border:2px solid var(--ink);background:var(--paper);margin-top:6px}
+.st-bar i{display:block;height:100%;background:var(--c)}
 .me .lv{font-family:var(--display);font-size:46px;line-height:.9;text-align:center;min-width:72px}
 .me .lv small{display:block;font-family:"Noto Sans TC";font-size:12px;font-weight:900}
 .me .hero{display:block;width:96px;height:96px;margin:-6px -4px 0;image-rendering:pixelated}
@@ -778,7 +792,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, coins: 0, qwin: {}, cards: 0 };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, coins: 0, qwin: {}, cards: 0, stats: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -877,7 +891,7 @@ function home() {
   const L = levelOf(db.exp);
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音效開關">${db.sound ? '🔊' : '🔇'}</button></div>
-    <section class="panel me">
+    <section class="panel me" data-act="profile"><span class="go-prof">個人資料 ›</span>
       <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
         <div class="ttl">${titleOf(L.lv)}</div>
@@ -1037,9 +1051,49 @@ function renderGh() {
   }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">${cur ? '匯入／更新全部' + esc(cur) : '全部匯入／更新'}（${pend} 份）</button>` : '');
 }
 
+/* ===== 個人資料：每份題庫「挑戰 BOSS」打完的次數、平均、最高、最近分數 ===== */
+function profile() {
+  Boss3D.stop(); window.scrollTo(0, 0); setTheme('');
+  const L = levelOf(db.exp), ids = db.order.filter(id => db.banks[id]);
+  const all = ids.map(id => db.stats[id]).filter(Boolean);
+  const tn = all.reduce((a, x) => a + x.n, 0), tsum = all.reduce((a, x) => a + x.sum, 0), tw = all.reduce((a, x) => a + (x.win || 0), 0);
+  const day = t => { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()}`; };
+  let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>個人資料</h1></header>
+    <section class="panel me">
+      <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
+      <div class="info">
+        <div class="ttl">${titleOf(L.lv)}</div>
+        <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
+        <div class="nums">EXP ${L.cur} / ${L.need}　總經驗 ${db.exp}</div>
+        <div class="coins">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}
+      </div>
+    </section>
+    <div class="prof-sum">
+      <div><b>${tn}</b><small>挑戰場數</small></div>
+      <div><b>${tn ? Math.round(tsum / tn) : '—'}</b><small>平均分數</small></div>
+      <div><b>${tw}</b><small>打贏場數</small></div>
+    </div>
+    <div class="sec-h"><h2>各題庫成績</h2></div>
+    <p class="sub">只算「挑戰 BOSS」整份打完的場次，輸贏都算；分數＝答對題數／總題數。</p>
+    <div class="panel box">`;
+  if (!ids.length) h += '<p class="sub">還沒有題庫</p>';
+  h += ids.map(id => {
+    const b = db.banks[id], st = db.stats[id];
+    const avg = st && st.n ? Math.round(st.sum / st.n) : null;
+    return `<div class="st-row" style="${subVars(b.subject)}">
+      ${b.subject ? `<span class="tag"><span>${esc(b.subject)}</span></span> ` : ''}<b>${esc(b.title)}</b>${db.best[id] ? `　<span class="sub">評級 ${esc(db.best[id])}</span>` : ''}
+      ${st && st.n ? `<div class="st-nums">
+          <span><em>${st.n}</em>次數</span><span><em>${avg}</em>平均</span><span><em>${st.best}</em>最高</span><span><em>${st.last}</em>最近 ${day(st.at)}</span>
+        </div><div class="st-bar"><i style="width:${avg}%"></i></div>`
+        : '<div class="sub" style="margin-top:4px">還沒挑戰過</div>'}
+    </div>`;
+  }).join('') + '</div>';
+  app.innerHTML = h;
+}
+
 /* ===== 雲端紀錄：進度存到 Google 試算表（Apps Script），題庫不存，匯入時從 GitHub 抓 ===== */
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw923EWK5I6juwYzz0tywW1McYuaD2WpKSueoR5RybEioYCo/exec';
-const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards'];
+const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards', 'stats'];
 const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
 let syncList = null;
 const netMsg = e => /fetch|network|load failed/i.test(e.message || '') ? '連不上 Google，請確認網路' : (e.message || '失敗');
@@ -1914,6 +1968,13 @@ function result() {
   if (win) { exp += 30 + (rank === 'S' ? 30 : 0); db.kills++; }
   const clear = win && S.recordBid ? COIN_CLEAR : 0;
   if (clear) { db.coins += clear; S.coins += clear; save(); }
+  if (S.recordBid) {
+    const st = db.stats[S.recordBid] || (db.stats[S.recordBid] = { n: 0, sum: 0, best: 0, win: 0 });
+    const sc = Math.round(pct * 100);
+    st.n++; st.sum += sc; st.best = Math.max(st.best, sc); st.last = sc; st.at = Date.now(); if (win) st.win++;
+    st.title = db.banks[S.recordBid] ? db.banks[S.recordBid].title : st.title;
+    save();
+  }
   if (win && S.recordBid) {
     const old = db.best[S.recordBid];
     if (!old || RANK_ORDER.indexOf(rank) > RANK_ORDER.indexOf(old)) db.best[S.recordBid] = rank;
@@ -2070,6 +2131,7 @@ const ACT = {
   },
   ghRefresh: () => ghLoad(true),
   useCut: (d, el) => useCut(el),
+  profile,
   syncView, syncList: () => loadSyncList(), syncSave: (d, el) => syncSave(el), syncLoad: d => syncLoad(+d.n), syncRestore,
   subHome: d => { db.subHome = d.s; save(); home(); },
   subGh: d => { db.subGh = d.s; save(); renderGh(); },
