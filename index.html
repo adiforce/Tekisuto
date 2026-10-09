@@ -152,6 +152,12 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .opt:disabled{cursor:default}
 .opt.dim{opacity:.45}
 .opt.cut{opacity:.3;text-decoration:line-through}
+.opt .why{display:block;margin-top:4px;font-size:13px;font-weight:700;line-height:1.45;opacity:.9}
+.opt.dim:has(.why){opacity:.75}
+.opt>span:last-child{flex:1;min-width:0}
+.rv-x{margin:8px 0 0;padding:0;list-style:none;font-size:14px;line-height:1.5}
+.rv-x li{margin-top:4px}
+.rv-x b{color:var(--hurt)}
 .cutbtn{display:block;margin:0 0 10px auto}
 .fb{margin:18px 0 14px;padding:14px 16px;position:relative}
 .fb .say{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block;margin-bottom:4px}
@@ -784,6 +790,7 @@ function normalize(raw) {
       id: qid, q: String(text), options: opts.map(String), answer: a,
       explain: String(q.explain || ''), point: String(q.point || ''), mnemonic: String(q.mnemonic || ''),
       image: String(q.image || ''),
+      why: Array.isArray(q.why) && q.why.length === opts.length ? q.why.map(x => String(x || '')) : [],
       lock: !!q.lock
     };
   });
@@ -1906,6 +1913,8 @@ function pick(k) {
   app.querySelectorAll('.opt').forEach((bt, j) => {
     bt.disabled = true;
     if (j === right) bt.classList.add('ok'); else if (j === k) bt.classList.add('ng'); else bt.classList.add('dim');
+    const why = it.q.why && it.q.why[it.order[j]];
+    if (j !== right && why) bt.lastElementChild.insertAdjacentHTML('beforeend', `<small class="why">✘ ${fmt(why)}</small>`);
   });
   markWrong(it.bid, it.q.id, !ok);
   let say, gain = -1;
@@ -2034,6 +2043,7 @@ function review(refs, title) {
       <div class="rv-q"><span class="num">${i + 1}</span><span>${fmt(q.q)}</span></div>
       ${imgTag(q)}
       <div class="rv-a">✔ <mark>${fmt(q.options[q.answer])}</mark></div>
+      ${q.why && q.why.some(Boolean) ? `<ul class="rv-x">${q.options.map((o, i) => i !== q.answer && q.why[i] ? `<li><b>✘ ${fmt(o)}</b>：${fmt(q.why[i])}</li>` : '').join('')}</ul>` : ''}
       ${q.point ? `<div class="pt"><b>重點</b><p>${fmt(q.point)}</p></div>` : ''}
       ${q.mnemonic ? `<div class="mn"><b>💡 必殺口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
     </article>`;

@@ -13,6 +13,12 @@
       ],
       "answer": 2,
       "explain": "名詞 products 前面要用形容詞，「創新的」是 innovative。",
+      "why": [
+        "innovation 是名詞（創新），products 前面要形容詞",
+        "innovate 是動詞（創新），不能修飾名詞",
+        "",
+        "capability 是名詞（能力），意思也不對"
+      ],
       "point": "innovate vi. 創新｜innovative adj. 創新的（able to come up with new and creative ideas）｜innovation n.[C] 新方法；創新。",
       "mnemonic": "nov＝新（novel、nova 同源）：注入新東西＝創新"
     },
@@ -26,6 +32,12 @@
       ],
       "answer": 0,
       "explain": "promise 除了承諾，也可以表示「預示；可望」，烏雲預示會下雨。",
+      "why": [
+        "",
+        "mention 是提到，烏雲不會「提到」下雨",
+        "rely 是依賴，要接 on，意思也不通",
+        "rank 是排名"
+      ],
       "point": "promise vt. 可望…；預示…（the dark clouds promised rain）｜vi./vt. 承諾；保證（promise to V）｜n.[C] 承諾（make a promise）。",
       "mnemonic": "烏雲「保證」會下雨＝預示"
     },
@@ -39,6 +51,12 @@
       ],
       "answer": 0,
       "explain": "紙、膠水、鐵絲是做活動需要的「材料」。",
+      "why": [
+        "",
+        "structures 是結構、建築物，不是做勞作的東西",
+        "routes 是路線",
+        "feedback 是意見回饋"
+      ],
       "point": "material n.[C]（活動所需的）材料（things used to take part in a certain activity），常用複數：paper, wire, and other materials。",
       "mnemonic": "做勞作要先備料：material＝材料"
     },
@@ -52,6 +70,12 @@
       ],
       "answer": 1,
       "explain": "能不能承受強震，指的是整棟建築物（結構體）。",
+      "why": [
+        "feedback 是意見回饋，不會被地震影響",
+        "",
+        "route 是路線",
+        "ranking 是排名"
+      ],
       "point": "structure n.[C] 結構體；建築物（something that is built by putting together different materials）。",
       "mnemonic": "struct＝建造（construct 同源）：蓋好的東西＝結構體"
     },
@@ -65,6 +89,12 @@
       ],
       "answer": 2,
       "explain": "兩位設計師一起推出新系列，是「合作」，collaborate 是不及物動詞，可接 on／with。",
+      "why": [
+        "construct 是建造，要接受詞，衣服系列不是蓋出來的",
+        "adjust 是調整",
+        "",
+        "explore 是探索，和推出新系列無關"
+      ],
       "point": "collaborate vi. 合作（collaborate with sb）｜collaboration n.[C,U] 合作（in close collaboration with 與…密切合作）。",
       "mnemonic": "co（一起）＋labor（勞動）：一起勞動＝合作"
     },
@@ -78,6 +108,12 @@
       ],
       "answer": 2,
       "explain": "名詞 criticism 前要用形容詞，「有建設性的」是 constructive。",
+      "why": [
+        "construction 是名詞（建設；工程），criticism 前要形容詞",
+        "construct 是動詞（建造），不能修飾名詞",
+        "",
+        "structure 是名詞（結構）"
+      ],
       "point": "construct vt. 建造｜construction n.[U] 建造；n.[C] 建築物（construction site 工地）｜constructive adj. 有建設性的（constructive criticism／feedback）。",
       "mnemonic": "-ive 是形容詞：有建設性的批評，幫人「蓋」得更好"
     },
@@ -91,6 +127,12 @@
       ],
       "answer": 1,
       "explain": "鎮上沒有別家像它一樣，就是「獨特的」。",
+      "why": [
+        "stable 是穩定的，和「沒有別家像它」無關",
+        "",
+        "slight 是細微的",
+        "reliable 是可靠的"
+      ],
       "point": "unique adj. 獨特的（unlike anything else; very special），例：椰子蟹是能爬樹、用螯剝開椰子的獨特螃蟹。",
       "mnemonic": "uni＝一（unicorn 獨角獸）：獨一無二"
     },
@@ -104,6 +146,12 @@
       ],
       "answer": 3,
       "explain": "椅子太低要「調整」高度，help me 後接原形動詞 adjust。",
+      "why": [
+        "adjustment 是名詞（調整），help me 後面要接動詞",
+        "rely 是依賴，要接 on",
+        "rank 是排名",
+        ""
+      ],
       "point": "adjust vt. 調整（做些微改變以符合條件或需求）｜adjustment n.[C] 調整（make adjustments 做調整）。",
       "mnemonic": "ad＋just（剛好）：調到剛剛好"
     },
@@ -117,6 +165,12 @@
       ],
       "answer": 3,
       "explain": "顧客對產品的意見和改進建議就是 feedback。",
+      "why": [
+        "route 是路線",
+        "element 是要素",
+        "ranking 是排名",
+        ""
+      ],
       "point": "feedback n.[U] 回饋意見（opinions about something, usually with advice or suggestions），不可數不加 s；constructive feedback 有建設性的意見。",
       "mnemonic": "feed＋back：把意見「餵回去」給對方"
     },
@@ -130,6 +184,12 @@
       ],
       "answer": 1,
       "explain": "遊行擋路，司機得換一條「路線」。",
+      "why": [
+        "element 是要素",
+        "",
+        "structure 是結構、建築物",
+        "graduation 是畢業"
+      ],
       "point": "route n.[C] 途徑；路線（a specific road or way taken to reach or get to somewhere）。take a different route 走另一條路。",
       "mnemonic": "route 唸起來像「路特」：就是路線"
     },
@@ -143,6 +203,12 @@
       ],
       "answer": 3,
       "explain": "mention 是簡短地說或寫到某事，不深入細節。",
+      "why": [
+        "承諾是 promise",
+        "探索是 explore",
+        "排序是 rank",
+        ""
+      ],
       "point": "mention vt. 提到（to briefly talk or write about something without going into detail），mention sth to sb。",
       "mnemonic": "mention 唸起來像「門神」：門神只在門口提一下，不進屋講細節"
     },
@@ -156,6 +222,12 @@
       ],
       "answer": 2,
       "explain": "固定用法 be capable of + N／V-ing，例：capable of playing several songs。",
+      "why": [
+        "capable 不接 to；able 才用 be able to",
+        "capable 不接 for",
+        "",
+        "capable 不接 at；擅長才用 good at"
+      ],
       "point": "capable adj. 有能力的；能夠…的（be capable of + N／V-ing）｜capability n.[C] 能力（beyond their capabilities 超出能力範圍）。比較：be able to + V。",
       "mnemonic": "capable of，able to：長的配 of，短的配 to"
     },
@@ -169,6 +241,12 @@
       ],
       "answer": 0,
       "explain": "architect 是設計建築的人；architecture 是建築（學）。",
+      "why": [
+        "",
+        "順序反了：architect 才是人",
+        "structure 是結構，不是建築學",
+        "structure 是結構，不是建築師"
+      ],
       "point": "architect n.[C] 建築師（someone who designs buildings for a living）｜architecture n.[U] 建築（classical architecture 古典建築）。比較：structure 結構體；建築物。",
       "mnemonic": "-ture 是學問（像 culture）；-tect 是人"
     },
@@ -182,6 +260,12 @@
       ],
       "answer": 1,
       "explain": "畢業用 graduate from + 學校，年份前用 in。",
+      "why": [
+        "graduate 後面要加 from，年份前面用 in，不是 at",
+        "",
+        "graduation 是名詞（畢業），不能當動詞用",
+        "graduate 要加 from，而且過去的事要用過去式 graduated"
+      ],
       "point": "graduate vi. 畢業（graduate from + 學校）｜n.[C]（大學）畢業生（a graduate of Oxford）｜graduation n.[U] 畢業（upon graduation 一畢業）。名詞讀 [ˈɡrædʒuɪt]，動詞讀 [ˈɡrædʒuˌet]。",
       "mnemonic": "畢業要「從」學校走出來：graduate from"
     },
@@ -195,6 +279,12 @@
       ],
       "answer": 3,
       "explain": "加 -ly 變副詞：a slight difference（細微的差別）、slightly longer（稍微久一點）。",
+      "why": [
+        "順序反了：slight 是形容詞，加 -ly 才變副詞",
+        "slightly 加了 -ly，是副詞",
+        "slight 沒有 -ly，是形容詞",
+        ""
+      ],
       "point": "slight adj. 細微的（a slight difference）｜slightly adv. 稍微（a little bit; somewhat），例：slightly longer to find a job。",
       "mnemonic": "加 -ly 變副詞：slight → slightly"
     },
@@ -208,6 +298,12 @@
       ],
       "answer": 1,
       "explain": "rank 是動詞「排序為…」，ranking 是名詞「排名」。",
+      "why": [
+        "順序反了：rank 是動詞，ranking 才是名詞「排名」",
+        "",
+        "依賴是 rely、可信賴的是 reliable",
+        "調整是 adjust"
+      ],
       "point": "rank vi./vt. 排序為…（依表現、品質、能力排名次），例：rank in the top 1%｜ranking n.[C] 排名（the top ranking）。",
       "mnemonic": "打遊戲的 rank 戰＝排名賽"
     },
@@ -221,6 +317,12 @@
       ],
       "answer": 2,
       "explain": "固定用法 rely on sb／sth，例：Bhutan relies heavily on tourism.",
+      "why": [
+        "rely 不接 of",
+        "rely 不接 to",
+        "",
+        "rely 不接 at"
+      ],
       "point": "rely vi. 依賴；信任（rely on）｜reliable adj. 可信賴的（a completely reliable security guard）。",
       "mnemonic": "re-LIE-on：整個人躺（lie）在你身上＝依賴你"
     },
@@ -234,6 +336,12 @@
       ],
       "answer": 0,
       "explain": "elementary 是 element（要素）的形容詞，意思是初級的、基礎的。",
+      "why": [
+        "",
+        "要素是 element，elementary 是形容詞",
+        "穩定的是 stable",
+        "獨特的是 unique"
+      ],
       "point": "element n.[C] 要素（a basic part or condition that is necessary，例：a key element）｜elementary adj. 初級的；基礎的（the elementary principles 基本原理）。",
       "mnemonic": "elementary school 小學＝最基礎的學校"
     },
@@ -247,6 +355,12 @@
       ],
       "answer": 3,
       "explain": "stable 是形容詞，stability 是名詞。",
+      "why": [
+        "順序反了：stability 是名詞",
+        "steady 也是穩定的（形容詞），stable 也是形容詞，沒有名詞",
+        "standard 是標準，不是穩定",
+        ""
+      ],
       "point": "stable adj. 穩定的；穩固的（a fairly stable economy）｜stability n.[U] 穩定（the condition of not changing much over time）。",
       "mnemonic": "sta 和 stand 有關：站得穩＝stable"
     },
@@ -260,6 +374,12 @@
       ],
       "answer": 0,
       "explain": "explore 的名詞是 exploration（探索）；explosion 是爆炸，別看錯。",
+      "why": [
+        "",
+        "explosion 是爆炸",
+        "explanation 是解釋",
+        "expectation 是期待"
+      ],
       "point": "explore vt. 探索（to try out or investigate new things to find or learn something）｜exploration n.[U] 探索；探究。小心拼字：exploration 探索 ≠ explosion 爆炸。",
       "mnemonic": "探險家 explorer 出去（ex-）邊走邊探路"
     }
