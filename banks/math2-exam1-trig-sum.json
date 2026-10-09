@@ -1,0 +1,247 @@
+{
+  "id": "math2-exam1-trig-sum",
+  "title": "高二數學 段考一｜和角公式、倍角半角與疊合",
+  "subject": "數學",
+  "questions": [
+    {
+      "q": "下列哪一個是 sin(α + β) 的正確展開？",
+      "options": [
+        "sinα cosβ + cosα sinβ",
+        "sinα sinβ + cosα cosβ",
+        "sinα cosβ − cosα sinβ",
+        "cosα cosβ − sinα sinβ"
+      ],
+      "answer": 0,
+      "explain": "正弦和角公式：sin(α + β) = sinα cosβ + cosα sinβ。",
+      "point": "sin(α ± β) = sinα cosβ ± cosα sinβ（符號相同）；cos(α ± β) = cosα cosβ ∓ sinα sinβ（符號相反）。",
+      "mnemonic": "賽扣扣賽，符號照抄；扣扣賽賽，符號相反"
+    },
+    {
+      "q": "圖中方格每格邊長相同，α、β 分別如圖所示。α + β 等於多少？",
+      "image": "banks/img/math2-exam1-trig-sum-grid.jpg",
+      "options": [
+        "30°",
+        "45°",
+        "60°",
+        "90°"
+      ],
+      "answer": 1,
+      "explain": "由方格得 tanα = 3/6 = 1/2，tanβ = 1/3。tan(α + β) = (1/2 + 1/3) ÷ (1 − 1/6) = 1，所以 α + β = 45°。",
+      "point": "tan(α + β) = (tanα + tanβ)/(1 − tanα tanβ)；tan(α − β) = (tanα − tanβ)/(1 + tanα tanβ)。",
+      "mnemonic": "tan 和角：上面加、下面一減相乘"
+    },
+    {
+      "q": "兩個電子訊號 y₁ = 3sin t、y₂ = 4cos t 疊在一起，變成 y = 3sin t + 4cos t。疊加後訊號的最大值是多少？",
+      "options": [
+        "7",
+        "12",
+        "5",
+        "1"
+      ],
+      "answer": 2,
+      "explain": "3sin t + 4cos t = 5sin(t + φ)，其中 r = √(3² + 4²) = 5，最大值是 5，不是 3 + 4。",
+      "point": "a sin x + b cos x = r sin(x + φ)，r = √(a² + b²)。最大值 r、最小值 −r（x 沒有範圍限制時）。",
+      "mnemonic": "疊合找 r：係數平方和開根號"
+    },
+    {
+      "q": "圖中直角三角形的三邊為 3、4、5，求 cos 2θ。",
+      "image": "banks/img/math2-exam1-trig-sum-tri345.jpg",
+      "options": [
+        "24/25",
+        "−7/25",
+        "1/25",
+        "7/25"
+      ],
+      "answer": 3,
+      "explain": "cosθ = 4/5、sinθ = 3/5，cos 2θ = cos²θ − sin²θ = 16/25 − 9/25 = 7/25。24/25 是 sin 2θ。",
+      "point": "sin 2θ = 2sinθ cosθ；cos 2θ = cos²θ − sin²θ = 2cos²θ − 1 = 1 − 2sin²θ。",
+      "mnemonic": "扣兩倍有三種裝：扣方減賽方、兩扣方減一、一減兩賽方"
+    },
+    {
+      "q": "下列何者「不」等於 cos 2θ？",
+      "options": [
+        "2sinθ cosθ",
+        "cos²θ − sin²θ",
+        "2cos²θ − 1",
+        "1 − 2sin²θ"
+      ],
+      "answer": 0,
+      "explain": "2sinθ cosθ 是 sin 2θ，其他三個都是 cos 2θ 的寫法。",
+      "point": "sin 2θ = 2sinθ cosθ；cos 2θ = cos²θ − sin²θ = 2cos²θ − 1 = 1 − 2sin²θ。",
+      "mnemonic": "賽兩倍：兩賽扣；扣兩倍：三種裝"
+    },
+    {
+      "q": "學校要蓋一條和地面夾 15° 的無障礙坡道，坡道長 4 公尺。坡道最高處離地多高？（sin 15° 用和差角公式算）",
+      "options": [
+        "(√6 + √2) 公尺",
+        "(√6 − √2) 公尺",
+        "(√6 − √2)/4 公尺",
+        "(√3 − 1) 公尺"
+      ],
+      "answer": 1,
+      "explain": "sin 15° = sin(45° − 30°) = (√2/2)(√3/2) − (√2/2)(1/2) = (√6 − √2)/4，高度 = 4 × (√6 − √2)/4 = √6 − √2。",
+      "point": "sin 15° = cos 75° = (√6 − √2)/4；cos 15° = sin 75° = (√6 + √2)/4。15° = 45° − 30°，75° = 45° + 30°。",
+      "mnemonic": "15 小、75 大：小的配減號（√6 − √2），大的配加號"
+    },
+    {
+      "q": "圖中 ∠C = 90°，AC = 1，BC = √3，BD = AB = 2。利用圖形，tanθ（即 tan 15°）的值是？",
+      "image": "banks/img/math2-exam1-trig-sum-15deg.jpg",
+      "options": [
+        "2 + √3",
+        "√3 − 1",
+        "2 − √3",
+        "(√6 − √2)/4"
+      ],
+      "answer": 2,
+      "explain": "AB = 2 = BD，△ABD 是等腰，θ = 30° ÷ 2 = 15°。tanθ = AC/CD = 1/(2 + √3) = 2 − √3。",
+      "point": "tan 15° = 2 − √3，tan 75° = 2 + √3。也可用 tan(45° − 30°) = (1 − 1/√3)/(1 + 1/√3) 算出。",
+      "mnemonic": "15 度 tan 是 2 減根號 3，75 度換加號"
+    },
+    {
+      "q": "下列哪一個是 cos(α − β) 的正確展開？",
+      "options": [
+        "cosα cosβ − sinα sinβ",
+        "sinα cosβ − cosα sinβ",
+        "cosα sinβ + sinα cosβ",
+        "cosα cosβ + sinα sinβ"
+      ],
+      "answer": 3,
+      "explain": "餘弦差角公式：cos(α − β) = cosα cosβ + sinα sinβ，減號要變成加號。",
+      "point": "cos(α + β) = cosα cosβ − sinα sinβ；cos(α − β) = cosα cosβ + sinα sinβ。cos 的公式中間符號和括號裡相反。",
+      "mnemonic": "扣扣賽賽，加減對調"
+    },
+    {
+      "q": "要把 sin x − √3 cos x 寫成 r sin(x + φ)，可把係數當成點 P(1, −√3)，如圖。r 和 φ 分別是？",
+      "image": "banks/img/math2-exam1-trig-sum-point.jpg",
+      "options": [
+        "r = 2，φ = −π/3",
+        "r = 2，φ = π/3",
+        "r = 4，φ = −π/3",
+        "r = 2，φ = −π/6"
+      ],
+      "answer": 0,
+      "explain": "r = OP = √(1 + 3) = 2；cosφ = 1/2、sinφ = −√3/2，φ = −π/3。所以 sin x − √3 cos x = 2sin(x − π/3)。",
+      "point": "a sin x + b cos x = r sin(x + φ)：把 (a, b) 當成點，r = √(a² + b²)，φ 滿足 cosφ = a/r、sinφ = b/r。",
+      "mnemonic": "sin 的係數當 x、cos 的係數當 y"
+    },
+    {
+      "q": "投籃的水平射程和 sin 2θ 成正比（θ 是出手仰角）。如果出手時 tanθ = 1/2，sin 2θ 等於多少？",
+      "options": [
+        "3/5",
+        "4/5",
+        "1",
+        "2/5"
+      ],
+      "answer": 1,
+      "explain": "tanθ = 1/2，可得 sinθ = 1/√5、cosθ = 2/√5，sin 2θ = 2 × (1/√5) × (2/√5) = 4/5。",
+      "point": "sin 2θ = 2sinθ cosθ。由 tanθ 求 sinθ、cosθ 時，先畫直角三角形，用畢氏定理求斜邊。θ = 45° 時 sin 2θ = 1 最大，射程最遠。",
+      "mnemonic": "已知 tan，先畫三角形"
+    },
+    {
+      "q": "圖中的曲線是下列哪一個函數的圖形？",
+      "image": "banks/img/math2-exam1-trig-sum-wave.jpg",
+      "options": [
+        "y = √3 sin x + cos x",
+        "y = sin x − √3 cos x",
+        "y = sin x + √3 cos x",
+        "y = 2sin(x − π/3)"
+      ],
+      "answer": 2,
+      "explain": "sin x + √3 cos x = 2sin(x + π/3)：最大值 2，在 x = π/6 達到最高點，在 x = −π/3 由下往上穿過 x 軸，符合圖形。",
+      "point": "疊合後 r sin(x + φ) 就是把 r sin x 往左移 φ。√3 sin x + cos x = 2sin(x + π/6)，最高點在 x = π/3；sin x − √3 cos x = 2sin(x − π/3)，最高點在 x = 5π/6。",
+      "mnemonic": "先疊合，再看平移"
+    },
+    {
+      "q": "y = 5sin x − 12cos x 的最小值是多少？",
+      "options": [
+        "−17",
+        "−7",
+        "−5",
+        "−13"
+      ],
+      "answer": 3,
+      "explain": "r = √(5² + 12²) = 13，y = 13sin(x + φ)，最小值 −13。",
+      "point": "a sin x + b cos x 的最大值 √(a² + b²)、最小值 −√(a² + b²)，係數的正負號不影響 r。",
+      "mnemonic": "5、12、13 一家人"
+    },
+    {
+      "q": "手機遊戲中角色的高度是 y = sin t + cos t。角色的最大高度是多少？在 0 ≤ t ≤ 2π 中第一次到達最高的是哪個 t？",
+      "options": [
+        "最大 √2，t = π/4",
+        "最大 2，t = π/4",
+        "最大 √2，t = π/2",
+        "最大 1，t = 0"
+      ],
+      "answer": 0,
+      "explain": "sin t + cos t = √2 sin(t + π/4)，最大值 √2；t + π/4 = π/2 時最大，t = π/4。",
+      "point": "sin x + cos x = √2 sin(x + π/4)；sin x − cos x = √2 sin(x − π/4)。最大值不是 1 + 1 = 2。",
+      "mnemonic": "賽加扣，根號二，往左移四分之 π"
+    },
+    {
+      "q": "圖為 y = a sin x + b cos x 的圖形（a、b 為正數），圖形通過 (0, 4)，最大值是 5。a 等於多少？",
+      "image": "banks/img/math2-exam1-trig-sum-max5.jpg",
+      "options": [
+        "4",
+        "3",
+        "5",
+        "1"
+      ],
+      "answer": 1,
+      "explain": "x = 0 代入得 y = b = 4；最大值 √(a² + 4²) = 5，所以 a = 3。",
+      "point": "看圖求 a sin x + b cos x：x = 0 時 y = b；最大值 = √(a² + b²)。",
+      "mnemonic": "零代進去先抓 b，最大值再抓 a"
+    },
+    {
+      "q": "cos 75° 的值是多少？",
+      "options": [
+        "(√6 + √2)/4",
+        "(√2 − √6)/4",
+        "(√6 − √2)/4",
+        "(√3 − 1)/2"
+      ],
+      "answer": 2,
+      "explain": "cos 75° = cos(45° + 30°) = (√2/2)(√3/2) − (√2/2)(1/2) = (√6 − √2)/4。",
+      "point": "cos 75° = sin 15° = (√6 − √2)/4；cos 15° = sin 75° = (√6 + √2)/4。75° 的 cos 比較小，所以配減號。",
+      "mnemonic": "角度大、cos 小，配減號"
+    },
+    {
+      "q": "某舞台燈的亮度 L = sin x + √3 cos x，其中 0 ≤ x ≤ π/2。在這個範圍中，亮度的最大值和最小值分別是多少？",
+      "options": [
+        "最大 2，最小 −2",
+        "最大 2，最小 √3",
+        "最大 √3，最小 1",
+        "最大 2，最小 1"
+      ],
+      "answer": 3,
+      "explain": "L = 2sin(x + π/3)，x + π/3 的範圍是 π/3～5π/6。sin 在 π/2 時最大 1，在 5π/6 時最小 1/2，所以 L 最大 2、最小 1。",
+      "point": "x 有範圍時，不能直接寫 ±r：先疊合成 r sin(x + φ)，求出 x + φ 的範圍，再看 sin 在這段的最大、最小值。",
+      "mnemonic": "有範圍就先算角度的範圍，再看 sin 圖"
+    },
+    {
+      "q": "下列哪一個是半角公式？",
+      "options": [
+        "sin²(θ/2) = (1 − cosθ)/2",
+        "sin²(θ/2) = (1 + cosθ)/2",
+        "cos²(θ/2) = (1 − cosθ)/2",
+        "sin(θ/2) = (sinθ)/2"
+      ],
+      "answer": 0,
+      "explain": "由 cos θ = 1 − 2sin²(θ/2) 移項得 sin²(θ/2) = (1 − cosθ)/2。",
+      "point": "sin²(θ/2) = (1 − cosθ)/2，cos²(θ/2) = (1 + cosθ)/2。開根號時正負號要看 θ/2 在哪個象限。",
+      "mnemonic": "半角：扣加、賽減，再除以二"
+    },
+    {
+      "q": "一把扇子的扇骨長 20 公分，張開的角度 θ 滿足 cosθ = 1/8（0 < θ < π）。扇子頂點到兩根扇骨末端連線的距離是多少公分？",
+      "options": [
+        "10 公分",
+        "15 公分",
+        "2.5 公分",
+        "5√7 公分"
+      ],
+      "answer": 1,
+      "explain": "所求距離 = 20cos(θ/2)。cos²(θ/2) = (1 + 1/8)/2 = 9/16，θ/2 是銳角，cos(θ/2) = 3/4，距離 = 15 公分。5√7 是誤用 sin(θ/2)。",
+      "point": "cos(θ/2) = ±√((1 + cosθ)/2)，sin(θ/2) = ±√((1 − cosθ)/2)；0 < θ < π 時，θ/2 是銳角，取正號。",
+      "mnemonic": "等腰三角形切一半，就是半角"
+    }
+  ]
+}

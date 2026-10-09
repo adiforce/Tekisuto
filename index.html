@@ -380,6 +380,7 @@ const SUBJECTS = {
   '國文': { c: '#E8382F', ink: '#fff', boss: '三花文言喵', kind: 'calico', ult: '文氣沖天' },
   '其它': { c: '#E8382F', ink: '#fff', boss: '三花文言喵', kind: 'calico', ult: '文氣沖天' },
   '英文': { c: '#1F5BD8', ink: '#fff', boss: '英短紳士喵', kind: 'british', ult: '單字風暴' },
+  '數學': { c: '#E0307A', ink: '#fff', boss: '摺耳函數喵', kind: 'fold', ult: '正弦波動砲' },
   '歷史': { c: '#E5A100', ink: '#000', boss: '暹羅將軍喵', kind: 'siamese', ult: '千年時光砲' },
   '地理': { c: '#0E9F6E', ink: '#fff', boss: '橘貓探險王', kind: 'orange', ult: '大地崩裂斬' },
   '公民': { c: '#8B3FD9', ink: '#fff', boss: '黑貓大法官', kind: 'black', ult: '正義審判' },
@@ -1043,6 +1044,22 @@ const Boss3D = (() => {
       part(new T.CylinderGeometry(.035, .035, .8, 6), toon(0xE5C14A), h, [0, .3, 0], null, null, false);
       const star = spin(grp(h, [0, .78, 0]), 2);
       for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; part(new T.ConeGeometry(.07, .22, 4), toon(0xFFD400), star, [Math.sin(a) * .1, Math.cos(a) * .1, 0], [0, 0, -a], null, false); }
+    },
+    fold(g, c) {     // 數學：蘇格蘭摺耳貓（摺耳）＋圓框眼鏡＋三角板＋繞身正弦波
+      const gr = toon(0x9A8F86);
+      const x = cat(g, { fur: 0xEDE4D8, eye: 0xE9A93A, eyeShape: 'round', earS: .78, earTall: .5, earX: .9, earM: gr,
+        patches: [['h', [-.5, .6, .55], .3, gr, [1, .8, .6]], ['h', [.55, .55, .5], .26, gr, [1, .8, .6]], ['b', [.6, .4, -.5], .3, gr, [1, .8, .7]]],
+        tailM: gr });
+      [-1, 1].forEach(k => part(new T.TorusGeometry(.24, .035, 8, 24), toon(0x2B2B2B), x.head, [k * .38, .02, .93], null, null, false));
+      part(new T.BoxGeometry(.18, .035, .035), toon(0x2B2B2B), x.head, [0, .06, .95], null, null, false);
+      const h = inHand(x);
+      const tri = new T.Shape(); tri.moveTo(-.3, -.25); tri.lineTo(.3, -.25); tri.lineTo(-.3, .4); tri.lineTo(-.3, -.25);
+      part(new T.ExtrudeGeometry(tri, { depth: .05, bevelEnabled: false }), toon(c, { transparent: true, opacity: .85 }), h, [0, 0, 0]);
+      const wave = spin(new T.Group(), 1.3); g.add(wave);
+      for (let i = 0; i < 24; i++) {
+        const a = i / 24 * Math.PI * 2;
+        part(new T.SphereGeometry(.07, 8, 6), toon(i % 2 ? 0xFFFFFF : c), wave, [Math.cos(a) * 1.6, .6 + Math.sin(a * 3) * .35, Math.sin(a) * 1.6], null, null, false);
+      }
     },
     ghost(g, c) {    // 錯題：幽靈貓＋紅眼＋鎖鏈
       const wm = toon(0xE9ECF5, { transparent: true, opacity: .82 });
