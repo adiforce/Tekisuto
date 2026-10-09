@@ -69,7 +69,7 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 | 個人資料 | `profile()`：各題庫挑戰 BOSS 的次數、平均、最高、最近 |
 | 雲端紀錄 | 進度匯出／匯入到 Google 試算表 |
 | 點陣 BOSS | `Boss3D` 模組（名字沿用舊版，現在是點陣）：three.js 舞台＋一張點陣貓貼圖，`spec(kind)` 定義每種貓的毛色和配件，姿勢有 stand／puff（生氣）／ko |
-| 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result` |
+| 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result`；一場最多 `MAX_Q`（30）題，超過就隨機抽，重新挑戰時從整份重抽 |
 | 事件 | `ACT` 物件：`data-act="xxx"` 的按鈕點下去會呼叫 `ACT.xxx(dataset, el)` |
 
 ### db 欄位
