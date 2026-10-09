@@ -777,11 +777,11 @@ function renderGh() {
   }).join('') + (pend > 1 ? `<button class="btn go wide" data-act="ghImportAll" style="margin-top:12px">${cur ? '匯入／更新全部' + esc(cur) : '全部匯入／更新'}（${pend} 份）</button>` : '');
 }
 
-/* ===== 3D BOSS（three.js r128，從 CDN 載入；失敗就只用 2D 特效） ===== */
+/* ===== 點陣 BOSS（three.js r128 舞台＋點陣貓貼圖，從 CDN 載入；失敗就只用 2D 特效） ===== */
 const Boss3D = (() => {
   const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
   const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let T = null, loading = null, renderer = null, R = null, gradTex = null;
+  let T = null, loading = null, renderer = null, R = null;
   function load() {
     if (window.THREE) { T = window.THREE; return Promise.resolve(true); }
     if (loading) return loading;
@@ -798,313 +798,251 @@ const Boss3D = (() => {
   const easeOut = p => 1 - Math.pow(1 - p, 3);
   const lerp = (a, b, t) => a + (b - a) * t;
 
-  /* --- 材質與零件 --- */
-  function toon(color, extra) {
-    const m = new T.MeshToonMaterial(Object.assign({ color, gradientMap: gradTex }, extra || {}));
-    m.userData.base = m.color.clone(); R.mats.push(m); return m;
+  /* --- 點陣貓：72x72 格子，用形狀畫＋自動描邊＋簡單陰影，每次狀態改變才重畫 --- */
+  const W = 72, GX = 4, GY = 7;                    // 貓本體畫在 64x64 範圍，上下左右留空間給配件
+  const hexStr = v => typeof v === 'number' ? '#' + v.toString(16).padStart(6, '0') : v;
+  function mix(c, to, k) {                         // 顏色往 to 混 k（0～1）
+    const a = parseInt(c.slice(1), 16), b = parseInt(to.slice(1), 16);
+    const ch = s => Math.round(((a >> s) & 255) * (1 - k) + ((b >> s) & 255) * k);
+    return '#' + ((1 << 24) + (ch(16) << 16) + (ch(8) << 8) + ch(0)).toString(16).slice(1);
   }
+  const dark = (c, k) => mix(c, '#000000', k), light = (c, k) => mix(c, '#FFFFFF', k);
+  const buf = () => new Array(W * W).fill(null);
+  const idx = (x, y) => { x = Math.floor(x) + GX; y = Math.floor(y) + GY; return x < 0 || y < 0 || x >= W || y >= W ? -1 : y * W + x; };
+  const put = (b, x, y, c) => { const i = idx(x, y); if (i >= 0) b[i] = c; };
+  const has = (b, x, y) => { const i = idx(x, y); return i >= 0 && !!b[i]; };
+  function ell(b, cx, cy, rx, ry, c, sh, hi, clip) {          // 實心橢圓：右下陰影、左上亮面；clip＝只畫在已經有顏色的地方
+    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
+      const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry;
+      if (dx * dx + dy * dy > 1 || (clip && !has(b, x, y))) continue;
+      const s = dx * .45 + dy;
+      put(b, x, y, sh && s > .62 ? sh : hi && s < -.78 ? hi : c);
+    }
+  }
+  const patch = (b, cx, cy, rx, ry, c) => ell(b, cx, cy, rx, ry, c, null, null, true);
+  function tri(b, pts, c) {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    for (let y = Math.floor(Math.min(...ys)); y <= Math.max(...ys); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.max(...xs); x++) {
+      const px = x + .5, py = y + .5;
+      const s = pts.map((p, i) => { const q = pts[(i + 1) % 3]; return (q[0] - p[0]) * (py - p[1]) - (q[1] - p[1]) * (px - p[0]); });
+      if (s.every(v => v >= 0) || s.every(v => v <= 0)) put(b, x, y, c);
+    }
+  }
+  const rect = (b, x, y, w, h, c, clip) => { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (!clip || has(b, x + i, y + j)) put(b, x + i, y + j, c); };
+  function line(b, x0, y0, x1, y1, c, w) {
+    const n = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))) * 2 + 1;
+    for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n, y = y0 + (y1 - y0) * i / n; rect(b, Math.round(x - (w - 1) / 2), Math.round(y - (w - 1) / 2), w || 1, w || 1, c); }
+  }
+  function star(b, cx, cy, r, c) { for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2 - Math.PI / 2, a1 = a + .63, a2 = a - .63; tri(b, [[cx + Math.cos(a) * r, cy + Math.sin(a) * r], [cx + Math.cos(a1) * r * .42, cy + Math.sin(a1) * r * .42], [cx + Math.cos(a2) * r * .42, cy + Math.sin(a2) * r * .42]], c); } ell(b, cx, cy, r * .45, r * .45, c); }
+  function outline(b, c) {                          // 形狀外面加一圈描邊
+    const o = b.slice(), g = (x, y) => x >= 0 && y >= 0 && x < W && y < W && b[y * W + x];
+    for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) if (!b[y * W + x] && (g(x + 1, y) || g(x - 1, y) || g(x, y + 1) || g(x, y - 1))) o[y * W + x] = c;
+    return o;
+  }
+  const over = (d, s) => { s.forEach((c, i) => { if (c) d[i] = c; }); return d; };
+
+  /* --- 各品種的毛色、花紋、配件（座標以 64x64 的貓為準，眼睛在 y≈27，腳在 y≈62） --- */
+  const OL = '#4A230C';
   const basic = (color, extra) => new T.MeshBasicMaterial(Object.assign({ color }, extra || {}));
-  function part(geo, mat, parent, p, r, s, outline = true) {
-    const m = new T.Mesh(geo, mat);
-    if (p) m.position.set(p[0], p[1], p[2]);
-    if (r) m.rotation.set(r[0], r[1], r[2]);
-    if (s) typeof s === 'number' ? m.scale.setScalar(s) : m.scale.set(s[0], s[1], s[2]);
-    if (outline) { const o = new T.Mesh(geo, R.outline); o.scale.setScalar(1.07); m.add(o); }
-    parent.add(m); return m;
-  }
-  const grp = (parent, p, r) => { const g = new T.Group(); if (p) g.position.set(p[0], p[1], p[2]); if (r) g.rotation.set(r[0], r[1], r[2]); parent.add(g); return g; };
-  function spin(m, speed) { R.spinners.push([m, speed]); return m; }
-
-  /* --- 貓眼：沒有眼白，整顆是虹膜色；瞳孔會變細長／變圓 --- */
-  function catEye(head, k, o) {
-    const almond = o.eyeShape === 'almond', circle = o.eyeShape === 'circle';
-    const eg = grp(head, [k * (o.eyeGap || .38), .02, .86], [0, 0, almond ? k * .22 : 0]);
-    if (o.eyeScale) eg.scale.setScalar(o.eyeScale);
-    const sx = almond ? 1.25 : circle ? 1 : 1.02, sy = almond ? .78 : circle ? 1 : 1.06;
-    part(new T.SphereGeometry(.26, 20, 14), basic(0x1A1A1A), eg, [0, 0, -.02], null, [sx * 1.1, sy * 1.12, .42], false);
-    const iris = new T.Color(o.eye);
-    part(new T.SphereGeometry(.26, 20, 14), basic(iris.clone().multiplyScalar(.72)), eg, [0, 0, 0], null, [sx, sy, .42], false);
-    part(new T.SphereGeometry(.2, 18, 12), basic(iris), eg, [0, -.02, .03], null, [sx, sy, .42], false);
-    if (o.eye2) part(new T.SphereGeometry(.13, 16, 12), basic(o.eye2), eg, [0, -.02, .045], null, [sx, sy, .42], false);
-    const pupil = part(new T.SphereGeometry(.17, 16, 12), basic(0x0A0A0A), eg, [0, 0, .06], null, [.5, sy * 1.02, .4], false);
-    pupil.userData.sy = sy * 1.02; pupil.userData.round = !!o.roundPupil;
-    if (o.roundPupil) pupil.scale.set(.75, .75 * sy, .4);
-    if (o.lid) part(new T.SphereGeometry(.27, 18, 12), o.lid, eg, [0, .26, .07], [-.1, 0, 0], [1.15, .3, .45], false);   // 上眼皮半瞇，看起來比較屌
-    part(new T.SphereGeometry(.055, 8, 6), basic(0xffffff), eg, [.07, .08, .13], null, null, false);
-    part(new T.SphereGeometry(.028, 6, 5), basic(0xffffff), eg, [-.06, -.07, .13], null, null, false);
-    return { g: eg, pupil };
-  }
-
-  /* --- Q 版貓咪骨架：每個部位都是群組，換姿勢只要移動群組 --- */
-  function cat(g, o) {
-    const fur = toon(o.fur), white = toon(0xFFFFFF), pinkM = toon(0xFF9FB2);
-    const F = { eyes: [], xs: [], brows: [], swirl: [], omega: [], mouth: null };
-    const pg = grp(g);
-    const torso = grp(pg);
-    const body = part(new T.SphereGeometry(.62, 20, 16), fur, torso, [0, 0, 0], null, [1, .92, .9]);
-    if (o.belly !== false) part(new T.SphereGeometry(.5, 16, 12), o.bellyM || white, body, [0, -.05, .42], null, [.78, .9, .45], false);
-    const paw = o.pawM || fur;
-    const limb = (big) => { const lg = grp(pg); part(new T.SphereGeometry(big ? .22 : .2, 14, 10), paw, lg, [0, 0, 0], null, big ? [1, .7, 1.2] : [1, 1.2, 1]); return lg; };
-    const armL = limb(false), armR = limb(false), legL = limb(true), legR = limb(true);
-    const tailG = grp(pg);
-    const curve = new T.CatmullRomCurve3([new T.Vector3(0, 0, 0), new T.Vector3(.4, .02, -.35), new T.Vector3(.85, .25, -.35), new T.Vector3(1.0, .6, -.1)]);
-    part(new T.TubeGeometry(curve, 20, o.tailR || .11, 10, false), o.tailM || fur, tailG);
-    part(new T.SphereGeometry(o.tailR || .11, 10, 8), o.tailM || fur, tailG, [1.0, .6, -.1], null, null, false);
-    if (o.tailRings) [.2, .4, .6, .8].forEach(t => {
-      const pt = curve.getPoint(t), tg = curve.getTangent(t);
-      const ring = part(new T.TorusGeometry((o.tailR || .11) * .93, (o.tailR || .11) * .14, 6, 20), o.tailRings, tailG, [pt.x, pt.y, pt.z], null, null, false);
-      ring.quaternion.setFromUnitVectors(new T.Vector3(0, 0, 1), tg);
-    });
-    // 頭
-    const headG = grp(pg);
-    const head = part(new T.SphereGeometry(1, 28, 22), fur, headG, [0, 0, 0], null, o.headS || [1.14, .95, 1]);
-    if (o.jowls) [-1, 1].forEach(k => part(new T.SphereGeometry(.46, 18, 14), fur, headG, [k * .66, -.32, .38], null, [1.15, .85, .9]));   // 公貓的大腮幫子
-    const es = o.earS || 1;
-    [-1, 1].forEach(k => {
-      const ear = part(new T.ConeGeometry(.34 * es, .6 * es * (o.earTall || 1), 3), o.earM || fur, headG, [k * .62 * (o.earX || 1), .78 + (es - 1) * .3, -.05], [0, k * .3, -k * .38]);
-      part(new T.ConeGeometry(.22 * es, .4 * es, 3), pinkM, ear, [0, -.08 * es, .15 * es], null, [1, 1, .55], false);
-    });
-    const patch = (parent, dir, r, mat, scale, inset) => {
-      const v = new T.Vector3(dir[0], dir[1], dir[2]).normalize().multiplyScalar(1 - r * (inset || o.patchIn || .55));
-      return part(new T.SphereGeometry(r, 16, 12), mat, parent, [v.x, v.y, v.z], null, scale || null, false);
+  function spec(kind, c) {
+    const base = { fur: '#B98A5E', cream: '#FFE9CC', eye: '#E9A93A', ol: OL, whisker: '#DDDDDD' };
+    const stripesHead = (st) => (b, dy) => {
+      rect(b, 31, 11 + dy, 2, 4, st, true); rect(b, 27, 12 + dy, 2, 3, st, true); rect(b, 35, 12 + dy, 2, 3, st, true);
+      rect(b, 10, 27 + dy, 3, 1, st, true); rect(b, 10, 30 + dy, 4, 1, st, true); rect(b, 51, 27 + dy, 3, 1, st, true); rect(b, 50, 30 + dy, 4, 1, st, true);
     };
-    (o.patches || []).forEach(p => patch(p[0] === 'b' ? body : head, p[1], p[2], p[3], p[4], p[5]));
-    // 臉
-    [-1, 1].forEach(k => {
-      F.eyes.push(catEye(head, k, o));
-      const xg = grp(head, [k * .38, .02, .86]); xg.visible = false;
-      [-1, 1].forEach(s => part(new T.BoxGeometry(.38, .07, .05), basic(0x111111), xg, [0, 0, .1], [0, 0, s * .78], null, false));
-      F.xs.push(xg);
-      const sw = grp(head, [k * .38, .02, .9]); sw.visible = false;
-      [.16, .09].forEach(r => part(new T.TorusGeometry(r, .022, 6, 20, Math.PI * 1.7), basic(0x111111), sw, [0, 0, 0], null, null, false));
-      F.swirl.push(sw);
-      const br = part(new T.BoxGeometry(.34, .07, .05), basic(0x111111), head, [k * .38, .36, .86], [0, 0, k * .45], null, false);
-      br.visible = false; F.brows.push(br);
-      if (o.blush !== false) part(new T.SphereGeometry(.13, 10, 8), basic(0xFF8FA3, { transparent: true, opacity: .55 }), head, [k * .62, -.22, .74], null, [1, .6, .3], false);
-      [-.12, 0, .12].forEach(dy => part(new T.BoxGeometry(.5, .018, .018), basic(o.whisker || 0x111111), head, [k * .78, -.25 + dy * .6, .62], [0, -k * .5, k * dy], null, false));
-    });
-    const muz = o.muzzleM || white;
-    [-1, 1].forEach(k => part(new T.SphereGeometry(.2, 14, 10), muz, head, [k * .13, -.28, .86], null, [1, .78, .55], false));
-    part(new T.SphereGeometry(.075 * (o.noseS || 1), 10, 8), pinkM, head, [0, -.17, .99], null, [1.4, .85, .8], false);
-    [-1, 1].forEach(k => F.omega.push(part(new T.TorusGeometry(.065, .018, 6, 12, Math.PI), basic(0x111111), head, [k * .065, -.32, .99], [0, 0, Math.PI], null, false)));
-    const mouth = grp(head, [0, -.38, .95]); mouth.visible = false;
-    part(new T.SphereGeometry(.13, 12, 10), basic(0x6A1020), mouth, [0, 0, 0], null, [1.1, .9, .4], false);
-    (o.fang ? [1] : [-1, 1]).forEach(k => part(new T.ConeGeometry(.03, .08, 5), basic(0xffffff), mouth, [k * .06, .07, .03], [Math.PI, 0, 0], null, false));
-    F.mouth = mouth;
-    if (o.fang) part(new T.ConeGeometry(.055, .19, 6), basic(0xffffff), head, [.11, -.46, 1.0], [Math.PI - .25, 0, .1], null, true);   // 缺牙，只剩右上一顆尖牙
-    if (o.claws) [armL, armR, legL, legR].forEach((lg, li) => [-1, 0, 1].forEach(j =>                      // 不給剪的長指甲
-      part(new T.ConeGeometry(.032, .22, 5), basic(0xFFFBEF), lg, [j * .08, li < 2 ? -.2 : -.06, li < 2 ? .1 : .24], [li < 2 ? 2.6 : Math.PI / 2 + .3, 0, 0], null, false)));
-    // 飛行用翅膀、炸毛用毛刺（平常隱藏）
-    const wings = [-1, 1].map(k => {
-      const w = grp(torso, [k * .45, .35, -.4]);
-      part(new T.SphereGeometry(.45, 14, 10), white, w, [k * .4, .15, 0], [0, 0, k * .5], [1, .55, .12]);
-      w.visible = false; return w;
-    });
-    const spikes = grp(torso); spikes.visible = false;
-    for (let i = 0; i < 16; i++) {
-      const a = i / 16 * Math.PI * 2, dir = new T.Vector3(Math.cos(a) * .9, .45 + Math.sin(a * 3) * .2, Math.sin(a) * .8 - .15).normalize();
-      const m = part(new T.ConeGeometry(.12, .4, 4), fur, spikes, [dir.x * .58, dir.y * .55, dir.z * .55], null, null, false);
-      m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), dir);
-    }
-    R.face = F;
-    R.rig = { pg, torso, headG, head, armL, armR, legL, legR, tailG, wings, spikes };
-    return R.rig;
+    const K = {
+      orange: { fur: '#E47F2E', eye: '#D2C838', eye2: '#9DBB3C', stripe: '#8E3A0C', head: stripesHead('#8E3A0C'), claws: true, collar: true,
+        hold(b) {                                  // 地球儀
+          ell(b, 16.5, 50, 5.5, 5.5, '#3A8EE6', '#2266B0');
+          rect(b, 14, 47, 3, 2, c, true); rect(b, 13, 49, 2, 2, c, true); rect(b, 18, 50, 2, 3, c, true); rect(b, 15, 53, 3, 1, dark(c, .25), true);
+          put(b, 14, 46, '#FFFFFF'); put(b, 13, 47, '#FFFFFF');
+        } },
+      calico: { fur: '#FFFFFF', sh: '#E8E0D6', eye: '#E9A93A', eye2: '#C98A1E', tail: '#F29A3A',
+        head(b, dy) {
+          patch(b, 44, 15 + dy, 10, 8, '#F29A3A'); patch(b, 19, 14 + dy, 8, 7, '#2B2B2B');
+          rect(b, 8, 12 + dy, 48, 2, c, true); rect(b, 8, 14 + dy, 48, 1, dark(c, .25), true);          // 書生頭巾
+        },
+        bodyMarks(b) { patch(b, 41, 47, 5, 4, '#2B2B2B'); patch(b, 24, 48, 4, 3, '#F29A3A'); },
+        acc(b, dy) { tri(b, [[52, 13 + dy], [58, 11 + dy], [57, 16 + dy]], c); tri(b, [[52, 14 + dy], [57, 18 + dy], [54, 20 + dy]], c); },
+        hold(b) { line(b, 12, 40, 19, 52, '#8B5A2B', 2); ell(b, 11.5, 38.5, 2, 2.6, '#222222'); } },     // 毛筆
+      british: { fur: '#8E9DB3', cream: '#B4C0D0', eye: '#F0892A', eye2: '#D0661A', ol: '#2A2F3A', scarf: true,
+        acc(b, dy) {                               // 圓頂禮帽
+          ell(b, 32, 11 + dy, 10, 7, '#2A2A2A', '#1A1A1A', '#444444'); rect(b, 21, 11 + dy, 22, 3, '#2A2A2A');
+          rect(b, 22, 9 + dy, 20, 2, c); rect(b, 18, 13 + dy, 28, 2, '#1E1E1E');
+        },
+        hold(b) {                                  // 字母方塊 A
+          rect(b, 11, 44, 10, 10, '#FFFFFF'); rect(b, 11, 52, 10, 2, '#DDE3EE');
+          [[15, 46], [16, 46], [14, 47], [17, 47], [14, 48], [17, 48], [14, 49], [15, 49], [16, 49], [17, 49], [14, 50], [17, 50], [14, 51], [17, 51]].forEach(p => put(b, p[0], p[1], c));
+        } },
+      siamese: { fur: '#F3E3C8', sh: '#DCC8A6', eye: '#3BA7FF', eye2: '#2A7FD0', almond: true, point: '#5A3B2A', cream: '#A47C5E', bellyC: '#FFF4E0',
+        head(b, dy) { patch(b, 32, 35 + dy, 12, 9, '#8A6248'); },
+        acc(b, dy) {                               // 將軍頭盔＋紅纓
+          ell(b, 32, 12 + dy, 10, 7, '#C9A24A', '#A07C2A', '#EBCB78'); rect(b, 22, 12 + dy, 21, 3, '#C9A24A'); rect(b, 19, 15 + dy, 26, 2, '#A07C2A');
+          tri(b, [[30, 6 + dy], [34, 6 + dy], [33, -3 + dy]], '#D8342C');
+        },
+        hold(b) {                                  // 沙漏
+          rect(b, 11, 42, 11, 2, '#8B5A2B'); rect(b, 11, 56, 11, 2, '#8B5A2B');
+          tri(b, [[12, 44], [21, 44], [16.5, 50]], '#F6E7C1'); tri(b, [[12, 56], [21, 56], [16.5, 50]], '#E5A100'); put(b, 16, 50, '#E5A100');
+        } },
+      black: { fur: '#2E2E36', sh: '#222228', hi: '#46464F', cream: '#3E3E48', belly: false, eye: '#F4D03F', eye2: '#D9A520', almond: true, ol: '#0C0C10', whisker: '#FFFFFF',
+        neck(b) { tri(b, [[25, 41], [25, 47], [31, 44]], c); tri(b, [[39, 41], [39, 47], [33, 44]], c); rect(b, 31, 43, 2, 3, dark(c, .2)); },   // 領結
+        acc(b, dy) {                               // 頭上的天秤
+          line(b, 32, -1 + dy, 32, 5 + dy, '#E5C14A'); rect(b, 24, -1 + dy, 17, 1, '#E5C14A');
+          ell(b, 24, 2 + dy, 3, 1.5, '#E5C14A', '#B8932A'); ell(b, 40, 2 + dy, 3, 1.5, '#E5C14A', '#B8932A');
+        },
+        hold(b) { line(b, 13, 45, 20, 52, '#8B5A2B', 2); rect(b, 7, 40, 10, 5, '#6B3E1E'); rect(b, 7, 40, 10, 1, '#8B5A2B'); } },   // 法槌
+      silver: { fur: '#C9CED6', sh: '#A9B0BB', cream: '#EEF0F3', eye: '#3BBF7A', eye2: '#2A9A5C', stripe: '#4A4F57', head: stripesHead('#4A4F57'),
+        bodyMarks(b) { rect(b, 21, 47, 3, 2, '#4A4F57', true); rect(b, 40, 47, 3, 2, '#4A4F57', true); },
+        acc(b, dy) { ell(b, 40, 6 + dy, 4.5, 2.6, c, dark(c, .25)); line(b, 36, 8 + dy, 35, 11 + dy, '#3E7A1E'); },   // 頭上一片葉子
+        hold(b) {                                  // DNA
+          for (let y = 39; y <= 58; y++) { const a = (y - 39) * .5, x1 = 16 + Math.sin(a) * 4, x2 = 16 - Math.sin(a) * 4;
+            if (y % 3 === 0) line(b, x1, y, x2, y, '#FFFFFF'); put(b, x1, y, c); put(b, x2, y, dark(c, .3)); put(b, x1 + 1, y, c); put(b, x2 + 1, y, dark(c, .3)); }
+        } },
+      tux: { fur: '#26262C', sh: '#1A1A1E', hi: '#3A3A42', cream: '#FFFFFF', eye: '#B6D63A', eye2: '#8DAA22', almond: true, ol: '#0C0C10', limb: '#FFFFFF', whisker: '#FFFFFF',
+        head(b, dy) {
+          patch(b, 32, 37 + dy, 13, 8, '#FFFFFF');
+          rect(b, 6, 14 + dy, 52, 2, '#555555', true);                                           // 護目鏡帶子
+        },
+        acc(b, dy) { [25, 39].forEach(x => { ell(b, x, 14 + dy, 4.5, 3.5, c); ell(b, x, 14 + dy, 3, 2.2, '#9FF3FF'); put(b, x - 1, 13 + dy, '#FFFFFF'); }); },
+        hold(b) {                                  // 燒瓶
+          rect(b, 14, 40, 5, 6, '#DDF6FF'); rect(b, 13, 39, 7, 2, '#BFE8F5');
+          ell(b, 16.5, 51, 6, 5.5, '#DDF6FF'); ell(b, 16.5, 53, 5, 3.5, c, dark(c, .2)); put(b, 14, 48, '#FFFFFF'); put(b, 13, 49, '#FFFFFF');
+          ell(b, 11, 35, 1.5, 1.5, c); ell(b, 15, 33, 1.2, 1.2, c);
+        } },
+      russian: { fur: '#7C8FA6', sh: '#647690', cream: '#9EB0C4', eye: '#2ECC71', eye2: '#1F9E55', almond: true, ol: '#252C38',
+        tailTip(b, t) {                            // 尾巴旁的閃電
+          const x = t[0] + 5, y = t[1];
+          tri(b, [[x + 1, y - 5], [x + 5, y - 5], [x, y + 1]], '#FFD400'); tri(b, [[x - 1, y], [x + 4, y], [x - 1, y + 6]], '#FFD400');
+        },
+        holdRaw(b, ol) {                           // 原子：細細的軌道不描邊
+          for (let a = 0; a < Math.PI * 2; a += .05) [-.75, .75].forEach(r => {
+            const ex = Math.cos(a) * 8, ey = Math.sin(a) * 3; put(b, 15 + ex * Math.cos(r) - ey * Math.sin(r), 47 + ex * Math.sin(r) + ey * Math.cos(r), '#FFD400');
+          });
+          ell(b, 15.5, 47.5, 2.6, 2.6, ol); ell(b, 15.5, 47.5, 1.8, 1.8, c);
+        } },
+      persian: { fur: '#FFFFFF', sh: '#E4E0EE', cream: '#F6F5FA', eye: '#4AA3FF', eye2: '#2F7FD8', ol: '#3A3550', tailR: 4.6, ruff: true,
+        acc(b, dy) {                               // 月亮
+          ell(b, 53, 4 + dy, 4, 4, '#F1D96A');
+          for (let y = dy - 2; y <= dy + 9; y++) for (let x = 50; x <= 60; x++) { const ex = x + .5 - 55, ey = y + .5 - (3 + dy); if (ex * ex + ey * ey < 11) { const i = idx(x, y); if (i >= 0) b[i] = null; } }
+        },
+        hold(b) { line(b, 14, 56, 17, 45, '#E5C14A', 2); star(b, 13, 40, 5.5, '#FFD400'); put(b, 12, 39, '#FFFFFF'); } },   // 星星魔杖
+      fold: { fur: '#EDE4D8', sh: '#D6CABA', eye: '#E9A93A', eye2: '#C98820', tail: '#9A8F86', foldEars: true, glasses: true, earC: '#9A8F86',
+        head(b, dy) { patch(b, 21, 14 + dy, 7, 5, '#9A8F86'); patch(b, 44, 14 + dy, 6, 4.5, '#9A8F86'); },
+        bodyMarks(b) { patch(b, 40, 47, 4.5, 3.5, '#9A8F86'); },
+        acc(b, dy) { for (let x = 44; x <= 62; x++) { const y = 3 + dy + Math.round(Math.sin((x - 44) / 18 * Math.PI * 2) * 2.5); rect(b, x, y, 1, 2, c); } },   // 正弦波
+        hold(b) { tri(b, [[9, 39], [9, 56], [22, 56]], c); tri(b, [[11.5, 46], [11.5, 53.5], [16.5, 53.5]], light(c, .7)); } },   // 三角板
+      ghost: { fur: '#E9ECF5', sh: '#C9CEDD', cream: '#F7F8FC', belly: false, eye: '#FF2E2E', eye2: '#C01818', almond: true, ol: '#5A5F78', ghost: true, alpha: .85,
+        head(b, dy) { tri(b, [[22, 15 + dy], [26, 14 + dy], [23, 8 + dy]], '#FF2E2E'); tri(b, [[42, 15 + dy], [38, 14 + dy], [41, 8 + dy]], '#FF2E2E'); },
+        bodyMarks(b) { for (let i = 0; i < 7; i++) rect(b, 22 + i * 3, 47 + (i % 2), 2, 2, '#666A78', true); } },   // 鎖鏈
+      mix: { fur: '#B98A5E', eye: '#E9A93A', eye2: '#C98820', stripe: '#5A3B2A', head: stripesHead('#5A3B2A') }
+    };
+    const o = Object.assign({}, base, K[kind] || K.mix);
+    o.sh = o.sh || dark(o.fur, .2); o.hi = o.hi || light(o.fur, .22);
+    o.eye2 = o.eye2 || dark(o.eye, .2); o.creamSh = dark(o.cream, .08);
+    o.ear = o.point || o.earC || o.fur; o.limb = o.point || o.limb || o.fur; o.tail = o.point || o.tail || o.fur;
+    return o;
   }
-  const inHand = (x, rot) => grp(x.armR, [.08, .12, .16], rot);
 
-  const CATS = {
-    calico(g, c) {   // 國文：三花貓＋毛筆＋書生頭巾
-      const x = cat(g, { fur: 0xFFFFFF, eye: 0xE9A93A, eyeShape: 'round',
-        patches: [['h', [.7, .55, .3], .45, toon(0xF29A3A)], ['h', [-.6, .7, .2], .4, toon(0x2B2B2B)], ['h', [-.2, .9, -.6], .4, toon(0xF29A3A)],
-                  ['b', [.6, .4, -.4], .35, toon(0x2B2B2B)], ['b', [-.5, .3, -.5], .32, toon(0xF29A3A)]],
-        tailM: toon(0xF29A3A) });
-      part(new T.TorusGeometry(.96, .07, 8, 40), toon(c), x.head, [0, .3, 0], [Math.PI / 2 - .08, 0, 0], null, false);
-      [-1, 1].forEach(k => part(new T.BoxGeometry(.12, .45, .04), toon(c), x.head, [k * .12, .05, -.98], [.2, 0, k * .5]));
-      const h = inHand(x, [0, 0, -.5]);
-      part(new T.CylinderGeometry(.05, .05, .9, 8), toon(0x8B5A2B), h, [0, .35, 0]);
-      part(new T.ConeGeometry(.09, .25, 10), toon(0x111111), h, [0, -.18, 0], [Math.PI, 0, 0]);
-    },
-    british(g, c) {  // 英文：英國短毛貓＋圓頂禮帽＋紅圍巾＋字母方塊
-      const x = cat(g, { fur: 0x8E9DB3, eye: 0xF0892A, eyeShape: 'round', muzzleM: toon(0xA9B6C8), bellyM: toon(0xA9B6C8) });
-      part(new T.SphereGeometry(.52, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), toon(0x222222), x.head, [0, .78, -.05], null, [.9, 1.1, .95]);
-      part(new T.CylinderGeometry(.78, .78, .06, 24), toon(0x222222), x.head, [0, .8, -.05], null, [.9, 1.05, .95]);
-      part(new T.TorusGeometry(.5, .08, 6, 24), toon(c), x.head, [0, .88, -.05], [Math.PI / 2, 0, 0], [.9, .95, 1], false);
-      part(new T.TorusGeometry(.5, .14, 8, 24), toon(0xD8342C), x.torso, [0, .5, 0], [Math.PI / 2, 0, 0]);
-      part(new T.BoxGeometry(.18, .5, .08), toon(0xD8342C), x.torso, [.25, .25, .55], [0, 0, .2]);
-      const orbit = spin(new T.Group(), 1.4); g.add(orbit);
-      for (let i = 0; i < 5; i++) {
-        const a = i / 5 * Math.PI * 2;
-        part(new T.BoxGeometry(.26, .26, .26), toon(i % 2 ? 0xFFFFFF : c), orbit, [Math.cos(a) * 1.7, .5 + Math.sin(a * 2) * .3, Math.sin(a) * 1.7], [a, a, 0]);
-      }
-    },
-    siamese(g, c) {  // 歷史：暹羅貓＋將軍頭盔＋沙漏
-      const dark = toon(0x5A3B2A);
-      const x = cat(g, { fur: 0xF3E3C8, eye: 0x3BA7FF, eyeShape: 'almond', earM: dark, pawM: dark, tailM: dark, muzzleM: toon(0x7A5640),
-        patches: [['h', [0, -.18, 1], .42, toon(0x8A6248), [1.3, 1, .6]]] });
-      part(new T.SphereGeometry(1.04, 24, 10, 0, Math.PI * 2, 0, 1.05), toon(0xC9A24A), x.head, [0, .05, 0]);
-      part(new T.ConeGeometry(.16, .7, 8), toon(0xD8342C), x.head, [0, 1.25, -.1], [-.3, 0, 0]);
-      part(new T.BoxGeometry(1.5, .08, .1), toon(0xC9A24A), x.head, [0, .46, .82], [-.2, 0, 0], null, false);
-      const h = inHand(x);
-      part(new T.ConeGeometry(.17, .3, 12), toon(0xF6E7C1, { transparent: true, opacity: .85 }), h, [0, .16, 0], [Math.PI, 0, 0]);
-      part(new T.ConeGeometry(.17, .3, 12), toon(0xE5A100), h, [0, -.16, 0]);
-      [-1, 1].forEach(k => part(new T.CylinderGeometry(.22, .22, .05, 12), toon(0x8B5A2B), h, [0, k * .32, 0]));
-    },
-    orange(g, c) {   // 地理：照著 JR 家的橘貓做的（奶油色嘴邊、額頭 M 紋、黃綠眼、單顆尖牙、小鈴鐺、長指甲）＋探險帽＋地球儀
-      const st = toon(0x8E3A0C), cream = toon(0xFFE9CC);
-      const furM = toon(0xE47F2E);
-      const x = cat(g, { fur: 0xE47F2E, eye: 0xD2C838, eye2: 0x9DBB3C, eyeShape: 'circle', roundPupil: true, eyeScale: .95, eyeGap: .4,
-        headS: [1.24, .95, 1], jowls: true, blush: false, noseS: 1.3, earS: 1.45, earTall: 1.1, earX: .92,
-        muzzleM: cream, bellyM: cream, whisker: 0xFFFFFF, fang: true, claws: true, patchIn: .3,
-        patches: [
-          // 額頭 M 字紋
-          ['h', [0, .5, .86], .16, st, [.4, 1.25, .45]], ['h', [-.17, .48, .87], .14, st, [.38, 1.1, .45]], ['h', [.17, .48, .87], .14, st, [.38, 1.1, .45]],
-          ['h', [-.34, .44, .86], .12, st, [.38, .95, .45]], ['h', [.34, .44, .86], .12, st, [.38, .95, .45]],
-          // 後腦勺條紋
-          ['h', [0, .35, -.95], .22, st, [1.1, .4, .5], .75], ['h', [0, -.05, -1], .22, st, [1.1, .4, .5], .75],
-          // 兩頰各兩道橫紋
-          ['h', [.95, .0, .35], .2, st, [.5, .3, .8], .7], ['h', [.92, -.2, .38], .18, st, [.5, .28, .8], .7],
-          ['h', [-.95, .0, .35], .2, st, [.5, .3, .8], .7], ['h', [-.92, -.2, .38], .18, st, [.5, .28, .8], .7],
-          // 嘴邊、下巴奶油白
-          ['h', [0, -.55, .85], .4, cream, [1.3, .85, .6]],
-          // 背上、身體兩側條紋
-          ['b', [0, .55, -.8], .28, st, [1.3, .4, .7], .7], ['b', [0, .1, -.95], .28, st, [1.3, .4, .7], .7],
-          ],
-        tailM: toon(0xEB8C35), tailR: .17, tailRings: st });
-      part(new T.TorusGeometry(.42, .06, 8, 24), toon(0xD8342C), x.torso, [0, .5, .04], [Math.PI / 2 - .25, 0, 0], null, false);
-      const bell = part(new T.SphereGeometry(.12, 14, 10), toon(0xF2C230), x.torso, [0, .36, .52]);
-      part(new T.BoxGeometry(.16, .025, .04), basic(0x6B4A10), bell, [0, -.03, .1], null, null, false);
-      part(new T.TorusGeometry(.04, .015, 6, 12), toon(0xF2C230), bell, [0, .13, 0], null, null, false);
-      const globe = inHand(x, [0, 0, 0]); globe.position.set(-.25, .1, .3);
-      const ball = spin(part(new T.SphereGeometry(.34, 20, 14), toon(0x3A8EE6), globe), 1.2);
-      [[.5, .5, .7], [-.6, .2, .7], [.2, -.6, .7], [-.3, .5, -.8], [.7, -.2, -.6]].forEach(d => {
-        const v = new T.Vector3(d[0], d[1], d[2]).normalize().multiplyScalar(.26);
-        part(new T.SphereGeometry(.13, 10, 8), toon(c), ball, [v.x, v.y, v.z], null, [1, .8, .6], false);
-      });
-    },
-    black(g, c) {    // 公民：黑貓＋領結＋法槌＋天秤
-      const x = cat(g, { fur: 0x2E2E36, eye: 0xF4D03F, eyeShape: 'almond', belly: false, muzzleM: toon(0x3E3E48) });
-      [-1, 1].forEach(k => part(new T.ConeGeometry(.16, .3, 4), toon(c), x.torso, [k * .16, .53, .55], [0, 0, k * Math.PI / 2]));
-      part(new T.SphereGeometry(.08, 10, 8), toon(c), x.torso, [0, .53, .58]);
-      const h = inHand(x, [0, 0, -.6]);
-      part(new T.CylinderGeometry(.05, .05, .8, 8), toon(0x8B5A2B), h, [0, .3, 0]);
-      part(new T.CylinderGeometry(.14, .14, .42, 12), toon(0x6B3E1E), h, [0, .72, 0], [0, 0, Math.PI / 2]);
-      const bal = spin(new T.Group(), .8); bal.position.set(0, 2.45, 0); g.add(bal);
-      part(new T.CylinderGeometry(.04, .04, .5, 6), toon(0xE5C14A), bal, [0, -.2, 0], null, null, false);
-      part(new T.BoxGeometry(1.5, .06, .06), toon(0xE5C14A), bal, [0, 0, 0]);
-      [-1, 1].forEach(k => part(new T.CylinderGeometry(.24, .12, .1, 12), toon(0xE5C14A), bal, [k * .72, -.25, 0]));
-    },
-    silver(g, c) {   // 生物：美國短毛貓（銀虎斑）＋葉子＋DNA
-      const st = toon(0x4A4F57);
-      const x = cat(g, { fur: 0xC9CED6, eye: 0x3BBF7A, eyeShape: 'round',
-        patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [-.28, .72, .6], .13, st, [.6, 1.6, .6]], ['h', [.28, .72, .6], .13, st, [.6, 1.6, .6]],
-                  ['h', [.92, .1, .1], .2, st, [.5, 1.7, .6]], ['h', [-.92, .1, .1], .2, st, [.5, 1.7, .6]],
-                  ['b', [.8, .2, -.2], .24, st, [.5, 1.4, .8]], ['b', [-.8, .2, -.2], .24, st, [.5, 1.4, .8]]],
-        tailM: toon(0x8C939C) });
-      part(new T.SphereGeometry(.3, 14, 10), toon(c), x.head, [.15, 1.12, 0], [0, 0, -.5], [.45, 1, .12]);
-      part(new T.CylinderGeometry(.02, .02, .25, 5), toon(0x3E7A1E), x.head, [.05, .98, 0], [0, 0, -.3], null, false);
-      const dna = spin(new T.Group(), 1.1); g.add(dna);
-      for (let i = 0; i < 14; i++) {
-        const a = i * .55, y = -1 + i * .2;
-        [0, Math.PI].forEach((ph, j) => part(new T.SphereGeometry(.07, 8, 6), toon(j ? c : 0xFFFFFF), dna, [1.55 + Math.cos(a + ph) * .22, y, Math.sin(a + ph) * .22], null, null, false));
-      }
-    },
-    tux(g, c) {      // 化學：賓士貓＋護目鏡＋燒瓶
-      const x = cat(g, { fur: 0x26262C, eye: 0xB6D63A, eyeShape: 'almond', pawM: toon(0xFFFFFF),
-        patches: [['h', [0, -.45, 1], .45, toon(0xFFFFFF), [1.2, .9, .6]]] });
-      part(new T.TorusGeometry(.98, .045, 6, 40), toon(0x444444), x.head, [0, .42, 0], [Math.PI / 2 - .25, 0, 0], null, false);
-      [-1, 1].forEach(k => {
-        const gg = part(new T.TorusGeometry(.17, .05, 8, 18), toon(c), x.head, [k * .3, .5, .86], [-.35, 0, 0]);
-        part(new T.CircleGeometry(.15, 16), basic(0x9FF3FF, { transparent: true, opacity: .7 }), gg, [0, 0, .01], null, null, false);
-      });
-      const h = inHand(x);
-      part(new T.SphereGeometry(.25, 16, 12), toon(0xDDF6FF, { transparent: true, opacity: .6 }), h, [0, 0, 0]);
-      part(new T.SphereGeometry(.19, 14, 10), toon(c), h, [0, -.04, 0], null, null, false);
-      part(new T.CylinderGeometry(.08, .1, .3, 10), toon(0xDDF6FF, { transparent: true, opacity: .7 }), h, [0, .3, 0]);
-      const orbit = spin(new T.Group(), 1.8); g.add(orbit);
-      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; part(new T.SphereGeometry(.07 + (i % 3) * .04, 8, 6), toon(c), orbit, [Math.cos(a) * 1.45, 1 + (i % 2) * .6, Math.sin(a) * 1.45], null, null, false); }
-    },
-    russian(g, c) {  // 物理：俄羅斯藍貓＋原子軌道＋閃電尾巴
-      const x = cat(g, { fur: 0x7C8FA6, eye: 0x2ECC71, eyeShape: 'almond', muzzleM: toon(0x93A5BA), bellyM: toon(0x93A5BA) });
-      [[1.25, 0, 0], [1.25, 0, 1.05], [1.25, 0, -1.05]].forEach((r, i) => {
-        const ring = grp(g, [0, .55, 0], r);
-        const tor = spin(new T.Group(), 1.6 + i * .5); tor.userData.axis = 'z'; ring.add(tor);
-        part(new T.TorusGeometry(1.65, .03, 6, 48), toon(0xFFD400), tor, [0, 0, 0], null, null, false);
-        part(new T.SphereGeometry(.1, 10, 8), basic(c), tor, [1.65, 0, 0], null, null, false);
-      });
-      const bolt = grp(x.tailG, [1.0, .75, -.1]);
-      [[0, 0, .5], [.08, -.18, -.5], [0, -.36, .5]].forEach(b => part(new T.BoxGeometry(.08, .26, .05), toon(0xFFD400), bolt, [b[0], b[1], 0], [0, 0, b[2]], null, false));
-    },
-    persian(g, c) {  // 地科：白色波斯貓＋星環＋月亮＋星星魔杖
-      const x = cat(g, { fur: 0xFFFFFF, eye: 0x4AA3FF, eyeShape: 'round', tailR: .17, muzzleM: toon(0xF4F4F4) });
-      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; part(new T.SphereGeometry(.2, 10, 8), toon(0xFFFFFF), x.torso, [Math.cos(a) * .55, .45, Math.sin(a) * .5], null, null, false); }
-      const ring = spin(part(new T.TorusGeometry(1.6, .05, 6, 48), toon(c), g, [0, .4, 0], [1.3, .25, 0], null, false), 1.2); ring.userData.axis = 'z';
-      const orbit = spin(grp(g, [0, .6, 0]), .9);
-      part(new T.SphereGeometry(.2, 14, 10), toon(0xF1E7B0), orbit, [1.8, .5, 0]);
-      const h = inHand(x, [0, 0, -.4]);
-      part(new T.CylinderGeometry(.035, .035, .8, 6), toon(0xE5C14A), h, [0, .3, 0], null, null, false);
-      const star = spin(grp(h, [0, .78, 0]), 2);
-      for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; part(new T.ConeGeometry(.07, .22, 4), toon(0xFFD400), star, [Math.sin(a) * .1, Math.cos(a) * .1, 0], [0, 0, -a], null, false); }
-    },
-    fold(g, c) {     // 數學：蘇格蘭摺耳貓（摺耳）＋圓框眼鏡＋三角板＋繞身正弦波
-      const gr = toon(0x9A8F86);
-      const x = cat(g, { fur: 0xEDE4D8, eye: 0xE9A93A, eyeShape: 'round', earS: .78, earTall: .5, earX: .9, earM: gr,
-        patches: [['h', [-.5, .6, .55], .3, gr, [1, .8, .6]], ['h', [.55, .55, .5], .26, gr, [1, .8, .6]], ['b', [.6, .4, -.5], .3, gr, [1, .8, .7]]],
-        tailM: gr });
-      [-1, 1].forEach(k => part(new T.TorusGeometry(.24, .035, 8, 24), toon(0x2B2B2B), x.head, [k * .38, .02, .93], null, null, false));
-      part(new T.BoxGeometry(.18, .035, .035), toon(0x2B2B2B), x.head, [0, .06, .95], null, null, false);
-      const h = inHand(x);
-      const tri = new T.Shape(); tri.moveTo(-.3, -.25); tri.lineTo(.3, -.25); tri.lineTo(-.3, .4); tri.lineTo(-.3, -.25);
-      part(new T.ExtrudeGeometry(tri, { depth: .05, bevelEnabled: false }), toon(c, { transparent: true, opacity: .85 }), h, [0, 0, 0]);
-      const wave = spin(new T.Group(), 1.3); g.add(wave);
-      for (let i = 0; i < 24; i++) {
-        const a = i / 24 * Math.PI * 2;
-        part(new T.SphereGeometry(.07, 8, 6), toon(i % 2 ? 0xFFFFFF : c), wave, [Math.cos(a) * 1.6, .6 + Math.sin(a * 3) * .35, Math.sin(a) * 1.6], null, null, false);
-      }
-    },
-    ghost(g, c) {    // 錯題：幽靈貓＋紅眼＋鎖鏈
-      const wm = toon(0xE9ECF5, { transparent: true, opacity: .82 });
-      const x = cat(g, { fur: 0xE9ECF5, eye: 0xFF2E2E, eyeShape: 'almond', belly: false, muzzleM: wm });
-      R.mats.forEach(m => { if (m.color.getHex() === 0xE9ECF5) { m.transparent = true; m.opacity = .82; } });
-      part(new T.ConeGeometry(.6, 1.1, 16, 1, true), wm, x.torso, [0, -.65, -.05], [Math.PI, 0, 0]);
-      for (let i = 0; i < 7; i++) part(new T.TorusGeometry(.09, .03, 6, 12), toon(0x555555), x.torso, [-.5 + i * .14, -.25 - Math.sin(i * .9) * .08, .5], [0, i % 2 ? Math.PI / 2 : 0, 0], null, false);
-      [-1, 1].forEach(k => part(new T.ConeGeometry(.08, .3, 6), toon(0xFF2E2E), x.head, [k * .35, .62, .72], [.6, 0, 0], null, false));
-    },
-    mix(g, c) {      // 預設：米克斯（棕虎斑）
-      const st = toon(0x5A3B2A);
-      cat(g, { fur: 0xB98A5E, eye: 0xE9A93A, eyeShape: 'round', patches: [['h', [0, .8, .55], .16, st, [.6, 1.8, .6]], ['h', [.9, .2, .2], .2, st, [.5, 1.6, .6]], ['h', [-.9, .2, .2], .2, st, [.5, 1.6, .6]]] });
+  /* --- 組一隻貓：f＝{ pose, eyes, pupil, brows, hiss, tail, swirl } --- */
+  function drawCat(S, f) {
+    const out = buf(), L = fn => { const b = buf(); fn(b); return outline(b, S.ol); };
+    const ko = f.pose === 'ko', puff = f.pose === 'puff', dy = ko ? 15 : 0;
+    const limbSh = dark(S.limb, .18);
+    // 尾巴
+    const tr = (S.tailR || 3.8) * (puff ? 1.3 : 1), wag = f.tail ? 1.5 : -1.5;
+    const tp = ko ? [[44, 62], [49, 62], [54, 62], [58, 61]]
+      : puff ? [[43, 54], [48, 52], [51, 48], [52, 43], [52, 38], [52, 33]]
+      : [[42, 56], [47, 55], [51, 52], [53 + wag * .3, 48], [53 + wag * .6, 44], [51 + wag, 41]];
+    over(out, L(b => {
+      tp.forEach((p, i) => ell(b, p[0], p[1], tr, tr, S.stripe && i % 2 ? S.stripe : S.tail, i % 2 ? null : dark(S.tail, .15)));
+      if (puff) tp.forEach((p, i) => { if (i > 1) { tri(b, [[p[0] + tr - 1, p[1] - 2], [p[0] + tr - 1, p[1] + 2], [p[0] + tr + 3, p[1] - 1]], S.tail); tri(b, [[p[0] - tr + 1, p[1] - 2], [p[0] - tr + 1, p[1] + 2], [p[0] - tr - 3, p[1] - 1]], S.tail); } });
+      if (S.tailTip && !ko) S.tailTip(b, tp[tp.length - 1]);
+    }));
+    if (ko) {                                   // 攤平趴在地上：腳往兩邊癱開
+      over(out, L(b => { ell(b, 13, 62, 4, 2.5, S.limb, limbSh); ell(b, 51, 62, 4, 2.5, S.limb, limbSh); }));
+      over(out, L(b => { ell(b, 32, 59, 15, 5.5, S.fur, S.sh, S.hi); }));
+      over(out, L(b => { ell(b, 15, 57, 4.5, 3, S.limb, limbSh); ell(b, 49, 57, 4.5, 3, S.limb, limbSh); }));
+    } else {
+      // 腳（幽靈沒有腳，改成飄飄的下擺）
+      if (!S.ghost) over(out, L(b => { ell(b, 26.5, 59, 4.5, 3.2, S.limb, limbSh); ell(b, 37.5, 59, 4.5, 3.2, S.limb, limbSh); }));
+      over(out, L(b => {
+        ell(b, 32, 51, 11.5, 9, S.fur, S.sh, S.hi);
+        if (S.ghost) { ell(b, 32, 55, 10, 5, S.fur, S.sh); [22, 27, 32, 37].forEach((x, i) => tri(b, [[x, 57], [x + 5, 57], [x + 2.5 + (i % 2 ? 1 : -1), 63]], S.fur)); }
+        if (puff) for (let i = 0; i < 9; i++) { const a = Math.PI * (1.05 + i * .1), cx = 32 + Math.cos(a) * 11, cy = 51 + Math.sin(a) * 9;
+          tri(b, [[cx - 2, cy + 1], [cx + 2, cy + 1], [cx + Math.cos(a) * 4, cy + Math.sin(a) * 4]], S.fur); }
+        if (S.belly !== false) ell(b, 32, 53, 6.5, 6, S.bellyC || S.cream, dark(S.bellyC || S.cream, .08));
+        if (S.bodyMarks) S.bodyMarks(b);
+        if (S.ruff) for (let i = 0; i < 9; i++) ell(b, 21 + i * 2.75, 42 + (i % 2), 2.6, 2.6, S.fur, S.sh);
+      }));
+      if (S.claws) [[24, 62], [27, 62], [35, 62], [38, 62]].forEach(p => put(out, p[0], p[1], '#FFFFFF'));
+      if (S.hold) over(out, L(b => S.hold(b)));
+      if (S.holdRaw) S.holdRaw(out, S.ol);
+      over(out, L(b => { ell(b, 21, 51, 3.4, 3.2, S.limb, limbSh); ell(b, 43, 51, 3.4, 3.2, S.limb, limbSh); }));
+      if (S.claws) [[20, 53], [22, 53], [42, 53], [44, 53]].forEach(p => put(out, p[0], p[1], '#FFFFFF'));
     }
-  };
+    // 大頭
+    over(out, L(b => {
+      const flat = puff ? 3 : 0;                 // 生氣時耳朵往後壓
+      if (S.foldEars) { ell(b, 17, 12 + dy, 6.5, 4.5, S.ear, dark(S.ear, .15)); ell(b, 47, 12 + dy, 6.5, 4.5, S.ear, dark(S.ear, .15)); }   // 摺耳：小耳朵往前摺
+      else { tri(b, [[9, 22 + dy], [13 - flat, 3 + dy + flat * 1.3], [27, 13 + dy]], S.ear); tri(b, [[55, 22 + dy], [51 + flat, 3 + dy + flat * 1.3], [37, 13 + dy]], S.ear); }
+      ell(b, 32, 26 + dy, 22.5, 16.5, S.fur, S.sh, S.hi);
+      ell(b, 17, 32 + dy, 9, 8, S.fur, S.sh); ell(b, 47, 32 + dy, 9, 8, S.fur, S.sh);
+      if (!S.foldEars) { tri(b, [[13, 16 + dy], [14.5 - flat, 7 + dy + flat * 1.3], [22, 13 + dy]], '#FF9FB2'); tri(b, [[51, 16 + dy], [49.5 + flat, 7 + dy + flat * 1.3], [42, 13 + dy]], '#FF9FB2'); }
+      if (S.head) S.head(b, dy);
+      ell(b, 32, 36 + dy, 8, 4.5, S.cream, S.creamSh); ell(b, 29, 34 + dy, 4, 3, S.cream); ell(b, 35, 34 + dy, 4, 3, S.cream);
+    }));
+    if (!ko) {
+      if (S.collar) { rect(out, 26, 42, 12, 1, '#D8342C'); rect(out, 26, 43, 12, 1, '#9E2019');
+        over(out, L(b => { ell(b, 32, 45.5, 2.6, 2.6, '#F2C230', '#B8871A'); rect(b, 31, 46, 2, 1, '#6B4A10'); put(b, 31, 44, '#FFFFFF'); })); }
+      if (S.scarf) over(out, L(b => { rect(b, 24, 41, 16, 3, '#D8342C'); rect(b, 35, 44, 3, 6, '#D8342C'); rect(b, 24, 43, 16, 1, '#9E2019'); }));
+      if (S.neck) over(out, L(b => S.neck(b)));
+    }
+    if (S.acc) over(out, L(b => S.acc(b, dy)));
+    face(out, S, f, dy);
+    return out;
+  }
 
-  /* --- 姿勢：每個部位的 [位置xyz, 旋轉xyz, 縮放xyz] --- */
-  const KEYS = ['pg', 'torso', 'headG', 'armL', 'armR', 'legL', 'legR', 'tailG'];
-  const POSES = {
-    stand: { pg: [0, 0, 0, 0, 0, 0], torso: [0, -.3, 0, 0, 0, 0], headG: [0, 1, 0, 0, 0, 0],
-      armL: [-.6, -.25, .35, 0, 0, .3], armR: [.62, -.18, .42, 0, 0, -.3], legL: [-.38, -.86, .28, 0, 0, 0], legR: [.38, -.86, .28, 0, 0, 0], tailG: [0, -.55, -.45, 0, 0, 0] },
-    sit: { pg: [0, -.1, 0, 0, 0, 0], torso: [0, -.5, -.1, -.15, 0, 0, 1.08, .88, 1.05], headG: [0, .72, .1, .08, 0, 0],
-      armL: [-.24, -.9, .5, 0, 0, 0], armR: [.32, -.5, .55, -.5, 0, -.2], legL: [-.55, -.92, 0, 0, 0, 0, 1.3, .7, 1.5], legR: [.55, -.92, 0, 0, 0, 0, 1.3, .7, 1.5], tailG: [-.1, -.95, -.45, 0, -1.4, 0] },
-    loaf: { pg: [0, -.15, 0, 0, 0, 0], torso: [0, -.62, -.15, 0, 0, 0, 1.18, .72, 1.45], headG: [0, .35, .5, .1, 0, 0],
-      armL: [-.28, -1, .85, 0, 0, 0, 1, .7, 1], armR: [.28, -1, .85, 0, 0, 0, 1, .7, 1], legL: [-.55, -1, -.6, 0, 0, 0], legR: [.55, -1, -.6, 0, 0, 0], tailG: [0, -.85, -1, -1.3, 0, 0] },
-    fly: { pg: [0, .35, 0, .1, 0, 0], torso: [0, -.3, 0, 0, 0, 0], headG: [0, 1, 0, 0, 0, 0],
-      armL: [-.82, .05, .25, 0, 0, 1], armR: [.84, 0, .3, 0, 0, -1], legL: [-.3, -1, .15, .3, 0, 0], legR: [.3, -1, .15, .3, 0, 0], tailG: [0, -.55, -.45, 0, 0, 0] },
-    puff: { pg: [0, 0, 0, 0, 0, 0], torso: [0, -.25, -.05, .35, 0, 0, 1.15, 1.1, 1.1], headG: [0, .95, .25, -.15, 0, 0],
-      armL: [-.5, -.85, .45, 0, 0, 0], armR: [.5, -.85, .45, 0, 0, 0], legL: [-.45, -.88, -.35, 0, 0, 0], legR: [.45, -.88, -.35, 0, 0, 0], tailG: [0, -.4, -.5, -.2, 0, 0, 1.5, 1.5, 1.5] },
-    bellyup: { pg: [0, -.55, 0, -1.25, 0, 0], torso: [0, -.3, 0, 0, 0, 0], headG: [0, 1, 0, 1.05, 0, 0],
-      armL: [-.45, -.1, .55, -1.2, 0, .3], armR: [.45, -.1, .55, -1.2, 0, -.3], legL: [-.4, -.75, .5, -1.2, 0, 0], legR: [.4, -.75, .5, -1.2, 0, 0], tailG: [0, -.55, -.45, 0, 0, 0] }
-  };
-  const poseVals = name => KEYS.map(k => { const v = (POSES[name] || POSES.stand)[k] || POSES.stand[k]; return v.length > 6 ? v.slice() : v.concat([1, 1, 1]); });
-  function setPose(name) {
-    if (!R || !R.rig || R.poseName === name) return;
-    R.poseFrom = R.poseCur || poseVals(name); R.poseTo = poseVals(name); R.poseT = 0; R.poseName = name;
-    R.rig.wings.forEach(w => { w.visible = name === 'fly'; });
-    R.rig.spikes.visible = name === 'puff';
+  function eye(b, S, cx, cy, f) {
+    const ry = S.almond ? 5 : 6.5, rx = S.almond ? 6.6 : 6;
+    ell(b, cx, cy, rx, ry, S.ol);
+    ell(b, cx, cy, rx - .9, ry - .9, S.eye);
+    ell(b, cx, cy + ry * .28, rx - 1.7, ry * .55, S.eye2);
+    if (f.pupil === 'slit') rect(b, cx - 1, cy - ry + 1.5, 2, ry * 2 - 3, '#0A0A0A');
+    else if (f.pupil === 'big') ell(b, cx, cy, rx - 1.7, ry - 1.7, '#0A0A0A');
+    else ell(b, cx, cy + .3, 3.1, ry - 2.7, '#0A0A0A');
+    rect(b, cx - 3, cy - ry + 2.5, 3, S.almond ? 2 : 3, '#FFFFFF');
+    rect(b, cx + 2, cy + ry - 4.5, 2, 2, '#FFFFFF');
   }
-  function applyPose(dt) {
-    const rig = R.rig; if (!rig) return;
-    R.poseT = Math.min(1, R.poseT + dt / .35);
-    const e = easeOut(R.poseT);
-    R.poseCur = R.poseTo.map((to, i) => to.map((v, j) => lerp(R.poseFrom[i][j], v, e)));
-    KEYS.forEach((k, i) => { const v = R.poseCur[i], o = rig[k]; o.position.set(v[0], v[1], v[2]); o.rotation.set(v[3], v[4], v[5]); o.scale.set(v[6], v[7], v[8]); });
+  function face(b, S, f, dy) {
+    const ol = S.ol, E = [[22, 27 + dy], [42, 27 + dy]];
+    if (f.eyes === 'x') E.forEach(([x, y]) => { for (let i = -3; i <= 3; i++) { put(b, x + i, y + i, ol); put(b, x + i, y - i, ol); put(b, x + i + 1, y + i, ol); put(b, x + i + 1, y - i, ol); } });
+    else if (f.eyes === 'swirl') E.forEach(([x, y], k) => { for (let a = 0; a < 15; a += .25) { const r = a * .32, t = a * (k ? -1 : 1) + f.swirl; put(b, x + Math.cos(t) * r, y + Math.sin(t) * r, ol); } });
+    else if (f.eyes === 'blink') E.forEach(([x, y]) => { for (let i = -4; i <= 4; i++) { const yy = y - Math.round(i * i / 7) + 1; put(b, x + i, yy, ol); put(b, x + i, yy + 1, ol); } });
+    else E.forEach(([x, y]) => eye(b, S, x, y, f));
+    if (S.glasses) E.forEach(([x, y]) => { for (let a = 0; a < Math.PI * 2; a += .04) put(b, x + Math.cos(a) * 7.6, y + Math.sin(a) * 7.6, '#2B2B2B'); });   // 圓框眼鏡
+    if (S.glasses) rect(b, 30, 26 + dy, 4, 1, '#2B2B2B');
+    if (f.brows) for (let i = 0; i < 5; i++) { rect(b, 16 + i, 18 + (i >> 1) + dy, 1, 2, ol); rect(b, 48 - i, 18 + (i >> 1) + dy, 1, 2, ol); }
+    else { rect(b, 13, 34 + dy, 4, 2, '#FF8FA3'); rect(b, 47, 34 + dy, 4, 2, '#FF8FA3'); }      // 腮紅
+    rect(b, 31, 32 + dy, 3, 1, '#FF9FB2'); put(b, 32, 33 + dy, '#FF9FB2');
+    if (f.hiss) { ell(b, 32, 37.5 + dy, 3, 2.6, ol); ell(b, 32, 37.8 + dy, 2.1, 1.7, '#B0263A'); put(b, 30, 36 + dy, '#FFFFFF'); put(b, 34, 36 + dy, '#FFFFFF'); }
+    else {
+      [[32, 34], [31, 35], [30, 35], [29, 34], [33, 35], [34, 35], [35, 34]].forEach(([x, y]) => put(b, x, y + dy, ol));          // :3 嘴
+      if (f.pose === 'ko') { rect(b, 31, 36 + dy, 3, 2, '#FF7A90'); put(b, 32, 38 + dy, '#FF7A90'); }                              // 吐舌頭
+      else if (S.claws) { put(b, 33, 36, '#FFFFFF'); put(b, 34, 36, '#FFFFFF'); put(b, 34, 37, '#FFFFFF'); put(b, 35, 36, ol); put(b, 35, 37, ol); put(b, 34, 38, ol); put(b, 33, 37, ol); }   // 只剩一顆小虎牙
+    }
+    [[4, 31], [5, 34], [55, 31], [54, 34]].forEach(([x, y]) => rect(b, x, y + dy, 6, 1, S.whisker));
   }
+
+  const COLOR = {};
+  const rgb = c => COLOR[c] || (COLOR[c] = [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]);
+  function paint(f) {
+    const px = drawCat(R.spec, f), img = R.ctx.createImageData(W, W), d = img.data;
+    px.forEach((c, i) => { if (!c) return; const v = rgb(c); d[i * 4] = v[0]; d[i * 4 + 1] = v[1]; d[i * 4 + 2] = v[2]; d[i * 4 + 3] = 255; });
+    R.ctx.putImageData(img, 0, 0); R.tex.needsUpdate = true;
+  }
+
+  /* --- 姿勢：stand 站、puff 炸毛（生氣）、ko 癱平；其它動作用位移縮放處理 --- */
+  function setPose(name) { if (R) R.poseName = name === 'puff' || name === 'ko' || name === 'bellyup' ? (name === 'bellyup' ? 'ko' : name) : 'stand'; }
 
   /* --- 啟動／停止 --- */
   function start(el, kind, hex) {
@@ -1112,34 +1050,29 @@ const Boss3D = (() => {
     if (!T) return false;
     try {
       if (!renderer) {
-        renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+        renderer = new T.WebGLRenderer({ antialias: false, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        const g = new Uint8Array([70, 160, 255]);
-        gradTex = new T.DataTexture(g, 3, 1, T.LuminanceFormat);
-        gradTex.minFilter = gradTex.magFilter = T.NearestFilter; gradTex.needsUpdate = true;
       }
     } catch (e) { renderer = null; return false; }
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(34, 2, .1, 100);
     camera.position.set(0, .7, 6.1); camera.lookAt(0, .3, 0);
-    scene.add(new T.HemisphereLight(0xffffff, 0x666666, .8));
-    const dl = new T.DirectionalLight(0xffffff, .9); dl.position.set(3, 5, 4); scene.add(dl);
-    R = { el, scene, camera, mats: [], spinners: [], tweens: [], parts: [], t: 0, last: 0, flash: 0, shake: 0, angry: 0, dead: false,
-      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, ry: 0, raf: 0, blinkT: 2, hurt: 0, mad: 0, big: 0, hiss: 0, dizzy: false,
-      ex: { punch: 0, tailS: 1 }, face: null, rig: null, poseName: null, poseCur: null,
-      outline: new T.MeshBasicMaterial({ color: 0x000000, side: T.BackSide }) };
-    const boss = new T.Group(), body = new T.Group();
-    (CATS[kind] || CATS.mix)(body, hex);
-    R.basePose = ['stand', 'sit', 'loaf', 'fly'][Math.floor(Math.random() * 4)];
-    R.poseCur = null; setPose('stand'); R.poseT = 1; applyPose(0);          // 用站姿量尺寸
-    const box = new T.Box3().setFromObject(body), size = box.getSize(new T.Vector3()), mid = box.getCenter(new T.Vector3());
-    const fit = Math.min(1.15, 2.7 / size.y, 3.4 / Math.max(size.x, size.z));
-    body.scale.setScalar(fit); body.position.set(-mid.x * fit, (.2 - mid.y) * fit, -mid.z * fit);
-    boss.add(body); scene.add(boss); R.boss = boss;
-    R.poseName = null; setPose(R.basePose);
+    R = { el, scene, camera, spinners: [], tweens: [], parts: [], t: 0, last: 0, flash: 0, shake: 0, angry: 0, dead: false,
+      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, raf: 0, blinkT: 2, hurt: 0, mad: 0, big: 0, hiss: 0, dizzy: false,
+      ex: { punch: 0, tailS: 1 }, poseName: 'stand', key: '' };
+    R.spec = spec(kind, hexStr(hex));
+    const cv = document.createElement('canvas'); cv.width = cv.height = W;
+    R.ctx = cv.getContext('2d');
+    R.tex = new T.CanvasTexture(cv); R.tex.magFilter = R.tex.minFilter = T.NearestFilter; R.tex.generateMipmaps = false;
+    const geo = new T.PlaneGeometry(3.7, 3.7);
+    R.mat = new T.MeshBasicMaterial({ map: R.tex, transparent: true, alphaTest: .1, side: T.DoubleSide, opacity: R.spec.alpha || 1 });
+    R.flashMat = new T.MeshBasicMaterial({ map: R.tex, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide });
+    const boss = new T.Group(), sprite = new T.Mesh(geo, R.mat), glow = new T.Mesh(geo, R.flashMat);
+    sprite.position.y = .28; glow.position.set(0, .28, .01);
+    boss.add(sprite); boss.add(glow); scene.add(boss); R.boss = boss;
     const sh = new T.Mesh(new T.CircleGeometry(1.1, 24), basic(0, { transparent: true, opacity: .18 }));
     sh.rotation.x = -Math.PI / 2; sh.position.y = -1.45; scene.add(sh); R.shadow = sh;
-    R.pgeo = new T.TetrahedronGeometry(.13, 0);
+    R.pgeo = new T.BoxGeometry(.13, .13, .13);
     R.pmat = [basic(new T.Color(hex)), basic(0xFFD400), basic(0xffffff), basic(0x000000)];
     R.fmat = [basic(0xFF6A00), basic(0xFFD400), basic(0xFF2E2E)];
     el.appendChild(renderer.domElement);
@@ -1158,6 +1091,7 @@ const Boss3D = (() => {
     if (!R) return;
     cancelAnimationFrame(R.raf);
     R.scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.dispose) o.material.dispose(); });
+    if (R.tex) R.tex.dispose();
     if (renderer && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
     R = null;
   }
@@ -1178,51 +1112,26 @@ const Boss3D = (() => {
     });
     if (!R) return;
     R.tweens = alive.concat(R.tweens);
-    const o = R.off, b = R.boss, idle = REDUCE ? 0 : 1, rig = R.rig;
-    applyPose(dt);
-    // 姿勢之上的小動作
-    if (rig) {
-      const pn = R.poseName;
-      rig.tailG.rotation.z += Math.sin(R.t * (R.angry ? 10 : 4)) * .35 * idle;
-      if (R.ex.tailS !== 1) rig.tailG.scale.multiplyScalar(R.ex.tailS);
-      rig.armL.position.y += Math.sin(R.t * 3) * .05 * idle;
-      rig.armR.position.z += R.ex.punch; rig.armR.position.y += R.ex.punch * .3;
-      if (pn === 'fly') { rig.wings.forEach((w, i) => { w.rotation.y = Math.sin(R.t * 14) * .6 * (i ? -1 : 1) * idle; }); rig.pg.position.y += Math.sin(R.t * 3) * .12 * idle; }
-      if (pn === 'bellyup') ['armL', 'armR', 'legL', 'legR'].forEach((k, i) => { rig[k].rotation.x += Math.sin(R.t * 9 + i * 1.7) * .45 * idle; });
-      if (pn === 'loaf') rig.torso.scale.y *= 1 + Math.sin(R.t * 2) * .03 * idle;
-      if (R.hiss > 0) rig.spikes.visible = true; else rig.spikes.visible = pn === 'puff';
-    }
-    // 表情
-    if (R.face) {
-      R.blinkT -= dt; let open = 1;
-      if (R.blinkT < .14) open = Math.abs(R.blinkT - .07) / .07;
-      if (R.blinkT <= 0) R.blinkT = 2.5 + Math.random() * 2.5;
-      R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt); R.big = Math.max(0, R.big - dt); R.hiss = Math.max(0, R.hiss - dt);
-      const hurt = R.hurt > 0 && !R.dizzy, mad = R.angry || R.mad > 0 || R.hiss > 0 || R.poseName === 'puff';
-      const pw = R.big > 0 ? .98 : mad ? .16 : .48;
-      R.face.eyes.forEach(e => {
-        e.g.visible = !hurt && !R.dizzy; e.g.scale.y = Math.max(.08, open);
-        if (e.pupil.userData.round) {
-          const r = R.big > 0 ? 1 : mad ? .5 : .75, k = Math.min(1, dt * 12);
-          e.pupil.scale.x = lerp(e.pupil.scale.x, r, k); e.pupil.scale.y = lerp(e.pupil.scale.y, r * e.pupil.userData.sy, k);
-        } else e.pupil.scale.x = lerp(e.pupil.scale.x, pw, Math.min(1, dt * 12));
-      });
-      R.face.xs.forEach(e => { e.visible = hurt; });
-      R.face.swirl.forEach((e, i) => { e.visible = R.dizzy; e.rotation.z += dt * 8 * (i ? -1 : 1); });
-      R.face.brows.forEach(e => { e.visible = mad; });
-      R.face.mouth.visible = R.hiss > 0; R.face.omega.forEach(m => { m.visible = R.hiss <= 0; });
-    }
-    const jitter = R.angry && !REDUCE ? (Math.random() - .5) * .06 : 0;
-    R.ry += dt * (R.angry ? 1.3 : .55) * idle;
-    b.position.set(o.x + jitter, o.y + Math.sin(R.t * 2) * .1 * idle, o.z);
-    b.rotation.set(o.rx, Math.sin(R.ry) * .6 + o.ry, o.rz);
-    b.scale.setScalar(o.s);
-    R.spinners.forEach(([m, s]) => { if (m.userData.axis === 'z') m.rotation.z += dt * s * idle; else m.rotation.y += dt * s * idle; });
-    R.shadow.scale.setScalar(Math.max(.2, 1 - Math.max(0, o.y + (R.poseName === 'fly' ? .5 : 0)) * .25));
+    const o = R.off, b = R.boss, idle = REDUCE ? 0 : 1;
+    // 表情 → 有變才重畫點陣
+    R.blinkT -= dt; if (R.blinkT <= 0) R.blinkT = 2.5 + Math.random() * 2.5;
+    R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt); R.big = Math.max(0, R.big - dt); R.hiss = Math.max(0, R.hiss - dt);
+    const hurt = R.hurt > 0 && !R.dizzy, mad = R.angry || R.mad > 0 || R.hiss > 0 || R.poseName === 'puff';
+    const f = { pose: R.poseName, eyes: R.dizzy ? 'swirl' : hurt ? 'x' : R.blinkT < .14 ? 'blink' : 'open',
+      pupil: R.big > 0 ? 'big' : mad ? 'slit' : '', brows: mad && !R.dizzy && !hurt, hiss: R.hiss > 0,
+      tail: idle ? Math.floor(R.t * (R.angry ? 6 : 2.2)) % 2 : 0, swirl: R.dizzy ? Math.floor(R.t * 10) % 8 * .785 : 0 };
+    const key = JSON.stringify(f);
+    if (key !== R.key) { R.key = key; paint(f); }
+    // 位置：上下飄、呼吸縮放
+    const jitter = R.angry && !REDUCE ? (Math.random() - .5) * .06 : 0, breath = Math.sin(R.t * 2.4) * .025 * idle;
+    b.position.set(o.x + jitter, o.y + Math.sin(R.t * 2) * .08 * idle, o.z + R.ex.punch * .7);
+    b.rotation.set(o.rx, o.ry, o.rz);
+    b.scale.set(o.s * (1 + breath) * R.ex.tailS, o.s * (1 - breath), o.s);
+    R.shadow.scale.setScalar(Math.max(.2, 1 - Math.max(0, o.y) * .25));
     R.shadow.visible = b.visible;
     R.flash = Math.max(0, R.flash - dt * 4);
-    const red = new T.Color(0xFF2E2E);
-    R.mats.forEach(m => { m.color.copy(m.userData.base).lerp(red, R.angry * .4); m.emissive.setRGB(R.flash, R.flash, R.flash); });
+    R.flashMat.opacity = Math.min(1, R.flash);
+    R.mat.color.setRGB(1, 1 - R.angry * .32, 1 - R.angry * .32);
     R.parts = R.parts.filter(p => {
       p.life -= dt; if (p.life <= 0) { R.scene.remove(p.m); return false; }
       if (p.spin) { p.a += dt * p.spin; p.m.position.set(Math.cos(p.a) * p.r, p.m.position.y + dt * p.rise, Math.sin(p.a) * p.r); }
