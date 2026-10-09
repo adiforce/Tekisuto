@@ -80,6 +80,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .exp{height:14px;border:var(--bd);background:var(--paper);border-radius:99px;overflow:hidden;margin:6px 0 2px}
 .exp i{display:block;height:100%;background:var(--ink);transition:width .6s}
 .me .nums{font-size:13px;font-weight:700}
+.me .coins{display:inline-block;margin-top:4px;padding:1px 10px;border:var(--bd);background:#FFD400;color:#000;font-size:16px;font-weight:900}
+.say .coin{display:inline-block;margin-left:8px;padding:0 8px;border:2px solid #000;background:#FFD400;color:#000;font-size:14px;font-weight:900;vertical-align:middle}
+.say .coin.none{background:#ddd;color:#555}
 
 .bank{position:relative;margin-bottom:22px;overflow:hidden}
 .bank .band{position:absolute;left:0;top:0;bottom:0;width:58px;background:var(--c);border-right:var(--bd);
@@ -525,7 +528,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, coins: 0, qwin: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -574,6 +577,14 @@ function gainExp(n) {
   return levelOf(db.exp).lv > before ? before : 0;
 }
 
+/* ===== 金幣：每題第 1 次答對 +2、第 2 次 +1、之後 0；整關通關每次 +5 ===== */
+const COIN_Q = [2, 1], COIN_CLEAR = 5;
+function earnQ(bid, qid) {
+  const k = bid + '|' + qid, n = db.qwin[k] || 0, g = COIN_Q[n] || 0;
+  db.qwin[k] = n + 1; db.coins += g; save();
+  return g;
+}
+
 /* ===== 題目清單（可跨題庫）：ref = { b: 題庫id, q: 題目id } ===== */
 function refsOf(bid, which) {
   const b = db.banks[bid]; if (!b) return [];
@@ -611,6 +622,7 @@ function home() {
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
+        <div class="coins">💰 ${db.coins || 0} 元</div>
         <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
     </section>`;
@@ -1438,7 +1450,7 @@ function startQuiz(refs, opt) {
   const n = items.length, maxHp = Math.min(8, Math.max(3, Math.ceil(n * .3)));
   S = {
     title: opt.title, boss: opt.boss, sub: opt.sub, recordBid: opt.recordBid || null, multi: isMulti(items),
-    i: 0, correct: 0, wrong: [], answered: false, combo: 0, maxCombo: 0, exp: 0,
+    i: 0, correct: 0, wrong: [], answered: false, combo: 0, maxCombo: 0, exp: 0, coins: 0,
     n, bossHp: n, hp: maxHp, maxHp,
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
@@ -1514,8 +1526,9 @@ function pick(k) {
     if (j === right) bt.classList.add('ok'); else if (j === k) bt.classList.add('ng'); else bt.classList.add('dim');
   });
   markWrong(it.bid, it.q.id, !ok);
-  let say;
+  let say, gain = -1;
   if (ok) {
+    gain = earnQ(it.bid, it.q.id); S.coins += gain;
     S.correct++; S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo); S.bossHp--;
     S.exp += 10 + Math.min(S.combo, 10) * 2;
     const lastQ = S.i === S.items.length - 1, final = S.bossHp <= 0 || lastQ, move = S.combo % 3 === 0 ? 'ult' : S.combo % 3 === 2 ? 'hit2' : 'hit1';
@@ -1549,7 +1562,7 @@ function pick(k) {
   const done = S.hp <= 0 || S.i === S.items.length - 1;
   const fb = document.getElementById('fb');
   fb.innerHTML = `<div class="panel fb ${ok ? 'ok' : 'ng'}">
-      <div class="say">${esc(say)}</div>
+      <div class="say">${esc(say)}${gain > 0 ? `<span class="coin">💰 +${gain}</span>` : gain === 0 ? '<span class="coin none">💰 已領過</span>' : ''}</div>
       ${it.q.explain ? `<p>${fmt(it.q.explain)}</p>` : ''}
     </div>
     <button class="btn go wide nextbtn" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
@@ -1571,6 +1584,8 @@ function result() {
   };
   let exp = S.exp;
   if (win) { exp += 30 + (rank === 'S' ? 30 : 0); db.kills++; }
+  const clear = win && S.recordBid ? COIN_CLEAR : 0;
+  if (clear) { db.coins += clear; S.coins += clear; save(); }
   if (win && S.recordBid) {
     const old = db.best[S.recordBid];
     if (!old || RANK_ORDER.indexOf(rank) > RANK_ORDER.indexOf(old)) db.best[S.recordBid] = rank;
@@ -1589,6 +1604,7 @@ function result() {
         <div><b>${S.maxCombo}</b><small>最大連擊</small></div>
         <div><b>+${exp}</b><small>EXP</small></div>
       </div>
+      <div class="line">💰 本場 +${S.coins} 元${clear ? `（含通關 +${clear}）` : ''}　目前共 ${db.coins} 元</div>
     </section>
     <div class="grid">
       ${wn ? `<button class="btn go span2" data-act="reviewLast">看作戰筆記（${wn} 題錯題）</button>
