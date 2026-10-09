@@ -1,0 +1,267 @@
+{
+  "id": "eng2-exam1-l1",
+  "title": "高二英文 段考一｜L1 The Day I Broke the Rules（單字）",
+  "subject": "英文",
+  "questions": [
+    {
+      "q": "下列哪個字指「被僱用的人；員工」？",
+      "options": [
+        "employee",
+        "employer",
+        "employment",
+        "employ"
+      ],
+      "answer": 0,
+      "explain": "字尾 -ee 表示「接受動作的人」，employee 是員工；employer（-er）是雇主。",
+      "point": "employ vt. 僱用｜employer n.[C] 雇主｜employee n.[C] 員工；受僱者｜employment n.[U] 工作；受僱。-er 是做動作的人，-ee 是被動作的人。",
+      "mnemonic": "-er 發薪水，-ee 領薪水"
+    },
+    {
+      "q": "Apple and Samsung are huge global ____s with offices and factories in many countries.",
+      "options": [
+        "terminal",
+        "germ",
+        "laughter",
+        "corporation"
+      ],
+      "answer": 3,
+      "explain": "在很多國家都有辦公室和工廠的「大公司；集團」是 corporation。",
+      "point": "corporation n.[C]（大）公司；集團公司｜corporate adj.（大）公司的，例：corporate planning 企業規劃。",
+      "mnemonic": "corpor- 有「身體」的意思（corpse 屍體同源）：很多人組成一個大身體＝大公司"
+    },
+    {
+      "q": "suffer 表示「受（疾病、困難）之苦」時，後面常接哪個介系詞？",
+      "options": [
+        "to",
+        "from",
+        "for",
+        "on"
+      ],
+      "answer": 1,
+      "explain": "suffer from + 疾病／困難，例：suffer from a heart condition 患有心臟病。",
+      "point": "suffer vi. 受苦｜suffer from + N：受…之苦、患有…（病）。例：Many people suffer from illnesses such as diabetes.",
+      "mnemonic": "苦「從」病來：suffer from"
+    },
+    {
+      "q": "Our flight leaves from ____ 2, so tell the taxi driver not to drop us off at the wrong building.",
+      "options": [
+        "terminal",
+        "illness",
+        "laughter",
+        "contact"
+      ],
+      "answer": 0,
+      "explain": "機場的「航廈」是 terminal，Terminal 2 就是第二航廈。",
+      "point": "terminal n.[C] 航廈；終站；起訖站｜adj. 末期的（疾病無法治癒、會導致死亡），例：terminal cancer 癌症末期。",
+      "mnemonic": "term 有「終點」的意思：terminal＝路線的終點站，也是生命的末期"
+    },
+    {
+      "q": "Grandpa's long ____ kept him in the hospital for a whole month.",
+      "options": [
+        "frail",
+        "ill",
+        "drowsy",
+        "illness"
+      ],
+      "answer": 3,
+      "explain": "所有格 Grandpa's long 後面要接名詞，只有 illness（疾病）是名詞；ill、frail、drowsy 都是形容詞。",
+      "point": "illness n.[C,U] 疾病；生病｜ill adj. 生病的（fall ill 生病）。名詞位置要用 illness。",
+      "mnemonic": "ill＋ness（名詞字尾）＝疾病"
+    },
+    {
+      "q": "The volunteers did a ____ amount of work cleaning the beach, so the mayor thanked them in person.",
+      "options": [
+        "tremendously",
+        "tremendous",
+        "frail",
+        "prompt"
+      ],
+      "answer": 1,
+      "explain": "a ____ amount of 中間修飾名詞要用形容詞 tremendous（相當大的）；tremendously 是副詞。",
+      "point": "tremendous adj. 相當大的（a tremendous amount of work）｜tremendously adv. 相當大地；非常（修飾形容詞，例：tremendously thankful）。",
+      "mnemonic": "tremendous 和 tremble（發抖）同源：大到讓人發抖"
+    },
+    {
+      "q": "laughter 的詞性與意思是？",
+      "options": [
+        "vt. 使發笑",
+        "adj. 好笑的",
+        "n.[C] 笑話",
+        "n.[U] 笑；笑聲"
+      ],
+      "answer": 3,
+      "explain": "laughter 是不可數名詞，意思是笑、笑聲，常用 burst into laughter（突然大笑）。",
+      "point": "laughter n.[U] 笑；笑聲（the act or sound of laughing）。burst into laughter 突然大笑；動詞是 laugh。",
+      "mnemonic": "笑聲一片數不清，所以 laughter 不可數"
+    },
+    {
+      "q": "The kids hid behind the door in monster masks and jumped out to ____ their grandma, who screamed and almost dropped her tea.",
+      "options": [
+        "fright",
+        "frighten",
+        "confine",
+        "stretch"
+      ],
+      "answer": 1,
+      "explain": "to 後面接原形動詞，「使驚嚇」是 frighten；fright 是名詞。",
+      "point": "frighten vt. 使驚嚇（to scare someone, usually very suddenly）｜fright n.[U] 驚嚇（ran away in fright 嚇得逃跑）。",
+      "mnemonic": "fright（驚嚇）加 -en 變動詞「使驚嚇」，跟 short→shorten 一樣"
+    },
+    {
+      "q": "「keep in contact」的意思是？",
+      "options": [
+        "保持聯絡",
+        "保持距離",
+        "保持溫暖",
+        "保持沉默"
+      ],
+      "answer": 0,
+      "explain": "contact 當名詞有「聯絡」的意思，keep in contact 就是保持聯絡。",
+      "point": "contact n.[U] 接觸（come into contact with 接觸到）；n.[U] 聯絡（keep in contact）｜vt. 聯絡（contact the office，直接接受詞，不加 with）。",
+      "mnemonic": "con（一起）＋tact（碰觸）：碰在一起＝接觸、聯絡"
+    },
+    {
+      "q": "germ 的意思是？",
+      "options": [
+        "神采",
+        "細菌",
+        "航廈",
+        "熱情"
+      ],
+      "answer": 1,
+      "explain": "germ 是會造成疾病的微小生物，也就是細菌，常用複數 germs。",
+      "point": "germ n.[C]（常用複數）細菌（a very tiny living thing that can cause illness or disease）。例：清潔隱形眼鏡可殺死細菌。",
+      "mnemonic": "洗手乳廣告常說 kill 99.9% of germs"
+    },
+    {
+      "q": "On the snowy night, the travelers gathered around the fire for a bit of ____.",
+      "options": [
+        "germ",
+        "frail",
+        "warmth",
+        "terminal"
+      ],
+      "answer": 2,
+      "explain": "下雪的夜晚圍著火堆，是為了取暖，warmth 是「溫暖」。",
+      "point": "warmth n.[U] ① 溫暖 ② 熱情（kindness, passion, or enthusiasm），例：the warmth in her smile。形容詞是 warm。",
+      "mnemonic": "warm＋th＝名詞，跟 strong→strength、true→truth 一樣"
+    },
+    {
+      "q": "形容一個人「非常虛弱、病弱」的形容詞是？",
+      "options": [
+        "drowsy",
+        "terminal",
+        "prompt",
+        "frail"
+      ],
+      "answer": 3,
+      "explain": "frail 是 very weak or very sick；drowsy 是昏昏欲睡的。",
+      "point": "frail adj. 虛弱的（very weak or very sick），例：老人住院一個月後虛弱得站不起來。比較：drowsy 昏昏欲睡的。",
+      "mnemonic": "frail 像 fail：身體虛弱到快撐不住"
+    },
+    {
+      "q": "I emailed the shop about the broken lamp, and they sent a ____ reply within an hour.",
+      "options": [
+        "prompt",
+        "drowsy",
+        "terminal",
+        "frail"
+      ],
+      "answer": 0,
+      "explain": "一小時內就回覆，是「立即的」回覆，prompt 當形容詞是立即的。",
+      "point": "prompt vt. 促使（prompt sb to V，例：什麼促使你起床查看？）｜adj. 立即的（a prompt reply）。",
+      "mnemonic": "提詞機 teleprompter：提醒你「立刻」說下一句"
+    },
+    {
+      "q": "「be confined to bed」最接近的意思是？",
+      "options": [
+        "臥病在床、離不開床",
+        "拒絕上床睡覺",
+        "在床上伸懶腰",
+        "從床上跳起來"
+      ],
+      "answer": 0,
+      "explain": "confine 有「使離不開（床、輪椅等）」的意思，be confined to bed 指因病傷只能待在床上。",
+      "point": "confine vt. ① 使離不開（床、輪椅等），be confined to a wheelchair ② 侷限；限定，confine our discussion to the facts（討論只限於事實）。",
+      "mnemonic": "-fine 和 final、finish 同源，跟「界線、結束」有關：被限在界線內＝侷限"
+    },
+    {
+      "q": "Even after weeks lost at sea, there was still a ____ in the sailor's eyes when he saw the rescue boat.",
+      "options": [
+        "hug",
+        "terminal",
+        "sparkle",
+        "germ"
+      ],
+      "answer": 2,
+      "explain": "a sparkle in one's eyes 是眼中的神采，表示開心或有信心。",
+      "point": "sparkle n.[C] 神采；閃耀（a sparkle in one's eyes）｜vi. 閃耀（鑽石耳環在夕陽下閃閃發亮）。",
+      "mnemonic": "spark 是火花：眼裡有火花＝有神采"
+    },
+    {
+      "q": "hug 的過去式和現在分詞分別是？",
+      "options": [
+        "huged／huging",
+        "hugged／huging",
+        "hugged／hugging",
+        "huged／hugging"
+      ],
+      "answer": 2,
+      "explain": "hug 是短母音加單一子音結尾，變化時要重複 g：hugged—hugged—hugging。",
+      "point": "hug n.[C] 擁抱（give sb a warm hug）｜vt. 擁抱（hugged—hugged—hugging），例：hugged his parents tightly。",
+      "mnemonic": "抱得緊緊的，所以 g 也要抱兩個：hugged、hugging"
+    },
+    {
+      "q": "drowsy 最接近的意思是？",
+      "options": [
+        "虛弱的",
+        "驚嚇的",
+        "昏昏欲睡的",
+        "立即的"
+      ],
+      "answer": 2,
+      "explain": "drowsy 是昏昏欲睡的，例如前一晚沒睡好，隔天整天 drowsy。",
+      "point": "drowsy adj. 昏昏欲睡的。比較：frail 虛弱的、prompt 立即的。",
+      "mnemonic": "drowsy 像 drown（淹沒）：被睡意淹沒"
+    },
+    {
+      "q": "stretch 除了「伸出（手臂或腿）」之外，還有哪個意思？",
+      "options": [
+        "擁抱",
+        "拒絕",
+        "猶豫",
+        "伸長；拉長"
+      ],
+      "answer": 3,
+      "explain": "stretch 也可以表示把東西拉長，例如把橡皮筋拉長套住東西。",
+      "point": "stretch vt. ① 伸出（手臂或腿），stretch his arm up to reach it ② 伸長；拉長，stretch the elastic band（拉長橡皮筋）。",
+      "mnemonic": "運動前要 stretch 拉筋，把手腳伸長"
+    },
+    {
+      "q": "Kevin had already accepted another job offer, so he politely ____ the bank's offer.",
+      "options": [
+        "refusal",
+        "refused",
+        "hesitation",
+        "hugged"
+      ],
+      "answer": 1,
+      "explain": "已經接受別的工作，所以「拒絕」銀行的錄取；這裡需要動詞過去式 refused。",
+      "point": "refuse vi./vt. 拒絕（refuse an offer／refuse to V）｜refusal n.[U] 拒絕（be met with refusal 遭到拒絕）。",
+      "mnemonic": "re（回）＋fuse（倒）：把東西倒回去給你＝拒絕"
+    },
+    {
+      "q": "When the teacher asked who wanted to give a speech, Mia raised her hand without ____.",
+      "options": [
+        "hesitate",
+        "refuse",
+        "hesitation",
+        "laughter"
+      ],
+      "answer": 2,
+      "explain": "without 是介系詞，後面接名詞；without hesitation 是「毫不猶豫地」。",
+      "point": "hesitate vi. 猶豫（因害怕或緊張而停頓，didn't hesitate at all）｜hesitation n.[U] 猶豫（without hesitation 毫不猶豫）。",
+      "mnemonic": "he-si-tate 唸起來像「嘿，先等等」→ 猶豫"
+    }
+  ]
+}

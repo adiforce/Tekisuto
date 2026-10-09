@@ -1,0 +1,267 @@
+{
+  "id": "eng2-exam1-l3",
+  "title": "高二英文 段考一｜L3 Prometheus（單字片語）",
+  "subject": "英文",
+  "questions": [
+    {
+      "q": "Love of music seems to be ____ — people of every race and culture enjoy it.",
+      "options": [
+        "universe",
+        "generous",
+        "hollow",
+        "universal"
+      ],
+      "answer": 3,
+      "explain": "不分種族、文化都有，就是「普遍的」，be 動詞後面要用形容詞 universal。",
+      "point": "universe n.[sing.] 宇宙（the universe）｜universal adj. 普遍的（例：對死亡的恐懼似乎是所有人普遍都有的）。",
+      "mnemonic": "uni（一）＋verse：全宇宙都一樣＝普遍的"
+    },
+    {
+      "q": "Smartphones ____ us to video-call friends on the other side of the world.",
+      "options": [
+        "enable",
+        "benefit",
+        "distribute",
+        "banish"
+      ],
+      "answer": 0,
+      "explain": "enable sb to V 是「使某人能夠做…」。",
+      "point": "enable vt. 使…能夠（to make someone able to do something），enable sb to V。例：望遠鏡使我們能觀察遙遠的行星。",
+      "mnemonic": "en（使）＋able（能夠）＝使能夠"
+    },
+    {
+      "q": "Mr. Lin often gives free meals to poor students at his noodle shop. Everyone admires his ____.",
+      "options": [
+        "generous",
+        "generosity",
+        "fury",
+        "misery"
+      ],
+      "answer": 1,
+      "explain": "所有格 his 後面要接名詞，「慷慨」是 generosity。",
+      "point": "generous adj. 慷慨的（taking pleasure in giving freely; not stingy）｜generosity n.[U] 慷慨。",
+      "mnemonic": "-osity 是名詞字尾（curious→curiosity）"
+    },
+    {
+      "q": "The two neighbors came into ____ over where the new fence should be built.",
+      "options": [
+        "civilization",
+        "distribution",
+        "conflict",
+        "theft"
+      ],
+      "answer": 2,
+      "explain": "come into conflict with 是「與…起衝突」。",
+      "point": "conflict n.[C,U] 衝突（serious argument, fight, or war；come into conflict）｜vi. 抵觸（conflict with，例：證詞與之前的說法互相抵觸）。",
+      "mnemonic": "con（一起）＋flict（打）：打在一起＝衝突"
+    },
+    {
+      "q": "Before the concert started, the staff ____ free light sticks to everyone in the audience.",
+      "options": [
+        "punished",
+        "banished",
+        "slaughtered",
+        "distributed"
+      ],
+      "answer": 3,
+      "explain": "把螢光棒發給每位觀眾是「分發」。",
+      "point": "distribute vt. 分發；分配｜distribution n.[U] 分配；分布（the distribution of wild animals 野生動物的分布）。",
+      "mnemonic": "dis（分開）＋tribute：分給大家"
+    },
+    {
+      "q": "If you click on strange links in emails, you may easily fall ____ to online scams.",
+      "options": [
+        "victim",
+        "misery",
+        "fury",
+        "slaughter"
+      ],
+      "answer": 0,
+      "explain": "fall victim to 是「成為…的受害者；受…所害」，victim 前不加冠詞。",
+      "point": "victim n.[C] 受害者；罹難者；罹病者｜fall victim to 成為…的受害者（例：不換密碼容易成為身分盜用的受害者）。",
+      "mnemonic": "victim 唸起來像「被踢」：被踢的就是受害者"
+    },
+    {
+      "q": "After his dog ran away, Leo felt so ____ that he couldn't eat or sleep for days.",
+      "options": [
+        "misery",
+        "miserable",
+        "hollow",
+        "upright"
+      ],
+      "answer": 1,
+      "explain": "felt 後面接形容詞，「悲慘的、難過的」是 miserable；misery 是名詞。",
+      "point": "miserable adj. 悲慘的（very sad or unhappy）｜misery n.[U,C] 慘況（the miseries of poverty 貧窮之苦）。",
+      "mnemonic": "《悲慘世界》Les Misérables＝miserable"
+    },
+    {
+      "q": "Someone stole Ken's name and credit card number to shop online. He was a victim of identity ____.",
+      "options": [
+        "torture",
+        "slaughter",
+        "banishment",
+        "theft"
+      ],
+      "answer": 3,
+      "explain": "偷別人的姓名和信用卡資料是「身分盜用」，identity theft。",
+      "point": "theft n.[C,U] 偷竊；偷竊罪（the action of stealing something）。identity theft 身分盜用。",
+      "mnemonic": "thief 小偷 → theft 偷竊"
+    },
+    {
+      "q": "Pandas mainly ____ bamboo, spending many hours a day eating it.",
+      "options": [
+        "feed on",
+        "run out of",
+        "make up for",
+        "set the stage for"
+      ],
+      "answer": 0,
+      "explain": "feed on 是「靠…為食」，熊貓主要吃竹子。",
+      "point": "feed on 靠…為食（to eat something as main food）。例：雜食動物以肉和植物為食。",
+      "mnemonic": "被什麼「餵」大，就 feed on 什麼"
+    },
+    {
+      "q": "Sorry I missed your birthday party! Let me buy you dinner to ____ it.",
+      "options": [
+        "feed on",
+        "make up for",
+        "run out of",
+        "fall victim to"
+      ],
+      "answer": 1,
+      "explain": "錯過生日，請吃飯來「彌補」。",
+      "point": "make up for 彌補（to give or do something to make things fair; to provide something in return for a loss）。",
+      "mnemonic": "make up 是化妝：把缺的「補」起來"
+    },
+    {
+      "q": "「People of all ages can ____ getting enough sleep.（各年齡的人都能從充足睡眠中受益）」空格應填？",
+      "options": [
+        "benefit to",
+        "feed on",
+        "benefit from",
+        "fall victim to"
+      ],
+      "answer": 2,
+      "explain": "「從…中受益」是 benefit from。",
+      "point": "benefit n.[U,C] 益處｜vt. 對…有益（benefit local producers）｜vi. 得益於（benefit from）｜beneficial adj. 有利的；有幫助的。",
+      "mnemonic": "bene＝好（和 bonus 同源）：好處"
+    },
+    {
+      "q": "slaughter 的兩個意思是？",
+      "options": [
+        "放逐；懲罰",
+        "折磨；凌虐",
+        "宰殺（動物）；屠殺（人）",
+        "冷凍；凍結"
+      ],
+      "answer": 2,
+      "explain": "slaughter 可指為取肉而宰殺動物，也可指大量屠殺人。",
+      "point": "slaughter vt. 宰殺（to kill an animal for its meat）；屠殺｜n.[U] 屠殺（the slaughter of thousands of innocent citizens）。",
+      "mnemonic": "s＋laughter：屠夫殺完還在笑？太恐怖了"
+    },
+    {
+      "q": "freeze 的三態變化是？",
+      "options": [
+        "freeze—freezed—freezed",
+        "freeze—froze—frozen",
+        "freeze—frozen—froze",
+        "freeze—froze—froze"
+      ],
+      "answer": 1,
+      "explain": "freeze 是不規則動詞：freeze—froze—frozen，現在分詞 freezing。",
+      "point": "freeze vi. 受凍（freeze to death 凍死）｜vi./vt. 冷凍；凍結（the lake freezes over 湖面結冰；froze the bread 把麵包冷凍）。三態 freeze—froze—frozen。",
+      "mnemonic": "冰雪奇緣《Frozen》＝過去分詞"
+    },
+    {
+      "q": "furious 和 fury 的說明，何者正確？",
+      "options": [
+        "furious 是形容詞「暴怒的」，fury 是名詞「狂怒」",
+        "furious 是名詞「狂怒」，fury 是形容詞「暴怒的」",
+        "兩者都是形容詞",
+        "兩者都是動詞"
+      ],
+      "answer": 0,
+      "explain": "furious 是 adj.，fury 是 n.[U]，例：shook with fury 氣得發抖。",
+      "point": "furious adj. 暴怒的（extremely angry; in a rage）｜fury n.[U] 狂怒（shook with fury）。",
+      "mnemonic": "電影《玩命關頭》The Fast and the Furious：又快又暴怒"
+    },
+    {
+      "q": "下列哪個字的意思是「放逐」（逼人離開某地，永遠不能回來）？",
+      "options": [
+        "punish",
+        "torture",
+        "banish",
+        "slaughter"
+      ],
+      "answer": 2,
+      "explain": "banish 是放逐；punish 是懲罰，torture 是折磨。",
+      "point": "banish vt. 放逐｜banishment n.[U] 放逐｜punish vt. 懲罰，punishment n.[U,C]｜torture vt. 折磨 n.[U,C] 折磨；折磨人的事物。",
+      "mnemonic": "banish 像 vanish（消失）：被放逐就從國內消失"
+    },
+    {
+      "q": "as a result 的意思最接近下列哪一個？",
+      "options": [
+        "however",
+        "for example",
+        "instead",
+        "therefore"
+      ],
+      "answer": 3,
+      "explain": "as a result 是「因此」，和 therefore、thus 同義。",
+      "point": "as a result 因此（＝therefore; thus），前面講原因、後面講結果。例：生了大火，因此整晚不受野獸侵擾。",
+      "mnemonic": "result 是結果：講到結果就是「因此」"
+    },
+    {
+      "q": "set the stage for 的意思是？",
+      "options": [
+        "為…作好準備；為…鋪路",
+        "登上舞台表演",
+        "用完",
+        "彌補"
+      ],
+      "answer": 0,
+      "explain": "set the stage for 是為接下來的事作好準備，例：智慧型手機的發明為數千個 app 的發展鋪路。",
+      "point": "set the stage for 為…作好準備（to lead the way for; to set up the right conditions for something to follow）。",
+      "mnemonic": "先把舞台搭好，主角才能上場"
+    },
+    {
+      "q": "「The bus ran out of gas.」中 ran out of 的意思是？",
+      "options": [
+        "逃出",
+        "彌補",
+        "靠…為食",
+        "用完"
+      ],
+      "answer": 3,
+      "explain": "run out (of) 是把東西用光，ran out of gas 就是沒油了。",
+      "point": "run out (of…) 用完（to use up all that is available）。",
+      "mnemonic": "跑（run）出去（out）：東西都跑光了"
+    },
+    {
+      "q": "civilization 的意思是？",
+      "options": [
+        "人類",
+        "文明",
+        "宇宙",
+        "屠殺"
+      ],
+      "answer": 1,
+      "explain": "civilization 是文明，指發展完善、有組織的人類社會；「人類」是 humankind。",
+      "point": "civilization n.[U,C] 文明（an ancient civilization 古文明）｜humankind n.[U] 人類（the human race; all people as a whole）。",
+      "mnemonic": "civil（市民的）：有市民、有城市，就有文明"
+    },
+    {
+      "q": "下列英中配對，何者正確？",
+      "options": [
+        "upright — 在…之下",
+        "underneath — 直立地",
+        "hollow — 中空的",
+        "fur — 宇宙"
+      ],
+      "answer": 2,
+      "explain": "hollow 是中空的；upright 是直立地／直立的，underneath 是在…下，fur 是動物的毛。",
+      "point": "hollow adj. 中空的｜upright adv. 直立地 adj. 直立的（sit upright 坐直）｜underneath prep. 在…下（under the bed）｜fur n.[U]（動物的）毛；毛皮（fake fur 人造毛皮）。",
+      "mnemonic": "hollow 中間有個洞（hole）；up-right 往上直直的；under-neath 都在下面"
+    }
+  ]
+}
