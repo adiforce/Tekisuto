@@ -456,10 +456,11 @@ function levelOf(exp) {
   return { lv, cur: rest, need: needExp(lv) };
 }
 const titleOf = lv => TITLES.filter(t => lv >= t[0]).pop()[1];
-const TIER_HIT = ['貓爪拳', '三連爪痕斬', '爪痕衝擊波', '天降落雷', '火焰爆炸', '龍捲旋風', '神話亂舞'];
-const TIER_ULT = ['能量光束', '電光光束', '十字光束', '流星雨', '巨大能量球', '七彩光束', '終極奧義'];
-const ULT_SUFFIX = ['', '・改', '・真', '・極', '・超', '・神', '・終極奧義'];
-const tierOf = lv => lv < 3 ? 0 : lv < 5 ? 1 : lv < 8 ? 2 : lv < 12 ? 3 : lv < 16 ? 4 : lv < 20 ? 5 : 6;
+const TIER_HIT = ['貓爪拳', '三連爪痕斬', '爪痕衝擊波', '天降落雷', '火焰爆炸', '龍捲旋風', '神話亂舞', '龍焰咆哮', '流星殞落', '白金審判', '永恆喵神降臨'];
+const TIER_ULT = ['能量光束', '電光光束', '十字光束', '流星雨', '巨大能量球', '七彩光束', '終極奧義', '龍息光束', '星河流星雨', '白金聖光', '創世之光'];
+const ULT_SUFFIX = ['', '・改', '・真', '・極', '・超', '・神', '・終極奧義', '・龍', '・星', '・白金', '・永恆'];
+// 招式階段：Lv3、5、8、12、16、20、30、40、50、60 各升一階（Lv20 以上畫面特效相同，只換名字和音效）
+const tierOf = lv => lv < 3 ? 0 : lv < 5 ? 1 : lv < 8 ? 2 : lv < 12 ? 3 : lv < 16 ? 4 : lv < 20 ? 5 : lv < 30 ? 6 : lv < 40 ? 7 : lv < 50 ? 8 : lv < 60 ? 9 : 10;
 const myTier = () => tierOf(levelOf(db.exp).lv);
 
 /* ===== 勇者貓：每個等級一張點陣圖，等級越高裝備越多 ===== */
@@ -751,23 +752,76 @@ function tone(freq, dur, type = 'square', when = 0, vol = .08) {
     o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur + .02);
   } catch (e) {}
 }
+// 掃頻：from→to Hz，dur 秒
+function sweep(f1, f2, dur, type = 'sawtooth', when = 0, vol = .06) {
+  if (!db.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + when, o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur + .02);
+  } catch (e) {}
+}
+// 白噪音（爆炸、風聲）：lp 是低通濾波起點頻率
+function noise(dur, when = 0, vol = .1, lp = 2000, lpEnd = 200) {
+  if (!db.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + when, n = Math.floor(actx.sampleRate * dur);
+    const buf = actx.createBuffer(1, n, actx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const s = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+    s.buffer = buf; f.type = 'lowpass';
+    f.frequency.setValueAtTime(lp, t); f.frequency.exponentialRampToValueAtTime(lpEnd, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(actx.destination); s.start(t); s.stop(t + dur + .02);
+  } catch (e) {}
+}
+// 攻擊聲依招式階段（0 貓爪拳 … 6 神話亂舞）一層層疊上去，連擊越高音越高
+function hitSfx(combo, tier) {
+  const b = 520 + Math.min(combo, 10) * 40;
+  tone(b, .09); tone(b * 1.5, .16, 'square', .07);                                   // 0 貓爪拳：兩聲爪擊
+  if (tier >= 1) tone(b * 2, .1, 'square', .14, .06);                                  // 1 三連爪痕斬：第三刀
+  if (tier >= 2) sweep(220, 60, .25, 'triangle', .02, .16);                            // 2 衝擊波：低音轟
+  if (tier >= 3) { sweep(2400, 300, .18, 'sawtooth', .05, .05); sweep(1800, 200, .15, 'square', .12, .04); } // 3 落雷：劈啪電流
+  if (tier >= 4) noise(.4, .08, .14, 3000, 150);                                        // 4 火焰爆炸：爆裂聲
+  if (tier >= 5) { noise(.5, .15, .06, 600, 4000); sweep(300, 1200, .45, 'sine', .15, .05); } // 5 龍捲旋風：呼嘯
+  if (tier >= 6) [b * 2, b * 2.5, b * 3, b * 4].forEach((f, i) => tone(f, .18, 'triangle', .3 + i * .06, .05)); // 6 神話亂舞：閃光琶音
+  if (tier >= 7) { sweep(170, 60, .55, 'sawtooth', .05, .1); noise(.5, .05, .08, 500, 80); }            // 7 龍焰咆哮：龍吼
+  if (tier >= 8) { sweep(2600, 500, .3, 'sine', .2, .06); [2093, 2637, 3136].forEach((f, i) => tone(f, .15, 'triangle', .45 + i * .05, .04)); } // 8 流星殞落：流星＋星星
+  if (tier >= 9) { tone(1319, .9, 'sine', .55, .06); tone(1319 * 2.76, .6, 'sine', .55, .025); }        // 9 白金審判：鐘聲
+  if (tier >= 10) [262, 330, 392, 523].forEach(f => tone(f, .8, 'square', .7, .03));                   // 10 永恆喵神降臨：大和弦
+}
+// 必殺技：原本的集氣＋轟擊，再依階段加料
+function ultSfx(tier) {
+  if (!db.sound) return;
+  sweep(110, 1400, .7, 'sawtooth', 0, .08);
+  tone(90, .6, 'square', .85, .14); tone(60, .7, 'sawtooth', .9, .12);
+  [784, 1047, 1319].forEach((f, i) => tone(f, .12, 'square', 1.1 + i * .07));
+  if (tier >= 2) noise(.6, .85, .12, 2500, 120);                                        // 爆炸尾音
+  if (tier >= 4) sweep(3000, 200, .3, 'sawtooth', .8, .05);                            // 雷光
+  if (tier >= 5) [1568, 1976, 2349, 3136].forEach((f, i) => tone(f, .25, 'triangle', 1.35 + i * .07, .05));
+  if (tier >= 6) [523, 659, 784, 1047].forEach(f => tone(f, 1, 'square', 1.65, .035)); // 收尾大和弦
+  if (tier >= 7) { sweep(200, 55, 1, 'sawtooth', .9, .12); noise(.9, .9, .1, 600, 60); }               // 龍吼
+  if (tier >= 8) for (let i = 0; i < 5; i++) sweep(3000 - i * 200, 400, .3, 'sine', 1.2 + i * .12, .05); // 流星雨
+  if (tier >= 9) [1047, 1319, 1568].forEach((f, i) => { tone(f, 1.6, 'sine', 1.9 + i * .15, .06); tone(f * 2.76, 1, 'sine', 1.9 + i * .15, .02); }); // 鐘聲
+  if (tier >= 10) { [131, 262, 330, 392, 523, 659, 784].forEach(f => tone(f, 2, 'square', 2.4, .028)); tone(65, 2, 'triangle', 2.4, .18); } // 全場合奏
+}
+// 升級號角（原創）：G4 C5 E5 G5 上爬 → F5、A5 → C6 大和弦
+function lvupSfx() {
+  [392, 523, 659, 784].forEach((f, i) => tone(f, .1, 'square', i * .07, .07));
+  tone(698, .1, 'square', .36, .08); tone(880, .12, 'square', .48, .08);
+  [1047, 784, 659].forEach((f, i) => tone(f, .95, 'square', .66, i ? .04 : .08));
+  tone(131, .3, 'triangle', 0, .14); tone(175, .25, 'triangle', .36, .14); tone(131, 1, 'triangle', .66, .16);
+}
 const SFX = {
-  hit: combo => { const b = 520 + Math.min(combo, 10) * 40; tone(b, .09); tone(b * 1.5, .16, 'square', .07); },
+  hit: combo => hitSfx(combo, myTier()),
   hurt: () => { tone(180, .25, 'sawtooth', 0, .1); tone(110, .3, 'sawtooth', .1, .1); },
   win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'square', i * .11)),
   lose: () => [392, 330, 262].forEach((f, i) => tone(f, .3, 'triangle', i * .2, .12)),
-  ult: () => {
-    if (!db.sound) return;
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
-      o.type = 'sawtooth'; o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(1400, t + .7);
-      g.gain.setValueAtTime(.06, t); g.gain.linearRampToValueAtTime(.1, t + .7); g.gain.exponentialRampToValueAtTime(.0001, t + .8);
-      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + .85);
-    } catch (e) {}
-    tone(90, .6, 'square', .85, .14); tone(60, .7, 'sawtooth', .9, .12); [784, 1047, 1319].forEach((f, i) => tone(f, .12, 'square', 1.1 + i * .07));
-  },
-  lvup: () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, .14, 'square', i * .08))
+  ult: () => ultSfx(myTier()),
+  lvup: lvupSfx
 };
 
 /* ===== 題庫格式檢查 ===== */
