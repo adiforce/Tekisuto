@@ -75,9 +75,10 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 
 ### db 欄位
 
-`banks, order, wrong, last, best, exp, kills, sound, coins, qwin, cards, stats`，另有 `subHome`、`subGh` 是篩選狀態。
+`banks, order, wrong, last, best, exp, kills, sound, coins, qwin, cards, revives, stats`，另有 `subHome`、`subGh` 是篩選狀態。
 
-- `cards`：刪去卡張數。升級時每級抽一次：40% 刪去卡、40% 金幣 +10、20% 沒有。
+- `cards`：刪去卡張數；`revives`：復活卡張數。升級時每級抽一次：30% 刪去卡、20% 復活卡、30% 金幣 +10、20% 沒有。
+- 復活卡：愛心歸零時可用，愛心補滿、繼續下一題，一場不限張數；最後一題倒下再復活算勝利。
 - `stats[題庫id]`：`{ n, sum, best, last, at, win, title }`，只記「挑戰 BOSS」整份打完的場次（`S.recordBid` 有值才記），輸贏都算，中途撤退不算。
 - 新增「進度」類欄位時，要一起加進雲端紀錄的 `PROG` 陣列，不然換裝置會不見。
 
