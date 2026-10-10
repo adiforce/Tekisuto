@@ -1266,7 +1266,7 @@ function mergeProg(L, B, C) {
     return Math.max(0, c + (canDrop ? d : Math.max(0, d)));
   };
   ['exp', 'kills', 'coins'].forEach(k => { out[k] = add(L[k], B && B[k], C[k]); });
-  out.cards = add(L.cards, B && B.cards, C.cards, true);
+  ['cards', 'revives'].forEach(k => { out[k] = add(L[k], B && B[k], C[k], true); });      // 會被用掉的卡：增量可以是負的
   out.qwin = {};
   ids(g(L, 'qwin'), g(C, 'qwin')).forEach(k => { out.qwin[k] = add(g(L, 'qwin')[k], B && g(B, 'qwin')[k], g(C, 'qwin')[k]); });
   out.stats = {};
