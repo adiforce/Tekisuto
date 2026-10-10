@@ -68,7 +68,8 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 | 儲存 | `db` 物件存在 localStorage `beishu.v1` |
 | 個人資料 | `profile()`：各題庫挑戰 BOSS 的次數、平均、最高、最近 |
 | 雲端紀錄 | 進度匯出／匯入到 Google 試算表 |
-| 點陣 BOSS | `Boss3D` 模組（名字沿用舊版，現在是點陣）：three.js 舞台＋一張點陣貓貼圖，`spec(kind)` 定義每種貓的毛色和配件，姿勢有 stand／puff（生氣）／ko |
+| 點陣 BOSS | `Boss3D` 模組（名字沿用舊版，現在是點陣）：three.js 舞台＋一張點陣貓貼圖，`spec(kind)` 定義每種貓的毛色和配件，姿勢有 stand／puff（生氣）／ko，另有 `tired`（打完大招累癱約 2 秒，是疊加狀態不是姿勢）；特效有 `HIT_POOL`（普通攻擊依階級抽招）、`KIND_FX`（各科必殺技專屬特效），小圖示在 `ICONS` |
+| 魔王背景 | `Scene` 模組：依科目 kind 用 SVG 方塊拼 96×56 的點陣場景，貼在 three.js 舞台後面，新增科目時要在 `D` 裡補一個 kind |
 | 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result`；一場最多 `MAX_Q`（30）題，超過就隨機抽，重新挑戰時從整份重抽 |
 | 事件 | `ACT` 物件：`data-act="xxx"` 的按鈕點下去會呼叫 `ACT.xxx(dataset, el)` |
 

@@ -175,7 +175,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .stage .cv canvas{display:block}
 .stage.compact{height:176px}
 .stage.flat{height:auto;background:var(--paper)}
-.stage.flat::before,.stage.flat .cv{display:none}
+.stage.flat::before,.stage.flat .cv,.stage.flat .scene{display:none}
 .stage .bar2{position:absolute;left:8px;right:14px;top:6px;z-index:3;display:flex;align-items:center;gap:8px}
 .stage.flat .bar2{position:static;padding:6px 6px 0}
 .stage .name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:900}
@@ -189,6 +189,15 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .stage .hud .row+.row{margin-top:4px}
 .stage .hud .hpbar{height:14px}
 .stage .load{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;color:var(--sub);font-size:14px}
+/* BOSS 背景場景（依科目換，純 SVG 方塊拼的點陣，不載圖檔） */
+.stage .scene{position:absolute;left:0;right:0;top:0;bottom:46px;z-index:0;overflow:hidden;pointer-events:none}
+.stage .scene svg{position:absolute;inset:0;width:100%;height:100%;display:block;shape-rendering:crispEdges}
+.stage .scene::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 62%,rgba(255,255,255,.26) 0 26%,transparent 70%)}
+.scene .cl{animation:drift 16s ease-in-out infinite alternate}
+.scene .tw{animation:twk 1.8s steps(2,end) infinite}
+@keyframes drift{from{transform:translateX(-5px)}to{transform:translateX(7px)}}
+@keyframes twk{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.scene .cl,.scene .tw{animation:none}}
 /* 必殺技插畫 */
 #cutin{position:fixed;inset:0;z-index:28;pointer-events:none;display:none;background:rgba(0,0,0,.6)}
 #cutin.show{display:block;animation:fadeio 1.25s forwards}
@@ -437,7 +446,8 @@ function subChips(items, cur, act) {
 function setTheme(s) { const x = subOf(s); document.documentElement.style.setProperty('--c', x.c); document.documentElement.style.setProperty('--c-ink', x.ink); }
 
 /* ===== 等級 ===== */
-const TITLES = [[1, '見習生'], [3, '修練者'], [5, '戰士'], [8, '勇者'], [12, '英雄'], [16, '傳說'], [20, '神話']];
+const TITLES = [[1, '見習小喵'], [2, '毛球學徒'], [3, '爪牙新兵'], [5, '肉球劍士'], [7, '鬍鬚遊俠'], [9, '夜行貓盜'], [12, '毛球騎士'], [15, '喵喵法師'],
+  [18, '魚骨勇者'], [21, '逐風獵貓'], [25, '星月守護喵'], [30, '馴龍貓騎士'], [35, '銀河貓將軍'], [40, '星空守護者'], [45, '九命傳奇'], [50, '白金貓王'], [60, '永恆喵神']];
 const needExp = lv => 100 + (lv - 1) * 50;
 function levelOf(exp) {
   let lv = 1, rest = exp;
@@ -1221,6 +1231,77 @@ function syncRestore() {
   catch (e) { toast('備份讀取失敗'); }
 }
 
+/* ===== 魔王背景：依科目（kind）換場景，96x56 的方塊拼成，貼在 3D 舞台後面 ===== */
+const Scene = (() => {
+  const px = (x, y, w, h, c, o, cls) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"${o ? ` opacity="${o}"` : ''}${cls ? ` class="${cls}"` : ''}/>`;
+  const disc = (cx, cy, r, c) => { let t = ''; for (let d = -r; d <= r; d++) { const w = Math.floor(Math.sqrt(r * r - d * d + .5)); t += px(cx - w, cy + d, w * 2 + 1, 1, c); } return t; };
+  const tri = (cx, y, h, c) => { let t = ''; for (let i = 0; i < h; i++) t += px(cx - i, y + i, i * 2 + 1, 1, c); return t; };
+  const dots = (n, seed, ymax, c, cls) => { let t = ''; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280; for (let i = 0; i < n; i++) t += px(Math.floor(rnd() * 94) + 1, Math.floor(rnd() * ymax), 1, 1, c, 0, i % 3 === 0 ? cls : ''); return t; };
+  const ground = (c, edge) => px(0, 43, 96, 13, c) + px(0, 43, 96, 1, edge);
+  const cloud = (x, y, w) => `<g class="cl">${px(x, y, w, 3, '#fff')}${px(x + 3, y - 2, w - 7, 2, '#fff')}</g>`;
+  const D = {
+    calico: () => ['linear-gradient(#1B2A5B,#3F5BA0 70%,#5E7FC4)',                                   // 國文：月夜竹林＋書堆
+      dots(26, 7, 34, '#fff', 'tw') + disc(72, 11, 6, '#FFF3C4') + px(70, 9, 2, 2, '#EBDDA8') + px(74, 13, 2, 1, '#EBDDA8') +
+      [8, 16, 86].map(x => px(x, 4, 2, 39, '#3E8E5A') + [12, 22, 32].map(y => px(x, y, 2, 1, '#2C6B42')).join('') + px(x + 2, 14, 5, 1, '#5DBB7A') + px(x - 4, 24, 5, 1, '#5DBB7A')).join('') +
+      ground('#2A3B63', '#4A5F96') + px(70, 39, 14, 4, '#B03A2E') + px(71, 35, 12, 4, '#E6DFC8') + px(72, 31, 10, 4, '#2E86C1')],
+    british: () => ['linear-gradient(#78BDF2,#D7EEFF 75%)',                                           // 英文：倫敦街頭（大笨鐘＋紅巴士）
+      cloud(6, 10, 16) + cloud(52, 6, 18) + px(76, 14, 8, 29, '#C9A66B') + px(75, 11, 10, 3, '#A9854D') + px(77, 6, 6, 5, '#C9A66B') + px(79, 2, 2, 4, '#8A6D3B') +
+      px(77, 17, 6, 6, '#fff') + px(79, 18, 1, 3, '#222') + px(79, 20, 2, 1, '#222') + px(78, 28, 1, 6, '#8A6D3B') + px(81, 28, 1, 6, '#8A6D3B') +
+      ground('#5F6573', '#8A90A0') + [8, 22, 36, 50, 64, 78].map(x => px(x, 49, 6, 1, '#E5E5E5')).join('') +
+      px(4, 32, 24, 10, '#D32F2F') + px(4, 32, 24, 1, '#9E1F1F') + [6, 12, 18, 24].map(x => px(x, 34, 3, 3, '#BFE3FF')).join('') + px(4, 39, 24, 1, '#fff') + px(7, 41, 5, 4, '#222') + px(21, 41, 5, 4, '#222')],
+    fold: () => ['#F6FAE8',                                                                            // 數學：方格紙＋座標軸＋正弦波
+      Array.from({ length: 17 }, (_, i) => px(i * 6, 0, 1, 56, '#D5E6BA') + px(0, i * 6, 96, 1, '#D5E6BA')).join('') +
+      px(0, 43, 96, 1, '#222') + px(12, 0, 1, 56, '#222') + Array.from({ length: 96 }, (_, x) => px(x, 28 + Math.round(Math.sin(x / 7) * 8), 1, 2, '#E0307A')).join('') +
+      tri(82, 8, 9, '#FFB3D1') + px(72, 16, 20, 1, '#E0307A') + disc(20, 12, 4, '#FFD6A5')],
+    siamese: () => ['linear-gradient(#F3A15C,#FFD59A 55%,#FFE9C2)',                                  // 歷史：夕陽古城牆
+      disc(48, 30, 10, '#FFF0B8') + px(0, 33, 96, 10, '#8A6A48') + Array.from({ length: 16 }, (_, i) => px(i * 6, 30, 3, 3, '#8A6A48')).join('') + px(0, 37, 96, 1, '#6F5237') + px(0, 40, 96, 1, '#6F5237') +
+      px(6, 16, 14, 27, '#9A7650') + [6, 12, 17].map(x => px(x, 13, 3, 3, '#9A7650')).join('') + px(12, 22, 2, 5, '#2B1B0E') +
+      px(76, 12, 14, 31, '#9A7650') + [76, 82, 87].map(x => px(x, 9, 3, 3, '#9A7650')).join('') + px(82, 20, 2, 5, '#2B1B0E') + px(83, 2, 1, 8, '#5C4630') + px(84, 2, 6, 4, '#D32F2F') + ground('#5C4630', '#3E2F20')],
+    orange: () => ['linear-gradient(#6FCBFF,#CFF0FF 62%)',                                            // 地理：海岸＋椰子樹
+      disc(82, 10, 6, '#FFE066') + cloud(10, 9, 14) + tri(66, 24, 8, '#4C8F5A') + tri(77, 27, 5, '#3F7D4D') + px(0, 31, 96, 12, '#2E9BD6') + px(0, 31, 96, 1, '#1F7DB3') +
+      Array.from({ length: 12 }, (_, i) => px(i * 8 + (i % 2) * 4, 34 + (i % 3) * 3, 4, 1, '#9CE0FA')).join('') + ground('#F0D58C', '#D9B96A') + dots(10, 5, 12, '#E2C27A', '').replace(/y="(\d+)"/g, (m, y) => `y="${+y + 45}"`) +
+      px(10, 24, 2, 19, '#8A5A2B') + px(2, 20, 16, 2, '#2E8B3E') + px(4, 18, 12, 2, '#3FA34D') + px(3, 22, 3, 2, '#2E8B3E') + px(14, 22, 3, 2, '#2E8B3E') + px(10, 23, 2, 2, '#5C3B1E')],
+    black: () => ['linear-gradient(#3C2470,#8E6CD1 70%,#C9B2F2)',                                    // 公民：法院石柱
+      px(20, 5, 56, 3, '#fff') + px(14, 8, 68, 3, '#F4EEFC') + px(10, 11, 76, 3, '#E9E1F8') + px(8, 14, 80, 4, '#D9CEF2') +
+      Array.from({ length: 6 }, (_, i) => px(12 + i * 14, 18, 5, 25, '#EDE7F6') + px(12 + i * 14, 18, 1, 25, '#CDBFEA')).join('') +
+      ground('#6A4BB0', '#B9A4EA') + px(6, 41, 84, 2, '#B9A4EA') + dots(14, 11, 20, '#fff', 'tw')],
+    silver: () => ['linear-gradient(#BFEBB0,#EAF9DF 70%)',                                           // 生物：森林＋蘑菇
+      px(12, 22, 4, 21, '#7A5233') + disc(14, 18, 10, '#2F8F3B') + disc(9, 23, 6, '#3AA648') + disc(20, 23, 6, '#3AA648') +
+      px(80, 18, 4, 25, '#7A5233') + disc(82, 13, 11, '#2F8F3B') + disc(76, 19, 6, '#3AA648') + disc(88, 19, 6, '#3AA648') +
+      ground('#5DB347', '#7BCB5F') + Array.from({ length: 13 }, (_, i) => px(i * 7 + 2, 41, 1, 2, '#4A9B38')).join('') +
+      px(64, 39, 7, 2, '#E53935') + px(66, 41, 3, 2, '#F5F0E1') + px(65, 39, 1, 1, '#fff') + px(68, 39, 1, 1, '#fff') + px(30, 41, 5, 2, '#F4A300') + px(32, 43, 1, 1, '#F5F0E1')],
+    tux: () => ['linear-gradient(#FFF1DB,#FFE0B8)',                                                  // 化學：實驗室（燒瓶＋週期表）
+      Array.from({ length: 18 }, (_, i) => px(58 + (i % 6) * 5, 3 + Math.floor(i / 6) * 5, 4, 4, ['#F06A0F', '#4FA8FF', '#6CE04F', '#FFD400', '#C04FFF', '#FF4F8B'][(i * 5) % 6])).join('') +
+      px(0, 29, 96, 2, '#8D6E63') + [[12, '#6CE04F'], [26, '#C04FFF'], [74, '#FF8A00'], [88, '#4FA8FF']].map(([cx, c]) =>
+        tri(cx, 22, 7, '#DDEFF8') + px(cx - 1, 16, 3, 6, '#DDEFF8') + [4, 5, 6].map(i => px(cx - i, 22 + i, i * 2 + 1, 1, c)).join('') + px(cx, 12, 1, 1, '#fff', .9, 'tw') + px(cx + 2, 9, 1, 1, '#fff', .9, 'tw')).join('') +
+      ground('#6D4C41', '#A1887F') + px(0, 44, 96, 2, '#A1887F')],
+    russian: () => ['linear-gradient(#0B1E3F,#1B4D8F 75%)',                                          // 物理：電路板＋特斯拉線圈
+      px(0, 12, 30, 1, '#00B4D8') + px(30, 12, 1, 8, '#00B4D8') + px(30, 19, 14, 1, '#00B4D8') + px(28, 10, 4, 4, '#7AF0FF') + px(42, 17, 4, 4, '#7AF0FF') +
+      px(52, 6, 44, 1, '#00B4D8') + px(52, 6, 1, 10, '#00B4D8') + px(50, 14, 4, 4, '#7AF0FF') + px(0, 30, 18, 1, '#00B4D8') + px(18, 30, 1, 6, '#00B4D8') + px(16, 35, 4, 4, '#7AF0FF') +
+      px(80, 24, 4, 19, '#B0BEC5') + px(78, 22, 8, 3, '#CFD8DC') + disc(82, 18, 4, '#B3E5FC') + px(74, 14, 3, 1, '#7AF0FF', 0, 'tw') + px(72, 16, 3, 1, '#7AF0FF', 0, 'tw') + px(87, 15, 4, 1, '#7AF0FF', 0, 'tw') +
+      px(10, 2, 2, 6, '#FFF27A', 0, 'tw') + px(8, 8, 3, 2, '#FFF27A', 0, 'tw') + px(9, 10, 2, 5, '#FFF27A', 0, 'tw') +
+      ground('#0E2A55', '#00B4D8') + px(0, 48, 96, 1, '#1E5A9A') + px(0, 53, 96, 1, '#1E5A9A')],
+    persian: () => ['linear-gradient(#0F0A33,#2B1F7A 60%,#5B3FB0)',                                  // 地科：星空＋行星＋火山
+      dots(40, 3, 36, '#fff', 'tw') + disc(74, 14, 7, '#E9A15A') + px(63, 14, 22, 1, '#F7D8A8') + px(70, 11, 3, 2, '#C98240') +
+      tri(18, 28, 15, '#2E2370') + tri(40, 32, 11, '#2E2370') + tri(80, 30, 13, '#2E2370') + tri(60, 26, 17, '#3B2C8C') + px(59, 26, 3, 2, '#FF6A3D') + px(60, 23, 1, 3, '#FF9A5C', 0, 'tw') +
+      ground('#1B1450', '#3B2C8C')],
+    ghost: () => ['linear-gradient(#150B26,#3C2158 70%,#5B3A78)',                                    // 錯題：月夜墓園
+      disc(20, 12, 7, '#F3EEFF') + px(17, 10, 2, 2, '#D9CFF0') + px(22, 14, 2, 1, '#D9CFF0') +
+      px(84, 16, 3, 27, '#2A1A3A') + px(78, 20, 6, 2, '#2A1A3A') + px(87, 24, 6, 2, '#2A1A3A') + px(80, 28, 4, 2, '#2A1A3A') + px(86, 12, 4, 2, '#2A1A3A') +
+      px(8, 32, 11, 11, '#8D8AA6') + px(9, 30, 9, 2, '#8D8AA6') + px(11, 29, 5, 1, '#8D8AA6') + px(13, 34, 1, 5, '#5E5B78') + px(11, 36, 5, 1, '#5E5B78') +
+      px(64, 36, 9, 7, '#8D8AA6') + px(65, 34, 7, 2, '#8D8AA6') + disc(40, 17, 2, '#CBB6FF') + disc(56, 24, 1, '#CBB6FF') +
+      ground('#120A20', '#2A1A3A') + `<g class="cl">${px(0, 38, 96, 2, '#fff', .1)}${px(0, 41, 96, 2, '#fff', .14)}</g>`],
+    mix: () => ['linear-gradient(#8ADCFF,#E2F6FF 72%)',                                              // 其它：草地
+      disc(80, 9, 5, '#FFE066') + cloud(8, 9, 14) + cloud(46, 5, 16) + disc(20, 52, 16, '#8ED081') + disc(72, 54, 18, '#7BC96F') + ground('#6BBF59', '#4FA13F') +
+      [[10, 46], [24, 49], [44, 47], [60, 50], [82, 46], [90, 51], [34, 52]].map(([x, y], i) => px(x, y, 2, 2, ['#fff', '#FFD400', '#FF8FB3'][i % 3])).join('')]
+  };
+  function html(kind) {
+    const f = D[kind] || D.mix, r = f();
+    return `<div class="scene" aria-hidden="true" style="background:${r[0]}"><svg viewBox="0 0 96 56" preserveAspectRatio="xMidYMax slice">${r[1]}</svg></div>`;
+  }
+  return { html };
+})();
+
 /* ===== 點陣 BOSS（three.js r128 舞台＋點陣貓貼圖，從 CDN 載入；失敗就只用 2D 特效） ===== */
 const Boss3D = (() => {
   const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
@@ -1397,7 +1478,7 @@ const Boss3D = (() => {
   /* --- 組一隻貓：f＝{ pose, eyes, pupil, brows, hiss, tail, swirl } --- */
   function drawCat(S, f) {
     const out = buf(), L = fn => { const b = buf(); fn(b); return outline(b, S.ol); };
-    const ko = f.pose === 'ko', puff = f.pose === 'puff', dy = ko ? 15 : 0;
+    const ko = f.pose === 'ko', puff = f.pose === 'puff', dy = ko ? 15 : f.tired ? 2 : 0;
     const limbSh = dark(S.limb, .18);
     // 尾巴
     const tr = (S.tailR || 3.8) * (puff ? 1.3 : 1), wag = f.tail ? 1.5 : -1.5;
@@ -1469,6 +1550,7 @@ const Boss3D = (() => {
     if (f.eyes === 'x') E.forEach(([x, y]) => { for (let i = -3; i <= 3; i++) { put(b, x + i, y + i, ol); put(b, x + i, y - i, ol); put(b, x + i + 1, y + i, ol); put(b, x + i + 1, y - i, ol); } });
     else if (f.eyes === 'swirl') E.forEach(([x, y], k) => { for (let a = 0; a < 15; a += .25) { const r = a * .32, t = a * (k ? -1 : 1) + f.swirl; put(b, x + Math.cos(t) * r, y + Math.sin(t) * r, ol); } });
     else if (f.eyes === 'blink') E.forEach(([x, y]) => { for (let i = -4; i <= 4; i++) { const yy = y - Math.round(i * i / 7) + 1; put(b, x + i, yy, ol); put(b, x + i, yy + 1, ol); } });
+    else if (f.eyes === 'tired') E.forEach(([x, y]) => { eye(b, S, x, y, f); rect(b, x - 7, y - 8, 14, 8, S.lid || S.fur); rect(b, x - 7, y - 1, 14, 1, ol); });   // 上眼皮蓋下來
     else E.forEach(([x, y]) => eye(b, S, x, y, f));
     if (S.glasses) E.forEach(([x, y]) => { for (let a = 0; a < Math.PI * 2; a += .04) put(b, x + Math.cos(a) * 7.6, y + Math.sin(a) * 7.6, '#2B2B2B'); });   // 圓框眼鏡
     if (S.glasses) rect(b, 30, 26 + dy, 4, 1, '#2B2B2B');
@@ -1477,12 +1559,15 @@ const Boss3D = (() => {
     const n = Math.round(dy * SC);                  // 鼻子、嘴巴、牙齒直接用實際格子畫，比較乾淨
     [[23, 24], [24, 24], [25, 24], [24, 25]].forEach(([x, y]) => putN(b, x, y + n, '#FF9FB2'));
     if (f.hiss) { ell(b, 32, 37.5 + dy, 3, 2.6, ol); ell(b, 32, 37.8 + dy, 2.1, 1.7, '#B0263A'); putN(b, 23, 27 + n, '#FFFFFF'); putN(b, 25, 27 + n, '#FFFFFF'); }
+    else if (f.tired) { ell(b, 32, 38 + dy, 2.4, 2.2, ol); ell(b, 32, 38.5 + dy, 1.6, 1.4, '#FF7A90'); }      // 張嘴喘氣
     else {
       [[22, 26], [24, 26], [26, 26], [23, 27], [25, 27]].forEach(([x, y]) => putN(b, x, y + n, ol));                        // w 嘴
       if (f.pose === 'ko') [[23, 28], [24, 28], [24, 29]].forEach(([x, y]) => putN(b, x, y + n, '#FF7A90'));                 // 吐舌頭
       else if (S.claws) { putN(b, 25, 28, '#FFFFFF'); putN(b, 26, 28, ol); putN(b, 25, 29, ol); }                                                 // 只剩一顆白白的小牙
     }
     [[4, 31], [5, 34], [55, 31], [54, 34]].forEach(([x, y]) => rect(b, x, y + dy, 6, 1, S.whisker));
+    if (f.tired) [[44, 6 + f.sweat * 4], [3, 10 + ((f.sweat + 1) % 3) * 4]].forEach(([x, y]) => {         // 汗珠往下掉
+      putN(b, x, y, '#BDEBFF'); [-1, 0, 1].forEach(d => { putN(b, x + d, y + 1, '#7FD0FF'); putN(b, x + d, y + 2, '#4FB4F0'); }); putN(b, x, y + 3, '#4FB4F0'); });
   }
 
   const COLOR = {};
@@ -1510,7 +1595,8 @@ const Boss3D = (() => {
     const camera = new T.PerspectiveCamera(34, 2, .1, 100);
     camera.position.set(0, .7, 6.1); camera.lookAt(0, .3, 0);
     R = { el, scene, camera, spinners: [], tweens: [], parts: [], t: 0, last: 0, flash: 0, shake: 0, angry: 0, dead: false,
-      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, raf: 0, blinkT: 2, hurt: 0, mad: 0, big: 0, hiss: 0, dizzy: false,
+      off: { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 }, raf: 0, blinkT: 2, hurt: 0, mad: 0, big: 0, hiss: 0, dizzy: false, tired: 0, tiredMax: 1, kind,
+      cm: {}, sm: {}, sg: {},
       ex: { punch: 0, tailS: 1 }, poseName: 'stand', key: '' };
     R.spec = spec(kind, hexStr(hex));
     const cv = document.createElement('canvas'); cv.width = cv.height = W;
@@ -1544,6 +1630,7 @@ const Boss3D = (() => {
     cancelAnimationFrame(R.raf);
     R.scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.dispose) o.material.dispose(); });
     if (R.tex) R.tex.dispose();
+    [R.cm, R.sm, R.sg].forEach(o => Object.keys(o || {}).forEach(k => o[k].dispose && o[k].dispose()));
     if (renderer && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
     R = null;
   }
@@ -1567,17 +1654,19 @@ const Boss3D = (() => {
     const o = R.off, b = R.boss, idle = REDUCE ? 0 : 1;
     // 表情 → 有變才重畫點陣
     R.blinkT -= dt; if (R.blinkT <= 0) R.blinkT = 2.5 + Math.random() * 2.5;
-    R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt); R.big = Math.max(0, R.big - dt); R.hiss = Math.max(0, R.hiss - dt);
+    R.hurt = Math.max(0, R.hurt - dt); R.mad = Math.max(0, R.mad - dt); R.big = Math.max(0, R.big - dt); R.hiss = Math.max(0, R.hiss - dt); R.tired = Math.max(0, R.tired - dt);
+    const tired = R.tired > 0 && !R.dizzy && R.poseName !== 'ko';
     const hurt = R.hurt > 0 && !R.dizzy, mad = R.angry || R.mad > 0 || R.hiss > 0 || R.poseName === 'puff';
-    const f = { pose: R.poseName, eyes: R.dizzy ? 'swirl' : hurt ? 'x' : R.blinkT < .14 ? 'blink' : 'open',
-      pupil: R.big > 0 ? 'big' : mad ? 'slit' : '', brows: mad && !R.dizzy && !hurt, hiss: R.hiss > 0,
-      tail: idle ? Math.floor(R.t * (R.angry ? 6 : 2.2)) % 2 : 0, swirl: R.dizzy ? Math.floor(R.t * 10) % 8 * .785 : 0 };
+    const f = { pose: R.poseName, eyes: R.dizzy ? 'swirl' : hurt ? 'x' : tired ? 'tired' : R.blinkT < .14 ? 'blink' : 'open',
+      pupil: R.big > 0 ? 'big' : mad ? 'slit' : '', brows: mad && !R.dizzy && !hurt && !tired, hiss: R.hiss > 0, tired, sweat: tired ? Math.floor(R.t * 2.5) % 3 : 0,
+      tail: idle && !tired ? Math.floor(R.t * (R.angry ? 6 : 2.2)) % 2 : 0, swirl: R.dizzy ? Math.floor(R.t * 10) % 8 * .785 : 0 };
     const key = JSON.stringify(f);
     if (key !== R.key) { R.key = key; paint(f); }
     // 位置：上下飄、呼吸縮放
-    const jitter = R.angry && !REDUCE ? (Math.random() - .5) * .06 : 0, breath = Math.sin(R.t * 2.4) * .025 * idle;
-    b.position.set(o.x + jitter, o.y + Math.sin(R.t * 2) * .08 * idle, o.z + R.ex.punch * .7);
-    b.rotation.set(o.rx, o.ry, o.rz);
+    const tk = tired ? Math.max(0, Math.min(1, R.tired * 4, (R.tiredMax - R.tired) * 4)) : 0;      // 累癱程度：淡入淡出 0.25 秒
+    const jitter = R.angry && !tired && !REDUCE ? (Math.random() - .5) * .06 : 0, breath = Math.sin(R.t * 2.4) * .025 * idle * (1 - tk) + Math.sin(R.t * 7.5) * .05 * tk * idle;
+    b.position.set(o.x + jitter, o.y - .24 * tk + Math.sin(R.t * 2) * .08 * idle * (1 - tk), o.z + R.ex.punch * .7);
+    b.rotation.set(o.rx, o.ry, o.rz + Math.sin(R.t * 3) * .05 * tk);
     b.scale.set(o.s * (1 + breath) * R.ex.tailS, o.s * (1 - breath), o.s);
     R.shadow.scale.setScalar(Math.max(.2, 1 - Math.max(0, o.y) * .25));
     R.shadow.visible = b.visible;
@@ -1588,8 +1677,8 @@ const Boss3D = (() => {
       p.life -= dt; if (p.life <= 0) { R.scene.remove(p.m); return false; }
       if (p.spin) { p.a += dt * p.spin; p.m.position.set(Math.cos(p.a) * p.r, p.m.position.y + dt * p.rise, Math.sin(p.a) * p.r); }
       else { p.v.y -= (p.g == null ? 7 : p.g) * dt; p.m.position.addScaledVector(p.v, dt); }
-      p.m.rotation.x += dt * 8; p.m.rotation.y += dt * 6;
-      p.m.scale.setScalar(Math.max(.01, p.life / p.max) * p.size);
+      if (p.fixed) { p.m.rotation.z += dt * (p.rz || 0); p.m.scale.setScalar(Math.max(.01, Math.min(1, p.life / p.max * 2.5)) * p.size); }   // 平面圖示：只在平面上轉，快消失才縮小
+      else { p.m.rotation.x += dt * 8; p.m.rotation.y += dt * 6; p.m.scale.setScalar(Math.max(.01, p.life / p.max) * p.size); }
       return true;
     });
     R.shake = Math.max(0, R.shake - dt * 1.2);
@@ -1605,7 +1694,7 @@ const Boss3D = (() => {
   function reset() {
     if (!R) return false;
     R.tweens = R.tweens.filter(t => t.keep); Object.assign(R.off, { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1 });
-    R.ex.punch = 0; R.ex.tailS = 1; R.hshake = false;
+    R.ex.punch = 0; R.ex.tailS = 1; R.hshake = false; R.tired = 0;
     if (!R.dead) R.boss.visible = true;
     return true;
   }
@@ -1706,10 +1795,130 @@ const Boss3D = (() => {
     reset(); setPose('bellyup'); R.dizzy = true; R.angry = 0;
     later(1.1, shatter);
   }
-  const HIT_FX = [null, slash, () => { slash(); shock(); }, thunder, fire, tornado];
-  function tierHit(tier) {
-    const t = tier >= 6 ? 1 + Math.floor(Math.random() * 5) : tier;
-    if (HIT_FX[t]) HIT_FX[t]();
+/* --- 點陣小圖示（星星、愛心、火花、魚骨頭）：a＝主色（用材質染色）、b＝亮面，外圈自動描邊 --- */
+  const ICONS = {
+    heart: ['.aa.aa.', 'aabaaaa', 'aaaaaaa', '.aaaaa.', '..aaa..', '...a...'],
+    star: ['....a....', '...aaa...', '...aaa...', 'aaaabaaaa', '.aaaaaaa.', '..aaaaa..', '..aaaaa..', '.aaa.aaa.', '.aa...aa.'],
+    spark: ['...a...', '...a...', '..aaa..', 'aaabaaa', '..aaa..', '...a...', '...a...'],
+    bone: ['....a.a.a..a', '....a.a.a.aa', '.aa.a.a.a.aa', 'aabaaaaaaaaa', '.aa.a.a.a.aa', '....a.a.a.aa', '....a.a.a..a']
+  };
+  const iconCache = {};
+  function iconTex(name) {
+    if (iconCache[name]) return iconCache[name];
+    const m = ICONS[name], mw = m[0].length, mh = m.length, w = mw + 2, h = mh + 2;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const c = cv.getContext('2d'), img = c.createImageData(w, h), d = img.data;
+    const on = (x, y) => x >= 0 && y >= 0 && x < mw && y < mh && m[y][x] !== '.';
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const sx = x - 1, sy = y - 1; let v = null;
+      if (on(sx, sy)) v = m[sy][sx] === 'b' ? [205, 205, 205] : [255, 255, 255];
+      else if (on(sx + 1, sy) || on(sx - 1, sy) || on(sx, sy + 1) || on(sx, sy - 1)) v = [40, 24, 24];
+      if (v) { const i = (y * w + x) * 4; d[i] = v[0]; d[i + 1] = v[1]; d[i + 2] = v[2]; d[i + 3] = 255; }
+    }
+    c.putImageData(img, 0, 0);
+    const tex = new T.CanvasTexture(cv); tex.magFilter = tex.minFilter = T.NearestFilter; tex.generateMipmaps = false;
+    return (iconCache[name] = { tex, w, h });
+  }
+  const glyphCache = {};
+  function glyphTex(ch) {
+    if (glyphCache[ch]) return glyphCache[ch];
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+    const c = cv.getContext('2d');
+    c.font = '900 44px "PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.lineJoin = 'round'; c.lineWidth = 8; c.strokeStyle = '#281818'; c.strokeText(ch, 32, 34); c.fillStyle = '#fff'; c.fillText(ch, 32, 34);
+    return (glyphCache[ch] = new T.CanvasTexture(cv));
+  }
+  const cm = c => R.cm[c] || (R.cm[c] = basic(c));                        // 顏色材質（結束時一起丟掉）
+  const rr = (a, b) => a + Math.random() * (b - a);
+  const pickOf = a => a[Math.floor(Math.random() * a.length)];
+  function planeMesh(key, map, color, w, h) {
+    const mat = R.sm[key + color] || (R.sm[key + color] = new T.MeshBasicMaterial({ map, color, transparent: true, alphaTest: .1, side: T.DoubleSide, depthWrite: false }));
+    const geo = R.sg[key] || (R.sg[key] = new T.PlaneGeometry(w, h));
+    return new T.Mesh(geo, mat);
+  }
+  const spriteMesh = (name, color) => { const ic = iconTex(name); return planeMesh(name, ic.tex, color, .06 * ic.w, .06 * ic.h); };
+  const glyphMesh = (ch, color) => planeMesh('g' + ch, glyphTex(ch), color, .75, .75);
+  function emit(m, v, o) {                                               // 丟一個會飛、會縮小消失的零件
+    const life = (o.life || 1) * (.75 + Math.random() * .5);
+    R.scene.add(m); R.parts.push({ m, v, life, max: life, size: o.size || 1, g: o.g == null ? 3 : o.g, fixed: true, rz: (Math.random() - .5) * (o.rot == null ? 5 : o.rot) });
+  }
+  // o: { speed, up, g, life, size, spread, color(單色或陣列), pos }
+  function sprites(name, n, o) {
+    const at = o.pos || bossPos(), cols = [].concat(o.color || 0xffffff);
+    for (let i = 0; i < n; i++) {
+      const m = spriteMesh(name, cols[i % cols.length]);
+      m.position.set(at.x + (Math.random() - .5) * (o.spread || 0), at.y + (Math.random() - .5) * (o.spread || 0) * .6, at.z + .6);
+      const a = Math.random() * Math.PI * 2, sp = (o.speed || 3) * (.5 + Math.random() * .7);
+      emit(m, new T.Vector3(Math.cos(a) * sp, Math.sin(a) * sp * .8 + (o.up || 0), 0), o);
+    }
+  }
+  function glyphUp(chars, n, color, gap) {                               // 文字從地面往上衝
+    for (let i = 0; i < n; i++) later(i * (gap || .07), () => {
+      const m = glyphMesh(chars[i % chars.length], color), at = bossPos();
+      m.position.set(at.x + rr(-1.8, 1.8), -1.6, at.z + .8);
+      emit(m, new T.Vector3(rr(-.3, .3), rr(4.5, 6), 0), { life: 1.1, size: 1.2, g: 2 });
+    });
+  }
+  function orbit(make, n, o) {                                           // 繞著 BOSS 轉著往上飄
+    const at = bossPos();
+    for (let i = 0; i < n; i++) {
+      const m = make(i); m.position.set(0, at.y - 1.3 + (i % 6) * .22, 0); R.scene.add(m);
+      R.parts.push({ m, spin: o.spin || 8, a: i * (o.step || .6), r: .6 + (i % 4) * .28, rise: o.rise || 2.4, life: o.life || 1.1, max: o.life || 1.1, size: o.size || 1.3, fixed: !!o.fixed });
+    }
+  }
+
+  /* --- 普通攻擊的新特效 --- */
+  const fxStars = () => sprites('star', 9, { speed: 3.4, size: 1.3, color: [0xFFD400, 0xFFFFFF, 0xFF9F1C], g: 2, life: .9 });
+  const fxHearts = () => sprites('heart', 7, { speed: 1, up: 2.4, g: -.5, size: 1.3, color: [0xFF4F8B, 0xFF8FB8, 0xFF2E5A], life: 1.3, spread: 1.2 });
+  const fxBones = () => sprites('bone', 8, { speed: 2.4, up: 2.8, g: 6, size: 1.4, color: [0xFFFFFF, 0xE6E6E6], life: 1.1, spread: 1.0, rot: 8 });
+  const fxSpark = () => { sprites('spark', 10, { speed: 4.4, size: 1.1, color: [0xFFE14D, 0xFF9A00, 0xFFFFFF], g: 4, life: .6 }); shock(0xFFC933); };
+
+  /* --- 各科必殺技專屬特效（疊在階級特效上面） --- */
+  const KIND_FX = {
+    calico() { glyphUp(['文', '詩', '詞', '賦', '典', '墨'], 14, 0xFFE9A8); later(.5, () => shock(0xFFE9A8)); },                      // 文氣沖天
+    british() { const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; orbit(i => glyphMesh(L[Math.floor(Math.random() * 26)], [0xFFFFFF, 0x9CC8FF, 0xFFE14D][i % 3]), 20, { fixed: true }); },   // 單字風暴
+    fold() { const at = bossPos(); [0xFF4FD8, 0xFFFFFF].forEach((c, k) => { for (let i = 0; i < 22; i++) {                              // 正弦波動砲
+      const m = new T.Mesh(R.pgeo, cm(c)); m.position.set(-4.6 + i * .34, at.y + Math.sin(i * .75 + k * Math.PI) * .7, at.z + .4);
+      R.scene.add(m); R.parts.push({ m, v: new T.Vector3(5.5, 0, 0), life: 1.1, max: 1.1, size: 1.3, g: 0 }); } }); },
+    siamese() { [0, .18, .36].forEach(t => later(t, () => shock(0xFFD27A))); const at = bossPos();                                    // 千年時光砲：光環＋落沙
+      for (let i = 0; i < 34; i++) { const m = new T.Mesh(R.pgeo, cm(i % 3 ? 0xFFD27A : 0xFFF1C1)); m.position.set(at.x + rr(-1.6, 1.6), 3.6 + rr(0, 1.2), at.z + .2);
+        R.scene.add(m); R.parts.push({ m, v: new T.Vector3(0, rr(-2, -.5), 0), life: 1.2, max: 1.2, size: 1, g: 3 }); } },
+    orange() { [-2.2, -.8, .8, 2.2].forEach((x, i) => later(i * .12, () => {                                                         // 大地崩裂斬：地面炸出碎石
+      burst(10, 5.5, new T.Vector3(x, -1.3, .3), 1.5, [cm(0x8A5A2B), cm(0x5C3B1E), cm(0xD2A25B)]); R.shake = Math.max(R.shake, .2); }));
+      later(.1, slash); later(.4, () => shock(0x8A5A2B)); },
+    black() { const at = bossPos(), mat = basic(0xFFF6B0, { transparent: true, opacity: .8 });                                       // 正義審判：天降光柱
+      const g = new T.Mesh(new T.CylinderGeometry(.9, .9, 8, 16, 1, true), mat); g.position.set(at.x, at.y + 1, at.z + .2);
+      fade(g, .9, p => { const k = p < .25 ? p / .25 : 1 - (p - .25) / .75; g.scale.set(Math.max(.01, k), 1, Math.max(.01, k)); mat.opacity = .8 * k; });
+      R.flash = 1; later(.3, () => sprites('star', 10, { speed: 3, size: 1.2, color: [0xFFF6B0, 0xFFFFFF], g: 1, life: 1 })); glyphUp(['審', '正', '義'], 6, 0xFFF6B0, .1); },
+    silver() { const geo = R.sg.sph || (R.sg.sph = new T.SphereGeometry(.4, 12, 10));                                                // 細胞分裂爆：1→2→4→8
+      const mk = (x, y, gen) => { const m = new T.Mesh(geo, cm(gen % 2 ? 0x9CFF6B : 0x6CBF1F)); m.position.set(x, y, .5); fade(m, .5, p => m.scale.setScalar(1 + p * .4));
+        if (gen < 3) later(.32, () => { const d = .5 / (gen + 1) + .25; mk(x - d, y + rr(-.3, .3), gen + 1); mk(x + d, y + rr(-.3, .3), gen + 1); });
+        else later(.35, () => burst(3, 3, new T.Vector3(x, y, .5), 1, [cm(0x6CBF1F), cm(0xCFFFB0)])); };
+      mk(0, .3, 0); later(1.45, () => { R.flash = 1; R.shake = .3; shock(0x6CBF1F); }); },
+    tux() { const cols = [0xFF4F4F, 0x4FA8FF, 0xFFD400, 0x6CE04F, 0xC04FFF].map(cm);                                                   // 元素連鎖反應：七彩小爆炸接力
+      for (let i = 0; i < 6; i++) later(i * .13, () => { const at = bossPos(); burst(7, 3.5, new T.Vector3(at.x + rr(-1.6, 1.6), at.y + rr(-1, 1.2), at.z + .5), 1.2, cols); }); later(.85, fire); },
+    russian() { [0, .22, .44].forEach(t => later(t, () => { thunder(); shock(0x7AF0FF); sprites('spark', 6, { speed: 4, color: [0x7AF0FF, 0xFFFFFF], g: 2, life: .6, size: 1 }); })); },   // 超導電磁砲
+    persian() { later(0, () => meteors(8)); later(.5, () => sprites('star', 12, { speed: 3.5, size: 1.3, color: [0xFFF6B0, 0xB9A8FF, 0xFFFFFF], g: 1, life: 1.1 })); },   // 隕石天降
+    ghost() { orbit(i => new T.Mesh(R.pgeo, cm(i % 2 ? 0xE6D8FF : 0xB070FF)), 18, { spin: 6, step: .7, rise: 2.2, life: 1.2, size: 1.4 });   // 怨念淨化：紫光螺旋→愛心
+      later(.8, () => sprites('heart', 8, { speed: 1, up: 2.4, g: -.5, size: 1.3, color: [0xFFFFFF, 0xFFC0E0], life: 1.3, spread: 1.4 })); },
+    mix() { sprites('star', 14, { speed: 4, size: 1.3, color: [0xFFD400, 0xFFFFFF, 0xFF9F1C], g: 2, life: 1 }); shock(0xFFD400); later(.15, () => shock(0xFFFFFF)); }   // 知識爆裂拳
+  };
+  function tiredNow(sec) { if (!R) return; R.hurt = 0; R.tired = R.tiredMax = sec; }              // 打完大招累癱，過 sec 秒自己恢復
+
+  /* 普通攻擊：每個階級有一組招式，第一個是招牌（約 55%），其餘隨機換口味；二連擊再疊一個 */
+  const HIT_POOL = [
+    [fxStars, fxHearts],
+    [slash, fxSpark, fxStars],
+    [() => { slash(); shock(); }, fxBones, fxSpark],
+    [thunder, fxSpark, fxStars],
+    [fire, fxBones, fxSpark],
+    [tornado, fxHearts, thunder]
+  ];
+  const HIT_ALL = [].concat(...HIT_POOL);
+  function tierHit(tier, extra) {
+    const pool = tier >= 6 ? HIT_ALL : HIT_POOL[Math.min(tier, 5)];
+    (Math.random() < .55 ? pool[0] : pickOf(pool))();
+    if (extra) pickOf(HIT_ALL)();
   }
   function ultFx(tier) {                   // 回傳打飛 BOSS 的時間點（秒）
     const L = new T.Vector3(-4.2, -2.2, 2.5), Rt = new T.Vector3(4.2, -2.2, 2.5);
@@ -1745,7 +1954,7 @@ const Boss3D = (() => {
     },
     hit2(final, tier) {
       if (!reset()) return 0;
-      R.flash = 1; R.shake = .16; R.hurt = 1; burst(18, 5.5); tierHit(tier || 0);
+      R.flash = 1; R.shake = .16; R.hurt = 1; burst(18, 5.5); tierHit(tier || 0, true);
       tween(.85, p => {
         R.off.y = 2 * 4 * p * (1 - p); R.off.ry = Math.PI * 2 * easeOut(p);
         R.off.z = -.8 * Math.sin(Math.PI * p); R.off.rz = .5 * Math.sin(Math.PI * p);
@@ -1756,6 +1965,7 @@ const Boss3D = (() => {
       if (!reset()) return 0;
       R.hurt = 2.6 + (tier >= 6 ? 1.2 : 0);
       const flyAt = ultFx(tier || 0);
+      later(.3, () => { (KIND_FX[R.kind] || KIND_FX.mix)(); });
       tween(.2, p => { R.off.s = 1 + .15 * Math.sin(p * Math.PI * 6); }, null, .45);
       later(flyAt - .25, () => { R.shake = .25; });
       tween(.6, p => {
@@ -1765,7 +1975,7 @@ const Boss3D = (() => {
         if (!R) return;
         R.flash = 1; R.shake = .4; burst(30, 6.5, new T.Vector3(0, .3, 0), 1.4);
         Object.assign(R.off, { x: 0, y: 5, z: 0, rx: 0, ry: 0, rz: 0, s: 1 });
-        tween(.55, p => { R.off.y = 5 * Math.pow(1 - p, 2); }, () => { if (!R) return; R.shake = .12; burst(10, 3, new T.Vector3(0, -1.2, 0)); if (final) ko(); }, .7);
+        tween(.55, p => { R.off.y = 5 * Math.pow(1 - p, 2); }, () => { if (!R) return; R.shake = .12; burst(10, 3, new T.Vector3(0, -1.2, 0)); if (final) ko(); else tiredNow(2.2); }, .7);
       }, flyAt);
       return Math.round((flyAt + .6 + .7 + .55) * 1000) + (final ? 300 : 0);
     },
@@ -1839,7 +2049,7 @@ function startQuiz(refs, opt) {
   setTheme(opt.sub);
   const x = subOf(opt.sub), stage = document.createElement('div');
   stage.className = 'panel stage';
-  stage.innerHTML = `<div class="cv"></div><div class="load">BOSS 登場中…</div>
+  stage.innerHTML = `${Scene.html(x.kind)}<div class="cv"></div><div class="load">BOSS 登場中…</div>
     <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
     <div class="hud" id="hud"></div>`;
   if (window.ResizeObserver) new ResizeObserver(() => Boss3D.resize()).observe(stage);
@@ -1932,7 +2142,7 @@ function pick(k) {
     const w = move === 'hit2' ? ['DOUBLE!', '二連擊！'] : cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
     const tier = myTier(), ultName = S.ult + ULT_SUFFIX[tier];
     if (move === 'ult') {
-      say = `必殺技「${ultName}」命中！`;
+      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…');
       showCutin(ultName); SFX.ult(); vibrate([80, 40, 160]);
     } else {
       say = `${TIER_HIT[tier]}！${w[1]}`; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
