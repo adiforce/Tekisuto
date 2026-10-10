@@ -1959,6 +1959,39 @@ const Boss3D = (() => {
       later(.8, () => sprites('heart', 8, { speed: 1, up: 2.4, g: -.5, size: 1.3, color: [0xFFFFFF, 0xFFC0E0], life: 1.3, spread: 1.4 })); },
     mix() { sprites('star', 14, { speed: 4, size: 1.3, color: [0xFFD400, 0xFFFFFF, 0xFF9F1C], g: 2, life: 1 }); shock(0xFFD400); later(.15, () => shock(0xFFFFFF)); }   // 知識爆裂拳
   };
+  /* --- Lv30 以上的新階級特效 --- */
+  function dragonBreath(n) {                                             // 龍焰：從左下噴出一道火焰流
+    const from = new T.Vector3(-4.2, -1.6, 2.2);
+    for (let i = 0; i < n; i++) later(i * .03, () => {
+      const to = bossPos(), v = to.clone().sub(from).normalize().multiplyScalar(rr(7, 9));
+      v.x += rr(-.6, .6); v.y += rr(-.8, .8);
+      const m = new T.Mesh(R.pgeo, R.fmat[i % R.fmat.length]); m.position.copy(from); R.scene.add(m);
+      R.parts.push({ m, v, life: .6, max: .6, size: rr(1.4, 2.2), g: 0 });
+    });
+    later(n * .03 + .2, () => { fire(); R.shake = Math.max(R.shake, .25); });
+  }
+  function starfall(n) {                                                 // 流星：星星從右上斜斜砸下來
+    for (let i = 0; i < n; i++) later(i * .07, () => {
+      const at = bossPos(), m = spriteMesh('star', pickOf([0xFFF6B0, 0xB9A8FF, 0x7AF0FF, 0xFFFFFF]));
+      const sx = rr(-1.4, 1.4); m.position.set(at.x + sx + 3.2, at.y + 4.5, at.z + .6);
+      emit(m, new T.Vector3(-8, -11, 0).multiplyScalar(rr(.55, .7)), { life: .55, size: 1.6, g: 0, rot: 10 });
+      later(.42, () => { sprites('spark', 3, { speed: 3, size: .9, color: [0xFFF6B0, 0xFFFFFF], g: 2, life: .4, pos: new T.Vector3(at.x + sx * .3, at.y, at.z) }); R.flash = Math.max(R.flash, .5); });
+    });
+  }
+  function holyPillar(color) {                                           // 白金聖光：天降光柱＋上下光環
+    const at = bossPos(), c = color || 0xF4F4FF, mat = basic(c, { transparent: true, opacity: .85 });
+    const g = new T.Mesh(new T.CylinderGeometry(1.1, 1.1, 9, 18, 1, true), mat); g.position.set(at.x, at.y + 1, at.z + .2);
+    fade(g, 1, p => { const k = p < .2 ? p / .2 : 1 - (p - .2) / .8; g.scale.set(Math.max(.01, k), 1, Math.max(.01, k)); mat.opacity = .85 * k; });
+    [0, .15, .3].forEach(t => later(t, () => shock(t ? 0xFFE9A8 : c)));
+    R.flash = 1.2; later(.25, () => sprites('star', 10, { speed: 1.2, up: 3, g: -.4, size: 1.2, color: [0xFFFFFF, 0xFFE9A8, 0xD9E4FF], life: 1.2, spread: 1.6 }));
+  }
+  function rainbowNova() {                                               // 永恆喵神：七彩衝擊波＋星星愛心大爆發
+    [0xFF4F4F, 0xFF9F1C, 0xFFD400, 0x6CE04F, 0x4FA8FF, 0x7A5CFF, 0xFF4FD8].forEach((c, i) => later(i * .06, () => shock(c)));
+    later(.25, () => { sprites('star', 12, { speed: 4.2, size: 1.4, color: [0xFFD400, 0xFFFFFF, 0x7AF0FF, 0xFF8FB8], g: 1.5, life: 1.1 });
+      sprites('heart', 6, { speed: 1.4, up: 2.6, g: -.4, size: 1.3, color: [0xFF4F8B, 0xFFFFFF], life: 1.3, spread: 1.4 }); R.flash = 1.4; R.shake = Math.max(R.shake, .3); });
+  }
+  const TIER_SIG = { 7: () => dragonBreath(12), 8: () => starfall(4), 9: () => { holyPillar(); fxStars(); }, 10: rainbowNova };
+
   function tiredNow(sec) { if (!R) return; R.hurt = 0; R.tired = R.tiredMax = sec; }              // 打完大招累癱，過 sec 秒自己恢復
 
   /* 普通攻擊：每個階級有一組招式，第一個是招牌（約 55%），其餘隨機換口味；二連擊再疊一個 */
@@ -1972,6 +2005,12 @@ const Boss3D = (() => {
   ];
   const HIT_ALL = [].concat(...HIT_POOL);
   function tierHit(tier, extra) {
+    if (tier >= 7) {                         // Lv30 以上：招牌特效約 55%，其餘從所有招式（含較低的新階級）隨機
+      const more = []; for (let t = 7; t < tier; t++) more.push(TIER_SIG[t]);
+      (Math.random() < .55 ? TIER_SIG[Math.min(tier, 10)] : pickOf(HIT_ALL.concat(more)))();
+      if (extra) pickOf(HIT_ALL.concat(more))();
+      return;
+    }
     const pool = tier >= 6 ? HIT_ALL : HIT_POOL[Math.min(tier, 5)];
     (Math.random() < .55 ? pool[0] : pickOf(pool))();
     if (extra) pickOf(HIT_ALL)();
@@ -1985,6 +2024,28 @@ const Boss3D = (() => {
       case 3: later(.45, () => meteors(6)); return 1.25;
       case 4: later(.45, () => energyBall()); return 1.2;
       case 5: later(.6, () => { beam(L, 0xFF0000, 1.6, true); R.flash = 1.6; }); return .9;
+      case 7:                                // 龍息光束
+        later(.4, () => dragonBreath(26));
+        later(1.0, () => { beam(L, 0xFF5A00, 1.8); beam(Rt, 0xFF9F1C, 1.2); });
+        later(1.3, () => energyBall(0xFF5A00));
+        return 2.05;
+      case 8:                                // 星河流星雨
+        later(.4, () => starfall(14));
+        later(1.1, () => { beam(L, 0xB9A8FF, 1.4, true); beam(Rt, 0x7AF0FF, 1.4, true); });
+        later(1.35, () => energyBall(0xB9A8FF));
+        return 2.1;
+      case 9:                                // 白金聖光
+        later(.4, () => holyPillar());
+        later(1.0, () => { beam(L, 0xFFFFFF, 1.6); beam(Rt, 0xFFE9A8, 1.6); });
+        later(1.3, () => energyBall(0xF4F4FF));
+        return 2.05;
+      case 10:                               // 創世之光：前面全部來一輪
+        later(.35, () => dragonBreath(18));
+        later(.6, () => starfall(10));
+        later(.95, () => holyPillar(0xFFE9A8));
+        later(1.25, () => { rainbowNova(); beam(L, 0xFFD400, 1.8, true); beam(Rt, 0x7AF0FF, 1.8, true); });
+        later(1.55, () => energyBall(0xFFFFFF));
+        return 2.35;
       default:
         later(.45, () => meteors(5));
         later(1.0, () => { beam(L, 0xFFD400, 1.3, true); beam(Rt, 0x55E0FF, 1.3, true); });
