@@ -1224,13 +1224,13 @@ function syncView() {
   const name = localStorage.getItem(SYNC_NAME) || '', bak = localStorage.getItem(SYNC_BAK);
   let bakAt = ''; try { bakAt = bak ? new Date(JSON.parse(bak).at).toLocaleString('zh-TW', { hour12: false }) : ''; } catch (e) {}
   app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>雲端紀錄</h1></header>
-    <div class="sec-h"><h2>匯出進度</h2></div>
+    <div class="sec-h"><h2>同步進度</h2></div>
     <div class="panel box">
-      <p class="sub">存經驗值、金幣、錯題、評級和題庫清單（題庫本身不存）。同一個名字會蓋掉舊的。</p>
+      <p class="sub">存經驗值、金幣、錯題、評級和題庫清單（題庫本身不存）。同一個名字會自動合併，兩台都玩也不會互相蓋掉。同步過一次之後，每場戰鬥打完會自動同步。</p>
       <input class="sync-in" id="syncName" maxlength="20" placeholder="輸入名字" value="${esc(name)}">
-      <button class="btn go wide" data-act="syncSave">匯出</button>
+      <button class="btn go wide" data-act="syncSave">同步</button>
     </div>
-    <div class="sec-h"><h2>匯入進度</h2><button class="icon" data-act="syncList" aria-label="重新整理">↻</button></div>
+    <div class="sec-h"><h2>換新裝置：匯入進度</h2><button class="icon" data-act="syncList" aria-label="重新整理">↻</button></div>
     <div class="panel box" id="syncBox"><p class="sub">讀取中…</p></div>
     ${bak ? `<div class="sec-h"><h2>還原</h2></div>
     <div class="panel box"><p class="sub">匯入前的進度（${esc(bakAt)}）</p><button class="btn wide" data-act="syncRestore">還原成匯入前</button></div>` : ''}`;
@@ -1250,22 +1250,120 @@ function renderSyncList() {
       <div><b>${esc(x.name)}</b></div><div class="sub">${esc(x.at || '')}${x.info ? '　' + esc(x.info) : ''}</div>
     </div><button class="btn sm go" data-act="syncLoad" data-n="${i}">匯入</button></div>`).join('');
 }
+/* --- 合併：雲端 + 這台「上次同步之後」的增量。base＝上次同步時的進度；沒有 base（第一次）就數字取較大、錯題取聯集 --- */
+const SYNC_BASE = 'beishu.v1.base', RANKS = ['C', 'B', 'A', 'S'];
+const readBase = () => { try { return JSON.parse(localStorage.getItem(SYNC_BASE)); } catch (e) { return null; } };
+const writeBase = o => { try { localStorage.setItem(SYNC_BASE, JSON.stringify(o)); } catch (e) {} };
+function mergeProg(L, B, C) {
+  const out = { v: 1 };
+  const g = (o, k) => (o && o[k]) || {};
+  const ids = (...maps) => [...new Set([].concat(...maps.map(m => Object.keys(m))))];
+  // 數字：雲端 + 這台新增的量（經驗值、金幣這類只會增加的，倒退就當 0；刪去卡會用掉，可以是負的）
+  const add = (l, b, c, canDrop) => {
+    l = l || 0; c = c || 0;
+    if (!B) return Math.max(l, c);
+    const d = l - (b || 0);
+    return Math.max(0, c + (canDrop ? d : Math.max(0, d)));
+  };
+  ['exp', 'kills', 'coins'].forEach(k => { out[k] = add(L[k], B && B[k], C[k]); });
+  out.cards = add(L.cards, B && B.cards, C.cards, true);
+  out.qwin = {};
+  ids(g(L, 'qwin'), g(C, 'qwin')).forEach(k => { out.qwin[k] = add(g(L, 'qwin')[k], B && g(B, 'qwin')[k], g(C, 'qwin')[k]); });
+  out.stats = {};
+  ids(g(L, 'stats'), g(C, 'stats')).forEach(id => {
+    const l = g(L, 'stats')[id], c = g(C, 'stats')[id], b = B && g(B, 'stats')[id] || null;
+    if (!l || !c) { out.stats[id] = Object.assign({}, l || c); return; }
+    const newer = (l.at || 0) >= (c.at || 0) ? l : c;
+    out.stats[id] = Object.assign({}, c, newer, {
+      n: add(l.n, b && b.n, c.n), sum: add(l.sum, b && b.sum, c.sum), win: add(l.win, b && b.win, c.win), best: Math.max(l.best || 0, c.best || 0) });
+  });
+  // 評級取較高、最近成績取較新；這台刻意重置／清除過（base 有、現在沒有）就照這台的
+  out.best = {}; out.last = {};
+  ids(g(L, 'best'), g(C, 'best')).forEach(id => {
+    const l = g(L, 'best')[id], c = g(C, 'best')[id];
+    if (B && g(B, 'best')[id] && !l) return;
+    out.best[id] = RANKS.indexOf(l) >= RANKS.indexOf(c) ? l : c;
+  });
+  ids(g(L, 'last'), g(C, 'last')).forEach(id => {
+    const l = g(L, 'last')[id], c = g(C, 'last')[id];
+    if (B && g(B, 'last')[id] && !l) return;
+    out.last[id] = !c || (l && (l.at || 0) >= (c.at || 0)) ? l : c;
+  });
+  // 錯題：雲端的 + 這台新答錯的 − 這台新答對的
+  out.wrong = {};
+  ids(g(L, 'wrong'), g(C, 'wrong')).forEach(id => {
+    const l = new Set(g(L, 'wrong')[id] || []), c = new Set(g(C, 'wrong')[id] || []);
+    let r;
+    if (!B) r = new Set([...c, ...l]);
+    else {
+      const b = new Set(g(B, 'wrong')[id] || []);
+      r = new Set(c); l.forEach(x => { if (!b.has(x)) r.add(x); }); b.forEach(x => { if (!l.has(x)) r.delete(x); });
+    }
+    out.wrong[id] = [...r];
+  });
+  // 題庫清單：聯集；這台刪掉的（base 有、現在沒有）就不再加回來
+  const had = new Set(B ? (B.order || []) : []), mine = new Set(L.order || []);
+  const order = (C.order || []).filter(id => !(had.has(id) && !mine.has(id)));
+  (L.order || []).forEach(id => { if (!order.includes(id)) order.push(id); });
+  out.order = order;
+  const titles = {}; (C.banks || []).concat(L.banks || []).forEach(x => { titles[x.id] = x.title; });
+  out.banks = order.map(id => ({ id, title: titles[id] || id }));
+  return out;
+}
+const lostSeen = new Set();                      // GitHub 上找不到的題庫，同一次開啟只找一次
+let syncing = false, touched = false;
+document.addEventListener('pointerdown', () => { touched = true; }, { once: true });
+// 讀雲端 → 合併 → 套用到這台 → 寫回雲端。回傳 { changed }：雲端有這台沒看過的更新
+async function syncCore(name, noBase) {
+  const list = (await syncGet({ action: 'list' })).list || [];
+  const old = list.find(x => x.name === name);
+  let cloud = null;
+  if (old) {
+    const raw = (await syncGet({ action: 'load', name })).data;
+    try { cloud = JSON.parse(raw); } catch (e) { throw new Error('雲端紀錄格式錯誤'); }
+    const lost = await fetchMissing((cloud.banks || []).filter(x => !lostSeen.has(x.id)));
+    lost.forEach(x => lostSeen.add(x.id));
+  }
+  if (S) return { changed: false, skipped: true };                 // 等的時候開始戰鬥了，這次不動進度，打完再同步
+  const local = progOf(), base = noBase ? null : readBase();
+  const merged = cloud ? mergeProg(local, base, cloud) : local;
+  const changed = !!cloud && (!base || JSON.stringify(cloud) !== JSON.stringify(base));
+  if (cloud) { applyProg(merged); save(); writeBase(cloud); }       // base 先指到雲端；寫回失敗時，下次也不會重複加
+  if (!cloud || JSON.stringify(merged) !== JSON.stringify(cloud)) {
+    const L = levelOf(merged.exp);
+    const r = await fetch(SYNC_URL, { method: 'POST', body: JSON.stringify({ name, data: JSON.stringify(merged), info: `LV ${L.lv}・💰${merged.coins || 0}・題庫 ${merged.order.length}` }) });
+    const j = await r.json(); if (!j.ok) throw new Error(j.error || '同步失敗');
+  }
+  writeBase(merged);
+  return { changed };
+}
+// 每場戰鬥打完／開啟網頁時自動同步；沒設定過名字、沒網路都安靜略過
+async function autoSync(refresh) {
+  const name = localStorage.getItem(SYNC_NAME);
+  if (!name || syncing || S) return;
+  syncing = true;
+  try {
+    const r = await syncCore(name);
+    if (r.changed) { toast('已和另一台的進度合併'); if (refresh && !touched && !S) home(); }
+  } catch (e) {} finally { syncing = false; }
+}
 async function syncSave(btn) {
   const name = (document.getElementById('syncName').value || '').trim();
   if (!name) { toast('請先輸入名字'); return; }
+  if (syncing) { toast('正在同步，請稍後再按'); return; }
+  const linked = name === localStorage.getItem(SYNC_NAME);
+  syncing = true;
   try {
     btn.disabled = true; btn.textContent = '檢查中…';
     if (!syncList) syncList = (await syncGet({ action: 'list' })).list || [];
     const old = syncList.find(x => x.name === name);
-    if (old && !confirm(`「${name}」已經有紀錄（${old.at}），要用這台的進度蓋掉嗎？`)) return;
-    btn.textContent = '匯出中…';
-    const L = levelOf(db.exp);
-    const r = await fetch(SYNC_URL, { method: 'POST', body: JSON.stringify({ name, data: JSON.stringify(progOf()), info: `LV ${L.lv}・💰${db.coins || 0}・題庫 ${db.order.length}` }) });
-    const j = await r.json(); if (!j.ok) throw new Error(j.error || '匯出失敗');
+    if (old && !linked && !confirm(`「${name}」已經有紀錄（${old.at}）。\n要把這台的進度和它合併嗎？（第一次合併，數字會取兩邊較大的）`)) return;
+    btn.textContent = '同步中…';
+    await syncCore(name, !linked);
     localStorage.setItem(SYNC_NAME, name);
-    toast('已匯出：' + name); syncList = null; loadSyncList();
+    toast('已同步：' + name); syncList = null; loadSyncList();
   } catch (e) { toast(netMsg(e)); }
-  finally { btn.disabled = false; btn.textContent = '匯出'; }
+  finally { syncing = false; btn.disabled = false; btn.textContent = '同步'; }
 }
 async function syncLoad(n) {
   const x = syncList && syncList[n]; if (!x) return;
@@ -1275,7 +1373,7 @@ async function syncLoad(n) {
     const p = JSON.parse((await syncGet({ action: 'load', name: x.name })).data);
     localStorage.setItem(SYNC_BAK, JSON.stringify(Object.assign(progOf(), { at: Date.now() })));
     const lost = await fetchMissing(p.banks || []);
-    applyProg(p); save();
+    applyProg(p); save(); writeBase(p);
     localStorage.setItem(SYNC_NAME, x.name);
     if (lost.length) alert('這些題庫在 GitHub 上找不到，進度先留著，之後匯入同 id 的題庫就會接上：\n' + lost.map(b => '・' + b.title).join('\n'));
     home(); toast('已匯入：' + x.name);
@@ -1283,7 +1381,7 @@ async function syncLoad(n) {
 }
 function syncRestore() {
   if (!confirm('還原成匯入前的進度？')) return;
-  try { applyProg(JSON.parse(localStorage.getItem(SYNC_BAK))); save(); localStorage.removeItem(SYNC_BAK); home(); toast('已還原'); }
+  try { applyProg(JSON.parse(localStorage.getItem(SYNC_BAK))); save(); localStorage.removeItem(SYNC_BAK); localStorage.removeItem(SYNC_BASE); home(); toast('已還原'); }
   catch (e) { toast('備份讀取失敗'); }
 }
 
@@ -2367,6 +2465,7 @@ function result() {
   window.scrollTo(0, 0);
   if (!win) setTimeout(SFX.lose, 200);
   if (up) setTimeout(() => showLevelUp(up), 1100);
+  setTimeout(autoSync, up ? 2500 : 500);
 }
 function showLevelUp(before) {
   const L = levelOf(db.exp), box = document.getElementById('lvup'), t = tierOf(L.lv);
@@ -2543,6 +2642,7 @@ window.addEventListener('scroll', () => {
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
 home();
+autoSync(true);
 const bankUrl = new URLSearchParams(location.search).get('bank');
 if (bankUrl) {
   fetch(bankUrl, { cache: 'no-cache' })
