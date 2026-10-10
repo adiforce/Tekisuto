@@ -279,6 +279,7 @@
     },
     {
       "q": "在 x−t 圖中，某一點的「切線斜率」代表什麼？",
+      "image": "banks/img/phy2-exam1-graph-tangent.jpg",
       "options": [
         "平均速度",
         "瞬時加速度",
@@ -298,6 +299,7 @@
     },
     {
       "q": "v−t 圖中，速度曲線與時間軸所圍的面積代表什麼？",
+      "image": "banks/img/phy2-exam1-graph-vtarea.jpg",
       "options": [
         "速度變化量",
         "加速度",
@@ -317,6 +319,7 @@
     },
     {
       "q": "a−t 圖中，加速度曲線與時間軸所圍的面積代表什麼？",
+      "image": "banks/img/phy2-exam1-graph-atarea.jpg",
       "options": [
         "速度變化量",
         "位移",
