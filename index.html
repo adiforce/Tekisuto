@@ -879,55 +879,146 @@ const MIDI_VOICE = [
   { w: 'square', a: .03, dec: 0, vol: .08 }, { w: 'sine', a: .04, dec: 0, vol: .2 }, { w: 'square', a: .01, dec: 0, vol: .09 }, { w: 'triangle', a: .1, dec: 0, vol: .15 },
   { w: 'sine', a: .05, dec: 0, vol: .15 }, { w: 'triangle', a: .005, dec: .8, vol: .2 }, { w: 'sine', a: .003, dec: .5, vol: .22 }, { w: 'sine', a: .01, dec: .4, vol: .15 }];
 const MIDI_MAX = 12, MIDI_VOICES = 24;                       // 最多播 12 秒、同時最多 24 個音（手機才不會卡）
-// 排程播放。ctx／dest／t0 可以換成離線的，方便測試
-function playMidi(m, ctx, dest, t0) {
-  const comp = ctx.createDynamicsCompressor(), master = ctx.createGain(), maxT = Math.min(m.dur, MIDI_MAX);
-  comp.connect(dest); master.connect(comp);
-  master.gain.setValueAtTime(.9, t0); master.gain.setValueAtTime(.9, t0 + Math.max(0, maxT - 1)); master.gain.linearRampToValueAtTime(0, t0 + maxT);
+// 發音的記帳（同時發音上限）＋共用的雜訊素材
+function midiState(ctx) {
   const nb = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .4), ctx.sampleRate), nd = nb.getChannelData(0);
   for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-  const noise = (t, type, f, dur, vol) => {
+  return { ends: [], nb };
+}
+// 排一個音。t＝這個音開始的時間（ctx 時間，秒）
+function midiNote(n, t, ctx, master, st) {
+  st.ends = st.ends.filter(e => e > t); if (st.ends.length >= MIDI_VOICES) return; st.ends.push(t + Math.min(n.d, 2));
+  const vel = n.v / 127;
+  const noise = (type, f, dur, vol) => {
     const src = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
-    src.buffer = nb; fl.type = type; fl.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    src.buffer = st.nb; fl.type = type; fl.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
     src.connect(fl); fl.connect(g); g.connect(master); src.start(t); src.stop(t + dur + .02);
   };
-  let ends = [];
-  m.notes.forEach(n => {
-    if (n.t >= maxT) return;
-    ends = ends.filter(e => e > n.t); if (ends.length >= MIDI_VOICES) return; ends.push(n.t + Math.min(n.d, 2));
-    const t = t0 + n.t, vel = n.v / 127;
-    if (n.ch === 9) {                                          // 打擊樂：大鼓／小鼓／鈸與其他
-      if (n.n <= 36) {
-        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
-        g.gain.setValueAtTime(.5 * vel, t); g.gain.exponentialRampToValueAtTime(.0001, t + .16); o.connect(g); g.connect(master); o.start(t); o.stop(t + .18);
-      } else if (n.n <= 41) noise(t, 'bandpass', 1800, .13, .25 * vel);
-      else noise(t, 'highpass', 6000, [49, 51, 52, 53, 55, 57, 59].includes(n.n) ? .3 : .05, .12 * vel);
-      return;
+  if (n.ch === 9) {                                          // 打擊樂：大鼓／小鼓／鈸與其他
+    if (n.n <= 36) {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
+      g.gain.setValueAtTime(.5 * vel, t); g.gain.exponentialRampToValueAtTime(.0001, t + .16); o.connect(g); g.connect(master); o.start(t); o.stop(t + .18);
+    } else if (n.n <= 41) noise('bandpass', 1800, .13, .25 * vel);
+    else noise('highpass', 6000, [49, 51, 52, 53, 55, 57, 59].includes(n.n) ? .3 : .05, .12 * vel);
+    return;
+  }
+  const V = MIDI_VOICE[n.g] || MIDI_VOICE[0], o = ctx.createOscillator(), g = ctx.createGain(), vol = V.vol * vel;
+  o.type = V.w; o.frequency.value = 440 * Math.pow(2, (n.n - 69) / 12);
+  g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + V.a);
+  let stop;
+  if (V.dec) { stop = t + Math.min(Math.max(n.d, .15) + .1, V.dec) + .02; g.gain.exponentialRampToValueAtTime(.0001, stop); }
+  else { const hold = t + Math.max(V.a + .01, n.d); g.gain.setValueAtTime(vol, hold); g.gain.linearRampToValueAtTime(.0001, hold + .08); stop = hold + .1; }
+  o.connect(g); g.connect(master); o.start(t); o.stop(stop + .02);
+}
+// 播一次。ctx／dest／t0 可以換成離線的，方便測試；max＝最長秒數（預設 12）
+function playMidi(m, ctx, dest, t0, max) {
+  const comp = ctx.createDynamicsCompressor(), master = ctx.createGain(), maxT = Math.min(m.dur, max || MIDI_MAX), st = midiState(ctx);
+  comp.connect(dest); master.connect(comp);
+  master.gain.setValueAtTime(.9, t0); master.gain.setValueAtTime(.9, t0 + Math.max(0, maxT - 1)); master.gain.linearRampToValueAtTime(0, t0 + maxT);
+  m.notes.forEach(n => { if (n.t < maxT) midiNote(n, t0 + n.t, ctx, master, st); });
+}
+// 循環播：一次只往前排 5 秒的音，不會一口氣建出幾千個發音節點。回傳 { stop }
+function loopMidi(m, ctx, dest, maxLen) {
+  const notes = m.notes.filter(n => n.t < maxLen);
+  if (!notes.length) return { stop() {} };
+  const L = Math.min(m.dur, maxLen) + .4, comp = ctx.createDynamicsCompressor(), master = ctx.createGain(), st = midiState(ctx);
+  comp.connect(dest); master.connect(comp); master.gain.value = .9;
+  let t0 = ctx.currentTime + .1, idx = 0, stopped = false, timer = 0;
+  const pump = () => {
+    if (stopped) return;
+    const horizon = ctx.currentTime + 5;
+    for (let guard = 0; guard < 4000; guard++) {
+      if (idx >= notes.length) { idx = 0; t0 += L; }
+      const n = notes[idx];
+      if (t0 + n.t > horizon) break;
+      midiNote(n, t0 + n.t, ctx, master, st); idx++;
     }
-    const V = MIDI_VOICE[n.g] || MIDI_VOICE[0], o = ctx.createOscillator(), g = ctx.createGain(), vol = V.vol * vel;
-    o.type = V.w; o.frequency.value = 440 * Math.pow(2, (n.n - 69) / 12);
-    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + V.a);
-    let stop;
-    if (V.dec) { stop = t + Math.min(Math.max(n.d, .15) + .1, V.dec) + .02; g.gain.exponentialRampToValueAtTime(.0001, stop); }
-    else { const hold = t + Math.max(V.a + .01, n.d); g.gain.setValueAtTime(vol, hold); g.gain.linearRampToValueAtTime(.0001, hold + .08); stop = hold + .1; }
-    o.connect(g); g.connect(master); o.start(t); o.stop(stop + .02);
-  });
+    timer = setTimeout(pump, 1000);
+  };
+  pump();
+  return { stop() { stopped = true; clearTimeout(timer); } };
 }
-let lvMidi = null, lvTried = false;
-function loadLvup() {
-  if (lvTried) return; lvTried = true;
-  fetch('audio/levelup.mid').then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(b => { lvMidi = parseMidi(b); }).catch(() => {});
-}
-document.addEventListener('pointerdown', loadLvup, { once: true });
+
+/* ===== 自訂音樂／音效：把檔案放進 audio/，mp3 或 mid 都可以（兩個都有就用 mp3）；沒放的位置就用原本的合成音或安靜 ===== */
+const MUSIC_SLOTS = {                                        // vol 音量、max 最長秒數
+  base: { loop: true, vol: .45, max: 90 },                   // 基地音樂：循環播
+  enter: { vol: .9, max: 8 },                                // 進入關卡
+  exit: { vol: .9, max: 8 },                                 // 退出關卡
+  levelup: { vol: .9, max: 12 },                             // 升級
+  lose: { vol: .9, max: 12 },                                // 敗北
+  win: { vol: .9, max: 12 }                                  // 勝利（擊倒 BOSS）
+};
+const Music = (() => {
+  const slots = {}, live = new Set();
+  let loaded = false, want = false, baseH = null, holdUntil = 0, baseTimer = 0;
+  const ctxOk = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); return actx; };
+  async function loadOne(name) {
+    try { const r = await fetch(`audio/${name}.mp3`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
+    try { const r = await fetch(`audio/${name}.mid`); if (r.ok) { const m = parseMidi(await r.arrayBuffer()); if (m) slots[name] = { midi: m }; } } catch (e) {}
+  }
+  // 第一次點畫面時才載入（手機規定要先互動才能發聲）
+  function load() {
+    if (loaded) return; loaded = true;
+    try { ctxOk(); } catch (e) { return; }
+    Object.keys(MUSIC_SLOTS).forEach(name => loadOne(name).then(() => { if (name === 'base' && want) base(true); }));
+  }
+  const secs = name => { const sl = slots[name]; return sl ? Math.min(sl.buf ? sl.buf.duration : sl.midi.dur, MUSIC_SLOTS[name].max) : 0; };
+  function play(name) {
+    const sl = slots[name], cfg = MUSIC_SLOTS[name];
+    if (!sl || !db.sound) return null;
+    try {
+      const ctx = ctxOk(), out = ctx.createGain(), t0 = ctx.currentTime + .05; let halt = () => {};
+      out.gain.value = cfg.vol; out.connect(ctx.destination);
+      if (sl.buf) {
+        const src = ctx.createBufferSource(); src.buffer = sl.buf; src.connect(out);
+        if (cfg.loop) { src.loop = true; src.start(t0); }
+        else {
+          const end = Math.min(sl.buf.duration, cfg.max);
+          if (end < sl.buf.duration) { out.gain.setValueAtTime(cfg.vol, t0 + Math.max(0, end - 1)); out.gain.linearRampToValueAtTime(0, t0 + end); }
+          src.start(t0, 0, end);
+        }
+        halt = () => { try { src.stop(ctx.currentTime + .35); } catch (e) {} };
+      } else if (cfg.loop) halt = loopMidi(sl.midi, ctx, out, cfg.max).stop;
+      else playMidi(sl.midi, ctx, out, t0, cfg.max);
+      const h = {
+        stop() {
+          if (!live.delete(h)) return;
+          try { out.gain.cancelScheduledValues(ctx.currentTime); out.gain.setValueAtTime(out.gain.value, ctx.currentTime); out.gain.linearRampToValueAtTime(0, ctx.currentTime + .3); } catch (e) {}
+          halt(); setTimeout(() => { try { out.disconnect(); } catch (e) {} }, 500);
+        }
+      };
+      live.add(h); return h;
+    } catch (e) { return null; }
+  }
+  // 播一次性的音效／音樂。有檔案回傳 true（呼叫端就不用再播合成音）；基地音樂會等它播完才接回來
+  function shot(name) {
+    const h = play(name); if (!h) return false;
+    const ms = secs(name) * 1000 + 300;
+    holdUntil = Math.max(holdUntil, Date.now() + ms);
+    setTimeout(() => h.stop(), ms + 400);
+    return true;
+  }
+  // 基地音樂：on＝在基地，開始（或維持）播；off＝進戰鬥，停掉
+  function base(on) {
+    want = on; clearTimeout(baseTimer);
+    if (!on || !db.sound) { if (baseH) { baseH.stop(); baseH = null; } return; }
+    if (baseH || !slots.base) return;
+    const wait = holdUntil - Date.now();
+    if (wait > 50) { baseTimer = setTimeout(() => base(want), wait); return; }
+    baseH = play('base');
+  }
+  function stopAll() { want = false; clearTimeout(baseTimer); baseH = null; [...live].forEach(h => h.stop()); }
+  return { load, base, shot, stopAll, has: n => !!slots[n], slots };
+})();
+document.addEventListener('pointerdown', () => Music.load(), { once: true });
+// 切到別的分頁、鎖屏就暫停，回來再接著播
+document.addEventListener('visibilitychange', () => {
+  if (!actx) return;
+  if (document.hidden) actx.suspend().catch(() => {}); else if (db.sound) actx.resume().catch(() => {});
+});
 // 升級號角（原創）：G4 C5 E5 G5 上爬 → F5、A5 → C6 大和弦
 function lvupSfx(custom) {
-  if (custom && lvMidi && db.sound) {                       // 真的升級才放自訂音樂（復活等場合仍用合成號角）
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      if (actx.state === 'suspended') actx.resume();
-      playMidi(lvMidi, actx, actx.destination, actx.currentTime + .05); return;
-    } catch (e) {}
-  }
+  if (custom && Music.shot('levelup')) return;               // 真的升級才放自訂音樂（復活等場合仍用合成號角）
   [392, 523, 659, 784].forEach((f, i) => tone(f, .1, 'square', i * .07, .07));
   tone(698, .1, 'square', .36, .08); tone(880, .12, 'square', .48, .08);
   [1047, 784, 659].forEach((f, i) => tone(f, .95, 'square', .66, i ? .04 : .08));
@@ -936,8 +1027,8 @@ function lvupSfx(custom) {
 const SFX = {
   hit: combo => hitSfx(combo, myTier()),
   hurt: () => { tone(180, .25, 'sawtooth', 0, .1); tone(110, .3, 'sawtooth', .1, .1); },
-  win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'square', i * .11)),
-  lose: () => [392, 330, 262].forEach((f, i) => tone(f, .3, 'triangle', i * .2, .12)),
+  win: () => { if (!Music.shot('win')) [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'square', i * .11)); },
+  lose: () => { if (!Music.shot('lose')) [392, 330, 262].forEach((f, i) => tone(f, .3, 'triangle', i * .2, .12)); },
   ult: () => ultSfx(myTier()),
   lvup: lvupSfx
 };
@@ -1079,7 +1170,7 @@ const optList = (q, order) => `<ul class="copts">${order.map((oi, k) =>
 
 /* ===== 基地（首頁） ===== */
 function home() {
-  Boss3D.stop(); S = null; C = null; window.scrollTo(0, 0); setTheme('');
+  Boss3D.stop(); S = null; C = null; window.scrollTo(0, 0); setTheme(''); Music.base(true);
   const list = db.order.filter(id => db.banks[id]);
   const L = levelOf(db.exp);
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
@@ -2380,6 +2471,7 @@ function startQuiz(refs, opt) {
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
   SET.all = toRefs(S.items);
+  Music.base(false); Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
   setTheme(opt.sub);
   const x = subOf(opt.sub), stage = document.createElement('div');
   stage.className = 'panel stage';
@@ -2776,7 +2868,7 @@ const ACT = {
   home, importView, doImport,
   copyPrompt: () => copyText(PROMPT),
   loadSample: () => { addBank(normalize(SAMPLE)); home(); toast('已加入示範題庫'); },
-  toggleSound: () => { db.sound = !db.sound; save(); home(); if (db.sound) SFX.hit(1); },
+  toggleSound: () => { db.sound = !db.sound; save(); if (!db.sound) Music.stopAll(); home(); if (db.sound) SFX.hit(1); },
   quiz: d => d.mode === 'wrong'
     ? startQuiz(refsOf(d.id, 'wrong'), quizOpt(d.id, '・錯題'))
     : startQuiz(refsOf(d.id), { ...quizOpt(d.id), recordBid: d.id }),
@@ -2787,7 +2879,7 @@ const ACT = {
   allCards: () => cards(allWrongRefs()),
   pick: d => pick(+d.k),
   next,
-  quitQuiz: () => { if (!S || S.i === 0 || confirm('要撤退嗎？已作答的錯題會保留。')) { S = null; home(); } },
+  quitQuiz: () => { if (!S || S.i === 0 || confirm('要撤退嗎？已作答的錯題會保留。')) { if (S) Music.shot('exit'); S = null; home(); } },
   reviewLast: () => review(SET.last.refs, SET.last.title),
   cardsLast: () => cards(SET.last.refs),
   quizLast: () => startQuiz(SET.last.refs, { title: SET.last.title.replace(/・錯題$/, '') + '・錯題', boss: SET.last.boss, sub: SET.last.sub }),

@@ -13,7 +13,7 @@ index.html                 播放器本體（約 2200 行）
 banks/*.json               題庫，一個單元一個檔，檔名＝id
 banks/img/*.jpg            附圖題的圖片，檔名 {題庫id}-{英文短名}.jpg
 banks/index.json           題庫清單，由 GitHub Actions 自動產生，不要手動建或提交
-audio/levelup.mid          自訂升級音樂（選用，使用者自己放 MIDI；用內建電子音色合成播放，沒有這個檔就用合成號角）
+audio/{base,enter,exit,levelup,lose,win}.mp3 或 .mid   自訂音樂／音效（選用，使用者自己放；兩種都有用 mp3；沒放就用原本的合成音或安靜。base 在基地循環播，enter 開戰、exit 撤退、lose 敗北、win 擊倒 BOSS、levelup 升級；midi 用內建電子音色合成播放）
 .github/workflows/pages.yml  產生 banks/index.json 後部署 Pages
 backup/                    舊的日文假名題庫備份，不會被讀取
 jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
@@ -70,6 +70,7 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 | 個人資料 | `profile()`：各題庫挑戰 BOSS 的次數、平均、最高、最近 |
 | 雲端紀錄 | 進度匯出／匯入到 Google 試算表 |
 | 點陣 BOSS | `Boss3D` 模組（名字沿用舊版，現在是點陣）：three.js 舞台＋一張點陣貓貼圖，`spec(kind)` 定義每種貓的毛色和配件，姿勢有 stand／puff（生氣）／ko，另有 `tired`（打完大招累癱約 2 秒，是疊加狀態不是姿勢）；特效有 `HIT_POOL`（普通攻擊依階級抽招）、`KIND_FX`（各科必殺技專屬特效），小圖示在 `ICONS` |
+| 自訂音樂 | `MUSIC_SLOTS`＋`Music` 模組：每個位置先找 .mp3 再找 .mid（`parseMidi`／`playMidi`／`loopMidi`）。`Music.shot(名)` 一次性播放，有檔案回傳 true；`Music.base(true/false)` 控制基地循環音樂；第一次點畫面才載入。新增位置：加進 `MUSIC_SLOTS` 並在對應事件呼叫 |
 | 草稿紙 | `Pad` 模組：全螢幕空白畫布（canvas＋指標事件），作答時在上方顯示題目、附圖、選項。入口是戰鬥頂列的 ✏️ 與首頁的「空白畫布」按鈕。筆畫只存在記憶體，換題或換場戰鬥就清空；用過 Apple Pencil 後手指觸碰不畫（防手掌誤觸） |
 | 魔王背景 | `Scene` 模組：依科目 kind 用 SVG 方塊拼 96×56 的點陣場景，貼在 three.js 舞台後面，新增科目時要在 `D` 裡補一個 kind |
 | 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result`；一場最多 `MAX_Q`（30）題，超過就隨機抽，重新挑戰時從整份重抽 |
