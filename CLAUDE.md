@@ -13,6 +13,7 @@ index.html                 播放器本體（約 2200 行）
 banks/*.json               題庫，一個單元一個檔，檔名＝id
 banks/img/*.jpg            附圖題的圖片，檔名 {題庫id}-{英文短名}.jpg
 banks/index.json           題庫清單，由 GitHub Actions 自動產生，不要手動建或提交
+audio/levelup.mid          自訂升級音樂（選用，使用者自己放 MIDI；用內建電子音色合成播放，沒有這個檔就用合成號角）
 .github/workflows/pages.yml  產生 banks/index.json 後部署 Pages
 backup/                    舊的日文假名題庫備份，不會被讀取
 jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀

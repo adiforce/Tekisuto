@@ -808,8 +808,104 @@ function ultSfx(tier) {
   if (tier >= 9) [1047, 1319, 1568].forEach((f, i) => { tone(f, 1.6, 'sine', 1.9 + i * .15, .06); tone(f * 2.76, 1, 'sine', 1.9 + i * .15, .02); }); // 鐘聲
   if (tier >= 10) { [131, 262, 330, 392, 523, 659, 784].forEach(f => tone(f, 2, 'square', 2.4, .028)); tone(65, 2, 'triangle', 2.4, .18); } // 全場合奏
 }
+/* --- 自訂升級音樂：把 MIDI 檔放在 audio/levelup.mid，就用現有的電子音色合成播放；沒有這個檔案就用下面的合成號角 --- */
+// 解析標準 MIDI（格式 0／1）。回傳 { notes: [{ t, d, n, v, ch, g }], dur }（秒）；不支援或壞掉的檔案回傳 null
+function parseMidi(buf) {
+  try {
+    const u = new Uint8Array(buf), d = new DataView(buf); let p = 0;
+    const str = n => { let r = ''; for (let i = 0; i < n; i++) r += String.fromCharCode(u[p + i]); p += n; return r; };
+    if (str(4) !== 'MThd') return null;
+    const hl = d.getUint32(p); const ntr = d.getUint16(p + 6), div = d.getUint16(p + 8); p += 4 + hl;
+    if (!div || div & 0x8000) return null;                               // SMPTE 時間碼不支援
+    const tempos = [{ tick: 0, us: 500000 }], raw = [];
+    for (let k = 0; k < ntr && p + 8 <= u.length; k++) {
+      if (str(4) !== 'MTrk') break;
+      const len = d.getUint32(p); p += 4; const end = Math.min(p + len, u.length);
+      const vlq = () => { let v = 0, b; do { b = u[p++]; v = v * 128 + (b & 127); } while (b & 128 && p < end); return v; };
+      let tick = 0, run = 0; const prog = new Array(16).fill(0), open = {};
+      while (p < end) {
+        tick += vlq(); let st = u[p];
+        if (st < 0x80) st = run; else { p++; if (st < 0xF0) run = st; }
+        if (!st) break;
+        if (st === 0xFF) { const type = u[p++], l = vlq(); if (type === 0x51 && l === 3) tempos.push({ tick, us: u[p] * 65536 + u[p + 1] * 256 + u[p + 2] }); p += l; }
+        else if (st === 0xF0 || st === 0xF7) p += vlq();
+        else {
+          const ch = st & 15, ty = st >> 4;
+          if (ty === 0xC) prog[ch] = u[p++];
+          else if (ty === 0xD) p++;
+          else {
+            const n = u[p++], v = u[p++], key = ch * 128 + n;
+            if (ty === 9 && v > 0) (open[key] = open[key] || []).push({ tick, v, ch, n, g: prog[ch] >> 3 });
+            else if (ty === 8 || ty === 9) { const q = open[key]; if (q && q.length) { const o = q.shift(); o.end = tick; raw.push(o); } }
+          }
+        }
+      }
+      Object.keys(open).forEach(key => open[key].forEach(o => { o.end = tick; raw.push(o); }));        // 沒收尾的音，撐到軌道結束
+      p = end;
+    }
+    tempos.sort((x, y) => x.tick - y.tick);
+    const toSec = t => { let s = 0, pt = 0, us = 500000; for (const tp of tempos) { if (tp.tick > t) break; s += (tp.tick - pt) * us / div / 1e6; pt = tp.tick; us = tp.us; } return s + (t - pt) * us / div / 1e6; };
+    const notes = raw.map(o => { const t = toSec(o.tick); return { t, d: Math.max(.05, toSec(o.end) - t), n: o.n, v: o.v, ch: o.ch, g: o.g }; }).sort((x, y) => x.t - y.t);
+    if (!notes.length) return null;
+    return { notes, dur: Math.max(...notes.map(n => n.t + n.d)) };
+  } catch (e) { return null; }
+}
+// 依 GM 音色大類（程式號碼 ÷ 8）選波形：w 波形、a 起音秒數、dec 有值＝撥奏式衰減、vol 音量
+const MIDI_VOICE = [
+  { w: 'triangle', a: .005, dec: 1, vol: .22 }, { w: 'sine', a: .003, dec: 1.4, vol: .22 }, { w: 'square', a: .01, dec: 0, vol: .07 }, { w: 'triangle', a: .004, dec: .9, vol: .22 },
+  { w: 'triangle', a: .006, dec: .7, vol: .3 }, { w: 'sawtooth', a: .06, dec: 0, vol: .06 }, { w: 'sawtooth', a: .08, dec: 0, vol: .06 }, { w: 'square', a: .03, dec: 0, vol: .08 },
+  { w: 'square', a: .03, dec: 0, vol: .08 }, { w: 'sine', a: .04, dec: 0, vol: .2 }, { w: 'square', a: .01, dec: 0, vol: .09 }, { w: 'triangle', a: .1, dec: 0, vol: .15 },
+  { w: 'sine', a: .05, dec: 0, vol: .15 }, { w: 'triangle', a: .005, dec: .8, vol: .2 }, { w: 'sine', a: .003, dec: .5, vol: .22 }, { w: 'sine', a: .01, dec: .4, vol: .15 }];
+const MIDI_MAX = 12, MIDI_VOICES = 24;                       // 最多播 12 秒、同時最多 24 個音（手機才不會卡）
+// 排程播放。ctx／dest／t0 可以換成離線的，方便測試
+function playMidi(m, ctx, dest, t0) {
+  const comp = ctx.createDynamicsCompressor(), master = ctx.createGain(), maxT = Math.min(m.dur, MIDI_MAX);
+  comp.connect(dest); master.connect(comp);
+  master.gain.setValueAtTime(.9, t0); master.gain.setValueAtTime(.9, t0 + Math.max(0, maxT - 1)); master.gain.linearRampToValueAtTime(0, t0 + maxT);
+  const nb = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .4), ctx.sampleRate), nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  const noise = (t, type, f, dur, vol) => {
+    const src = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = nb; fl.type = type; fl.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    src.connect(fl); fl.connect(g); g.connect(master); src.start(t); src.stop(t + dur + .02);
+  };
+  let ends = [];
+  m.notes.forEach(n => {
+    if (n.t >= maxT) return;
+    ends = ends.filter(e => e > n.t); if (ends.length >= MIDI_VOICES) return; ends.push(n.t + Math.min(n.d, 2));
+    const t = t0 + n.t, vel = n.v / 127;
+    if (n.ch === 9) {                                          // 打擊樂：大鼓／小鼓／鈸與其他
+      if (n.n <= 36) {
+        const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
+        g.gain.setValueAtTime(.5 * vel, t); g.gain.exponentialRampToValueAtTime(.0001, t + .16); o.connect(g); g.connect(master); o.start(t); o.stop(t + .18);
+      } else if (n.n <= 41) noise(t, 'bandpass', 1800, .13, .25 * vel);
+      else noise(t, 'highpass', 6000, [49, 51, 52, 53, 55, 57, 59].includes(n.n) ? .3 : .05, .12 * vel);
+      return;
+    }
+    const V = MIDI_VOICE[n.g] || MIDI_VOICE[0], o = ctx.createOscillator(), g = ctx.createGain(), vol = V.vol * vel;
+    o.type = V.w; o.frequency.value = 440 * Math.pow(2, (n.n - 69) / 12);
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol, t + V.a);
+    let stop;
+    if (V.dec) { stop = t + Math.min(Math.max(n.d, .15) + .1, V.dec) + .02; g.gain.exponentialRampToValueAtTime(.0001, stop); }
+    else { const hold = t + Math.max(V.a + .01, n.d); g.gain.setValueAtTime(vol, hold); g.gain.linearRampToValueAtTime(.0001, hold + .08); stop = hold + .1; }
+    o.connect(g); g.connect(master); o.start(t); o.stop(stop + .02);
+  });
+}
+let lvMidi = null, lvTried = false;
+function loadLvup() {
+  if (lvTried) return; lvTried = true;
+  fetch('audio/levelup.mid').then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(b => { lvMidi = parseMidi(b); }).catch(() => {});
+}
+document.addEventListener('pointerdown', loadLvup, { once: true });
 // 升級號角（原創）：G4 C5 E5 G5 上爬 → F5、A5 → C6 大和弦
-function lvupSfx() {
+function lvupSfx(custom) {
+  if (custom && lvMidi && db.sound) {                       // 真的升級才放自訂音樂（復活等場合仍用合成號角）
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      playMidi(lvMidi, actx, actx.destination, actx.currentTime + .05); return;
+    } catch (e) {}
+  }
   [392, 523, 659, 784].forEach((f, i) => tone(f, .1, 'square', i * .07, .07));
   tone(698, .1, 'square', .36, .08); tone(880, .12, 'square', .48, .08);
   [1047, 784, 659].forEach((f, i) => tone(f, .95, 'square', .66, i ? .04 : .08));
@@ -2474,7 +2570,7 @@ function showLevelUp(before) {
   box.querySelector('.rw').innerHTML = lvRewards.length ? '升級獎勵<br>' + lvRewards.map(esc).join('<br>') : '';
   box.querySelector('.unlock').innerHTML = before && tierOf(before) < t
     ? `新招式解鎖！<br>攻擊：${TIER_HIT[t]}<br>大招：${TIER_ULT[t]}` : '';
-  box.classList.add('show'); SFX.lvup(); vibrate([40, 30, 40, 30, 80]);
+  box.classList.add('show'); SFX.lvup(true); vibrate([40, 30, 40, 30, 80]);
 }
 
 /* ===== 作戰筆記（錯題重點） ===== */
