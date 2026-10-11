@@ -69,6 +69,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 
 /* ===== 首頁 ===== */
 .logo{display:flex;align-items:flex-end;gap:10px;margin:8px 0 18px}
+.padbtn{margin:14px 0}
 .logo h1{margin:0;flex:1;font-size:40px;line-height:1;font-weight:900;letter-spacing:.02em;transform:skew(-8deg);
   color:var(--paper);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;
   text-shadow:4px 4px 0 var(--ink)}
@@ -307,6 +308,27 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .qimg.broken::after{content:"圖片載入失敗（題庫要放在 GitHub 上）";position:static;display:block;text-align:center;background:none;color:var(--sub);padding:14px}
 .rv .qimg{margin:10px 0 0}
 #zoom{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:40;overflow:auto}
+/* 草稿紙：蓋在整個畫面上，題目區在上、工具列在下，中間是可以畫的整張畫布 */
+#pad{position:fixed;inset:0;z-index:36;display:none;background:#fff;touch-action:none;-webkit-user-select:none;user-select:none}
+#pad.show{display:block}
+#pad.grid{background-image:linear-gradient(rgba(0,0,0,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.14) 1px,transparent 1px);background-size:24px 24px}
+#pad canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#pad .pq{position:absolute;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));max-height:46vh;display:flex;flex-direction:column;background:var(--paper);border:var(--bd);border-radius:6px;box-shadow:3px 3px 0 var(--ink);touch-action:pan-y}
+#pad .ph{display:flex;align-items:center;gap:8px;padding:5px 6px 5px 10px;font-weight:900;font-size:14px}
+#pad .ph span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pad .ph .pbtn{flex:none;width:38px;height:34px;font-size:15px}
+#pad .pb{overflow:auto;overscroll-behavior:contain;padding:8px 12px 10px;border-top:var(--bd);touch-action:pan-y;-webkit-user-select:text;user-select:text}
+#pad .pq.min .pb,#pad .pq.none .pb{display:none}
+#pad .qtext{font-size:16px}
+#pad .pimg{display:block;max-width:100%;max-height:26vh;margin:0 auto 8px;object-fit:contain;border:2px solid var(--ink);background:#fff}
+#pad .po{display:flex;gap:8px;margin-top:6px;font-size:15px;font-weight:700;line-height:1.5}
+#pad .po b{flex:none;width:22px;height:22px;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:13px;border-radius:50%;margin-top:1px}
+#pad .pt{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));display:flex;gap:5px;padding:6px;background:var(--paper);border:var(--bd);border-radius:6px;box-shadow:3px 3px 0 var(--ink)}
+#pad .pbtn{appearance:none;flex:1;min-width:0;height:40px;border:3px solid var(--ink);border-radius:6px;background:var(--paper);font-size:18px;font-weight:900;cursor:pointer;display:grid;place-items:center;padding:0;color:var(--ink)}
+#pad .pbtn.on{background:#FFD400;box-shadow:inset 0 0 0 2px #fff}
+#pad .pbtn i{display:block;border-radius:50%;background:currentColor}
+#pad .pbtn.dot i{width:20px;height:20px}
+#pad .pbtn.dot.on{background:#fff;box-shadow:0 0 0 3px #FFD400}
 #zoom.show{display:block}
 #zoom img{display:block;width:100%;min-height:100%;object-fit:contain;background:#fff}
 #zoom .x{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:#000;color:#fff;font-size:20px}
@@ -1071,7 +1093,8 @@ function home() {
         <div class="coins">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
         <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
-    </section>`;
+    </section>
+    <button class="btn wide padbtn" data-act="padOpen">✏️ 空白畫布（算數用）</button>`;
   if (!list.length) {
     h += `<div class="empty">
       <p class="big">還沒有 BOSS 可以打！</p>
@@ -2361,7 +2384,7 @@ function startQuiz(refs, opt) {
   const x = subOf(opt.sub), stage = document.createElement('div');
   stage.className = 'panel stage';
   stage.innerHTML = `${Scene.html(x.kind)}<div class="cv"></div><div class="load">BOSS 登場中…</div>
-    <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
+    <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><button class="icon" data-act="padOpen" aria-label="草稿紙">✏️</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
     <div class="hud" id="hud"></div>`;
   if (window.ResizeObserver) new ResizeObserver(() => Boss3D.resize()).observe(stage);
   S.stageEl = stage; S.ult = x.ult;
@@ -2657,6 +2680,94 @@ function cprev() { if (C && C.i > 0) { C.i--; renderCard(); } }
 const CARD_SEG = 20;
 function cjump(d) { if (!C) return; const to = +d.to; if (to >= 0 && to < C.items.length) { C.i = to; renderCard(); } }
 
+/* ===== 草稿紙：空白畫布，作答時顯示題目、圖和選項；換題就清空，只存在記憶體 ===== */
+const Pad = (() => {
+  let el, cv, cx, strokes = [], backup = null, cur = null, pid = null, penSeen = false, ownerS, ownerI;
+  const st = { color: '#111', size: 3, eraser: false, grid: false, min: false };
+  const COLORS = ['#111', '#E5262E', '#1F5BD8'];
+  function build() {
+    el = document.createElement('div'); el.id = 'pad';
+    el.innerHTML = `<canvas></canvas><div class="pq"><div class="ph"><span></span><button class="pbtn" data-p="min" aria-label="收合題目">▾</button><button class="pbtn" data-p="close" aria-label="關閉草稿紙">✕</button></div><div class="pb"></div></div>
+      <div class="pt">${COLORS.map((c, i) => `<button class="pbtn dot" data-p="color" data-c="${c}" aria-label="筆色${i + 1}" style="color:${c}"><i></i></button>`).join('')}
+        <button class="pbtn" data-p="eraser" aria-label="橡皮擦">🧽</button><button class="pbtn" data-p="size" aria-label="粗細"><i></i></button>
+        <button class="pbtn" data-p="undo" aria-label="上一步">↶</button><button class="pbtn" data-p="clear" aria-label="清除">🗑</button><button class="pbtn" data-p="grid" aria-label="方格">▦</button></div>`;
+    document.body.appendChild(el);
+    cv = el.querySelector('canvas'); cx = cv.getContext('2d');
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-p]'); if (!b) return;
+      const k = b.dataset.p;
+      if (k === 'close') close();
+      else if (k === 'min') { st.min = !st.min; ui(); }
+      else if (k === 'color') { st.color = b.dataset.c; st.eraser = false; ui(); }
+      else if (k === 'eraser') { st.eraser = !st.eraser; ui(); }
+      else if (k === 'size') { st.size = st.size < 5 ? 7 : 3; ui(); }
+      else if (k === 'undo') undo();
+      else if (k === 'clear') { if (strokes.length) { backup = strokes; strokes = []; redraw(); } }
+      else if (k === 'grid') { st.grid = !st.grid; ui(); }
+    });
+    cv.addEventListener('pointerdown', down); cv.addEventListener('pointermove', move);
+    ['pointerup', 'pointercancel'].forEach(t => cv.addEventListener(t, up));
+    window.addEventListener('resize', () => { if (el.classList.contains('show')) { fit(); redraw(); } });
+  }
+  function ui() {
+    el.classList.toggle('grid', st.grid);
+    el.querySelector('.pq').classList.toggle('min', st.min);
+    el.querySelector('[data-p=min]').textContent = st.min ? '▴' : '▾';
+    el.querySelectorAll('[data-p=color]').forEach(b => b.classList.toggle('on', !st.eraser && b.dataset.c === st.color));
+    el.querySelector('[data-p=eraser]').classList.toggle('on', st.eraser);
+    el.querySelector('[data-p=grid]').classList.toggle('on', st.grid);
+    const i = el.querySelector('[data-p=size] i'); i.style.width = i.style.height = (st.size < 5 ? 7 : 17) + 'px';
+  }
+  function fit() {
+    const dpr = window.devicePixelRatio || 1, w = el.clientWidth, h = el.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function paint(s, from) {                               // 把筆畫 s 從第 from 個座標開始畫上去（座標是 x,y 交錯的陣列）
+    const p = s.p; cx.save();
+    cx.globalCompositeOperation = s.e ? 'destination-out' : 'source-over';
+    cx.strokeStyle = cx.fillStyle = s.c; cx.lineWidth = s.w; cx.lineCap = cx.lineJoin = 'round';
+    if (p.length === 2) { cx.beginPath(); cx.arc(p[0], p[1], s.w / 2, 0, 7); cx.fill(); }
+    else {
+      const a = Math.max(0, from - 2); cx.beginPath(); cx.moveTo(p[a], p[a + 1]);
+      for (let i = Math.max(2, from); i < p.length; i += 2) cx.lineTo(p[i], p[i + 1]);
+      cx.stroke();
+    }
+    cx.restore();
+  }
+  function redraw() { cx.clearRect(0, 0, cv.width, cv.height); strokes.forEach(s => paint(s, 0)); }
+  function undo() { if (!strokes.length && backup) { strokes = backup; backup = null; } else strokes.pop(); redraw(); }
+  function pt(e) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+  function down(e) {
+    if (pid !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (e.pointerType === 'pen') penSeen = true; else if (e.pointerType === 'touch' && penSeen) return;     // 用過 Apple Pencil 之後，手掌碰到不算
+    e.preventDefault(); pid = e.pointerId; try { cv.setPointerCapture(pid); } catch (x) {}
+    backup = null;
+    cur = { c: st.color, w: st.eraser ? 24 : st.size, e: st.eraser, p: pt(e) }; strokes.push(cur); paint(cur, 0);
+  }
+  function move(e) {
+    if (e.pointerId !== pid || !cur) return;
+    const from = cur.p.length, evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    (evs.length ? evs : [e]).forEach(x => cur.p.push(...pt(x)));
+    paint(cur, from);
+  }
+  function up(e) { if (e.pointerId === pid) { pid = null; cur = null; } }
+  function open() {
+    if (!el) build();
+    const it = S && S.items[S.i], k = S ? S.i : -1;
+    if (ownerS !== S || ownerI !== k) { strokes = []; backup = null; }          // 換題（或換場戰鬥）就清空
+    ownerS = S; ownerI = k; st.eraser = false;                                 // 每次打開都回到「筆」
+    const pq = el.querySelector('.pq'); pq.classList.toggle('none', !it);
+    el.querySelector('.ph span').textContent = it ? `✏️ 草稿紙　第 ${S.i + 1}/${S.n} 題` : '✏️ 空白畫布';
+    el.querySelector('[data-p=min]').style.display = it ? '' : 'none';
+    el.querySelector('.pb').innerHTML = it ? `${it.q.image ? `<img class="pimg" src="${esc(it.q.image)}" alt="題目附圖" onerror="this.remove()">` : ''}
+      <div class="qtext">${fmt(it.q.q)}</div>${it.order.map((oi, j) => `<div class="po"><b>${LETTER[j]}</b><span>${fmt(it.q.options[oi])}</span></div>`).join('')}` : '';
+    el.classList.add('show'); document.documentElement.style.overflow = 'hidden';
+    ui(); fit(); redraw();
+  }
+  function close() { if (!el) return; el.classList.remove('show'); document.documentElement.style.overflow = ''; pid = null; cur = null; }
+  return { open, close };
+})();
+
 /* ===== 事件 ===== */
 const bankOf = id => db.banks[id] || {};
 const quizOpt = (id, extra) => { const b = bankOf(id); return { title: b.title + (extra || ''), boss: subOf(b.subject).boss, sub: b.subject }; };
@@ -2691,6 +2802,7 @@ const ACT = {
     if (el.classList.contains('broken')) return;
     const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
   },
+  padOpen: () => Pad.open(),
   ghRefresh: () => ghLoad(true),
   useCut: (d, el) => useCut(el),
   useRevive,
