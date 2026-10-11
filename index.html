@@ -917,8 +917,8 @@ function playMidi(m, ctx, dest, t0, max) {
   master.gain.setValueAtTime(.9, t0); master.gain.setValueAtTime(.9, t0 + Math.max(0, maxT - 1)); master.gain.linearRampToValueAtTime(0, t0 + maxT);
   m.notes.forEach(n => { if (n.t < maxT) midiNote(n, t0 + n.t, ctx, master, st); });
 }
-// 循環播：一次只往前排 5 秒的音，不會一口氣建出幾千個發音節點。回傳 { stop }
-function loopMidi(m, ctx, dest, maxLen) {
+// 循環播（once 時只播一遍）：一次只往前排 5 秒的音，不會一口氣建出幾千個發音節點。回傳 { stop }
+function loopMidi(m, ctx, dest, maxLen, once) {
   const notes = m.notes.filter(n => n.t < maxLen);
   if (!notes.length) return { stop() {} };
   const L = Math.min(m.dur, maxLen) + .4, comp = ctx.createDynamicsCompressor(), master = ctx.createGain(), st = midiState(ctx);
@@ -928,7 +928,7 @@ function loopMidi(m, ctx, dest, maxLen) {
     if (stopped) return;
     const horizon = ctx.currentTime + 5;
     for (let guard = 0; guard < 4000; guard++) {
-      if (idx >= notes.length) { idx = 0; t0 += L; }
+      if (idx >= notes.length) { if (once) return; idx = 0; t0 += L; }          // once＝只播一遍，排完就結束
       const n = notes[idx];
       if (t0 + n.t > horizon) break;
       midiNote(n, t0 + n.t, ctx, master, st); idx++;
@@ -941,7 +941,7 @@ function loopMidi(m, ctx, dest, maxLen) {
 
 /* ===== 自訂音樂／音效：把檔案放進 audio/，mp3 或 mid 都可以（兩個都有就用 mp3）；沒放的位置就用原本的合成音或安靜 ===== */
 const MUSIC_SLOTS = {                                        // vol 音量、max 最長秒數
-  base: { loop: true, vol: .45, max: 90 },                   // 基地音樂：循環播
+  base: { once: true, vol: .45, max: 90 },                   // 基地音樂：每次回到基地從頭播一遍，播完就安靜
   enter: { vol: .9, max: 8 },                                // 進入關卡
   exit: { vol: .9, max: 8 },                                 // 退出關卡
   levelup: { vol: .9, max: 12 },                             // 升級
@@ -950,7 +950,7 @@ const MUSIC_SLOTS = {                                        // vol 音量、max
 };
 const Music = (() => {
   const slots = {}, live = new Set();
-  let loaded = false, want = false, baseH = null, holdUntil = 0, baseTimer = 0;
+  let loaded = false, want = false, baseH = null, baseDone = false, holdUntil = 0, baseTimer = 0;
   const ctxOk = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); return actx; };
   async function loadOne(name) {
     try { const r = await fetch(`audio/${name}.mp3`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
@@ -963,7 +963,7 @@ const Music = (() => {
     Object.keys(MUSIC_SLOTS).forEach(name => loadOne(name).then(() => { if (name === 'base' && want) base(true); }));
   }
   const secs = name => { const sl = slots[name]; return sl ? Math.min(sl.buf ? sl.buf.duration : sl.midi.dur, MUSIC_SLOTS[name].max) : 0; };
-  function play(name) {
+  function play(name, onEnd) {
     const sl = slots[name], cfg = MUSIC_SLOTS[name];
     if (!sl || !db.sound) return null;
     try {
@@ -978,16 +978,23 @@ const Music = (() => {
           src.start(t0, 0, end);
         }
         halt = () => { try { src.stop(ctx.currentTime + .35); } catch (e) {} };
-      } else if (cfg.loop) halt = loopMidi(sl.midi, ctx, out, cfg.max).stop;
+      } else if (cfg.loop || cfg.once) halt = loopMidi(sl.midi, ctx, out, cfg.max, !cfg.loop).stop;
       else playMidi(sl.midi, ctx, out, t0, cfg.max);
+      let iv = 0;
       const h = {
         stop() {
+          clearInterval(iv);
           if (!live.delete(h)) return;
           try { out.gain.cancelScheduledValues(ctx.currentTime); out.gain.setValueAtTime(out.gain.value, ctx.currentTime); out.gain.linearRampToValueAtTime(0, ctx.currentTime + .3); } catch (e) {}
           halt(); setTimeout(() => { try { out.disconnect(); } catch (e) {} }, 500);
         }
       };
-      live.add(h); return h;
+      live.add(h);
+      if (onEnd && !cfg.loop) {                              // 自然播完才算（用 ctx 時間算，分頁暫停時不會誤判）
+        const endT = t0 + secs(name) + .4;
+        iv = setInterval(() => { if (ctx.currentTime >= endT) { h.stop(); onEnd(); } }, 400);
+      }
+      return h;
     } catch (e) { return null; }
   }
   // 播一次性的音效／音樂。有檔案回傳 true（呼叫端就不用再播合成音）；基地音樂會等它播完才接回來
@@ -998,14 +1005,15 @@ const Music = (() => {
     setTimeout(() => h.stop(), ms + 400);
     return true;
   }
-  // 基地音樂：on＝在基地，開始（或維持）播；off＝進戰鬥，停掉
+  // 基地音樂：on＝在基地，沒播過就從頭播一遍；off＝進戰鬥，停掉並重置（下次回基地再播一遍）
   function base(on) {
     want = on; clearTimeout(baseTimer);
-    if (!on || !db.sound) { if (baseH) { baseH.stop(); baseH = null; } return; }
-    if (baseH || !slots.base) return;
+    if (!on) { if (baseH) { baseH.stop(); baseH = null; } baseDone = false; return; }
+    if (!db.sound) { if (baseH) { baseH.stop(); baseH = null; } return; }
+    if (baseH || baseDone || !slots.base) return;
     const wait = holdUntil - Date.now();
     if (wait > 50) { baseTimer = setTimeout(() => base(want), wait); return; }
-    baseH = play('base');
+    baseH = play('base', () => { baseH = null; baseDone = true; });
   }
   function stopAll() { want = false; clearTimeout(baseTimer); baseH = null; [...live].forEach(h => h.stop()); }
   return { load, base, shot, stopAll, has: n => !!slots[n], slots };
