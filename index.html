@@ -174,6 +174,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .revenge .grid .go small{display:block;font-size:11px;font-weight:700}
 .revenge .revn button small{display:block;font-size:11px;font-weight:700}
 .revenge .revnote{font-size:12px;font-weight:700;margin:-4px 0 10px}
+.revenge .revn button[disabled]{opacity:.4;cursor:default}
 .revenge .revn button.on{background:var(--sc);color:var(--sk,#fff)}
 .revenge .sevtip{font-size:14px;font-weight:900;color:var(--ink);margin:2px 0 4px;padding-left:8px;border-left:5px solid var(--sc)}
 .bank.revenge[data-sev="4"] .sevtip,.bank.revenge[data-sev="5"] .sevtip,.bank.revenge[data-sev="6"] .sevtip{color:#fff}
@@ -1292,6 +1293,8 @@ function gainExp(n) {
 
 /* ===== 金幣：每題第 1 次答對 +2、第 2 次 +1、之後 0；整關通關每次 +5 ===== */
 const COIN_Q = [2, 1], COIN_CLEAR = 5;
+// 這次實際用幾題一場：選的題數錯題不夠時，自動降到夠的最大一級（最少 10）
+const revSize = cnt => { const want = [10, 20, 30].includes(db.revN) ? db.revN : 10; return [30, 20, 10].find(n => n <= want && (n <= cnt || n === 10)); };
 const revBonus = n => n >= 30 ? 30 : n >= 20 ? 20 : n >= 10 ? 10 : 0;     // 復仇戰打贏的通關獎勵：依實際題數（10／20／30 題＝10／20／30 元；不到 10 題沒有）
 function earnQ(bid, qid) {
   const k = bid + '|' + qid, n = db.qwin[k] || 0, g = COIN_Q[n] || 0;
@@ -1363,7 +1366,7 @@ function home() {
   const allW = allWrongRefs();
   if (allW.length) {
     const nb = new Set(allW.map(r => r.b)).size;
-    const sv = sevOf(allW.length), SV = SEV[sv], toDown = sv > 0 ? allW.length - (sv * 10 - 1) : 0, rn = [10, 20, 30].includes(db.revN) ? db.revN : 10, dayN = dayStat().cleared;
+    const sv = sevOf(allW.length), SV = SEV[sv], toDown = sv > 0 ? allW.length - (sv * 10 - 1) : 0, rn = revSize(allW.length), dayN = dayStat().cleared;
     const sbtn = Math.min(rn, allW.length), bn = revBonus(sbtn);
     h += `<section class="panel bank revenge${revOpen ? ' open' : ''}" data-sev="${sv}" style="--sc:${SV.c}">
       <div class="band"><b>${SV.n}</b></div>
@@ -1373,7 +1376,9 @@ function home() {
         <div class="meta">今天已消滅 <b>${dayN}</b> 題${toDown ? `｜再清 ${toDown} 題降到「${SEV[sv - 1].n}」` : ''}</div>
         ${revOpen ? `<div class="sevtip">${SV.tip}</div>
         <div class="meta">來自 ${nb} 個題庫，答對就會消滅</div>
-        <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>打贏 💰+${revBonus(Math.min(n, allW.length))}</small></button>`).join('')}</div>
+        <div class="revn">每場 ${[10, 20, 30].map(n => n > 10 && n > allW.length
+          ? `<button disabled>${n} 題<small>錯題不夠</small></button>`
+          : `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>${revBonus(Math.min(n, allW.length)) ? `打贏 💰+${revBonus(n)}` : '滿 10 題才有獎勵'}</small></button>`).join('')}</div>
         <div class="revnote">🎁 題數越多，打贏的通關獎勵越多；錯題清到嚴重度降級，再送刪去卡！</div>` : ''}
         <div class="grid ${revOpen ? 'three' : 'one'}">
           <button class="btn go${revOpen ? '' : ' wide'}" data-act="allQuiz">開戰<small>${sbtn} 題${bn ? `・打贏 💰+${bn}` : ''}</small></button>
@@ -3148,7 +3153,7 @@ const ACT = {
   gallery: () => gallery(),
   withdraw: () => withdrawOpen(),
   toggleRev: () => { revOpen = !revOpen; const y = window.scrollY; home(); window.scrollTo(0, y); },
-  allQuiz: () => startQuiz(pickRevenge(allWrongRefs(), db.revN || 10), REVENGE),
+  allQuiz: () => { const w = allWrongRefs(); startQuiz(pickRevenge(w, revSize(w.length)), REVENGE); },
   setRevN: d => { db.revN = +d.n; save(); const y = window.scrollY; home(); window.scrollTo(0, y); },
   allReview: () => review(allWrongRefs(), '全部錯題'),
   allCards: () => cards(allWrongRefs()),
