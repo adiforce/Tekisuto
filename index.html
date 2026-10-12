@@ -1030,9 +1030,9 @@ const Music = (() => {
   async function loadOne(name) {
     for (const f of SLOT_ALIAS[name] || [name]) {
       for (const ext of ['mp3', 'm4a']) {                    // mp3 優先，其次 m4a（AAC，iPhone／Chrome 都能解）
-        try { const r = await fetch(`audio/${f}.${ext}`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
+        try { const r = await fetch(`audio/${f}.${ext}`, { cache: 'no-cache' }); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
       }
-      try { const r = await fetch(`audio/${f}.mid`); if (r.ok) { const m = parseMidi(await r.arrayBuffer()); if (m) { slots[name] = { midi: m }; return; } } } catch (e) {}
+      try { const r = await fetch(`audio/${f}.mid`, { cache: 'no-cache' }); if (r.ok) { const m = parseMidi(await r.arrayBuffer()); if (m) { slots[name] = { midi: m }; return; } } } catch (e) {}
     }
   }
   // 第一次點畫面時才載入（手機規定要先互動才能發聲）
@@ -3081,6 +3081,31 @@ document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preven
   const z = document.getElementById('zoom'), zi = z.querySelector('img');
   zi.addEventListener('click', () => zi.classList.toggle('big'));
   z.querySelector('.x').addEventListener('click', () => zi.classList.remove('big'));
+})();
+
+/* ===== 自動更新：開啟、或切回來時偷偷問伺服器 index.html 有沒有換版，換了就換新網址重新載入（不用手動清快取）===== */
+(function () {
+  const KEY = 'beishu.ver', GAP = 5 * 60 * 1000;
+  let last = 0;
+  async function checkUpdate(force) {
+    if (!force && Date.now() - last < GAP) return;
+    last = Date.now();
+    try {
+      const r = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return;
+      const sig = r.headers.get('etag') || r.headers.get('last-modified') || String((await r.text()).length);
+      let old = null; try { old = localStorage.getItem(KEY); } catch (e) { return; }
+      if (old === sig) return;                                 // 沒換版
+      if (old === null) { try { localStorage.setItem(KEY, sig); } catch (e) {} return; }   // 第一次只記下版本
+      if (typeof S !== 'undefined' && S) return;               // 正在戰鬥不打斷（版本先不記，下次回基地切回來再更新）
+      const pad = document.getElementById('pad'); if (pad && pad.classList.contains('show')) return;
+      const t = +sessionStorage.getItem(KEY + '.t') || 0; if (Date.now() - t < 60000) return;   // 一分鐘內最多重載一次，避免迴圈
+      try { sessionStorage.setItem(KEY + '.t', String(Date.now())); localStorage.setItem(KEY, sig); } catch (e) {}
+      location.replace(location.pathname + '?v=' + encodeURIComponent(sig));
+    } catch (e) {}
+  }
+  checkUpdate(true);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
 })();
 </script>
 </body>
