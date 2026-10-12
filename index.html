@@ -1292,7 +1292,7 @@ function gainExp(n) {
 
 /* ===== 金幣：每題第 1 次答對 +2、第 2 次 +1、之後 0；整關通關每次 +5 ===== */
 const COIN_Q = [2, 1], COIN_CLEAR = 5;
-const revBonus = n => n >= 30 ? 15 : n >= 20 ? 8 : n >= 10 ? 3 : 0;     // 復仇戰打贏的通關獎勵：依實際題數（10／20／30 題）
+const revBonus = n => n >= 30 ? 30 : n >= 20 ? 20 : n >= 10 ? 10 : 0;     // 復仇戰打贏的通關獎勵：依實際題數（10／20／30 題＝10／20／30 元；不到 10 題沒有）
 function earnQ(bid, qid) {
   const k = bid + '|' + qid, n = db.qwin[k] || 0, g = COIN_Q[n] || 0;
   db.qwin[k] = n + 1; db.coins += g; save();
@@ -1373,7 +1373,7 @@ function home() {
         <div class="meta">今天已消滅 <b>${dayN}</b> 題${toDown ? `｜再清 ${toDown} 題降到「${SEV[sv - 1].n}」` : ''}</div>
         ${revOpen ? `<div class="sevtip">${SV.tip}</div>
         <div class="meta">來自 ${nb} 個題庫，答對就會消滅</div>
-        <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>打贏 💰+${revBonus(n)}</small></button>`).join('')}</div>
+        <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>打贏 💰+${revBonus(Math.min(n, allW.length))}</small></button>`).join('')}</div>
         <div class="revnote">🎁 題數越多，打贏的通關獎勵越多；錯題清到嚴重度降級，再送刪去卡！</div>` : ''}
         <div class="grid ${revOpen ? 'three' : 'one'}">
           <button class="btn go${revOpen ? '' : ' wide'}" data-act="allQuiz">開戰<small>${sbtn} 題${bn ? `・打贏 💰+${bn}` : ''}</small></button>
