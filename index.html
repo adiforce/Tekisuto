@@ -958,7 +958,9 @@ const Music = (() => {
   const ctxOk = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); return actx; };
   async function loadOne(name) {
     for (const f of SLOT_ALIAS[name] || [name]) {
-      try { const r = await fetch(`audio/${f}.mp3`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
+      for (const ext of ['mp3', 'm4a']) {                    // mp3 優先，其次 m4a（AAC，iPhone／Chrome 都能解）
+        try { const r = await fetch(`audio/${f}.${ext}`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
+      }
       try { const r = await fetch(`audio/${f}.mid`); if (r.ok) { const m = parseMidi(await r.arrayBuffer()); if (m) { slots[name] = { midi: m }; return; } } } catch (e) {}
     }
   }
