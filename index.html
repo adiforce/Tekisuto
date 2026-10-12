@@ -947,15 +947,19 @@ const MUSIC_SLOTS = {                                        // vol 音量、max
   exit: { vol: .9, max: 8 },                                 // 退出關卡
   levelup: { vol: .9, max: 12 },                             // 升級
   lose: { vol: .9, max: 12 },                                // 敗北
-  win: { vol: .9, max: 12 }                                  // 勝利（擊倒 BOSS）
+  win: { vol: .9, max: 12 },                                 // 勝利（擊倒 BOSS）
+  result: { once: true, vol: .6, max: 90 }                   // 結算畫面：進戰果頁播一遍（等勝利／敗北音效播完才接），離開戰果頁就停
 };
+const SLOT_ALIAS = { lose: ['lose', 'lost'] };               // 檔名別名：lost.mp3 也算敗北
 const Music = (() => {
   const slots = {}, live = new Set();
-  let loaded = false, want = false, baseH = null, baseDone = false, holdUntil = 0, baseTimer = 0;
+  let loaded = false, want = false, baseH = null, resH = null, resTimer = 0, baseDone = false, holdUntil = 0, baseTimer = 0;
   const ctxOk = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); return actx; };
   async function loadOne(name) {
-    try { const r = await fetch(`audio/${name}.mp3`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
-    try { const r = await fetch(`audio/${name}.mid`); if (r.ok) { const m = parseMidi(await r.arrayBuffer()); if (m) slots[name] = { midi: m }; } } catch (e) {}
+    for (const f of SLOT_ALIAS[name] || [name]) {
+      try { const r = await fetch(`audio/${f}.mp3`); if (r.ok) { const b = await r.arrayBuffer(); slots[name] = { buf: await ctxOk().decodeAudioData(b) }; return; } } catch (e) {}
+      try { const r = await fetch(`audio/${f}.mid`); if (r.ok) { const m = parseMidi(await r.arrayBuffer()); if (m) { slots[name] = { midi: m }; return; } } } catch (e) {}
+    }
   }
   // 第一次點畫面時才載入（手機規定要先互動才能發聲）
   function load() {
@@ -1008,6 +1012,7 @@ const Music = (() => {
   }
   // 基地音樂：on＝在基地，沒播過就從頭播一遍；off＝進戰鬥，停掉並重置（下次回基地再播一遍）
   function base(on) {
+    result(false);                                           // 離開戰果頁（回基地／再開戰）就停結算音樂
     want = on; clearTimeout(baseTimer);
     if (!on) { if (baseH) { baseH.stop(); baseH = null; } baseDone = false; return; }
     if (!db.sound) { if (baseH) { baseH.stop(); baseH = null; } return; }
@@ -1016,8 +1021,17 @@ const Music = (() => {
     if (wait > 50) { baseTimer = setTimeout(() => base(want), wait); return; }
     baseH = play('base', () => { baseH = null; baseDone = true; });
   }
-  function stopAll() { want = false; clearTimeout(baseTimer); baseH = null; [...live].forEach(h => h.stop()); }
-  return { load, base, shot, stopAll, has: n => !!slots[n], slots };
+  // 結算音樂：進戰果頁播一遍，等勝利／敗北音效播完才接
+  function result(on) {
+    clearTimeout(resTimer);
+    if (!on) { if (resH) { resH.stop(); resH = null; } return; }
+    if (resH || !slots.result || !db.sound) return;
+    const wait = holdUntil - Date.now();
+    if (wait > 50) { resTimer = setTimeout(() => result(true), wait); return; }
+    resH = play('result', () => { resH = null; });
+  }
+  function stopAll() { want = false; clearTimeout(baseTimer); clearTimeout(resTimer); baseH = null; resH = null; [...live].forEach(h => h.stop()); }
+  return { load, base, result, shot, stopAll, has: n => !!slots[n], slots };
 })();
 document.addEventListener('pointerdown', () => Music.load(), { once: true });
 // 切到別的分頁、鎖屏就暫停，回來再接著播
@@ -2684,6 +2698,7 @@ function result() {
   S = null;
   window.scrollTo(0, 0);
   if (!win) setTimeout(SFX.lose, 200);
+  setTimeout(() => Music.result(true), 300);                // 結算音樂（等 lose 的 shot 設好 hold 之後才排隊）
   if (up) setTimeout(() => showLevelUp(up), 1100);
   setTimeout(autoSync, up ? 2500 : 500);
 }
