@@ -135,7 +135,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .exp{height:14px;border:var(--bd);background:var(--paper);border-radius:99px;overflow:hidden;margin:6px 0 2px}
 .exp i{display:block;height:100%;background:var(--ink);transition:width .6s}
 .me .nums{font-size:13px;font-weight:700}
-.me .coins{display:inline-block;margin:4px 6px 0 0;padding:1px 10px;border:var(--bd);background:#FFD400;color:#000;font-size:16px;font-weight:900}
+.me .coins{cursor:pointer;display:inline-block;margin:4px 6px 0 0;padding:1px 10px;border:var(--bd);background:#FFD400;color:#000;font-size:16px;font-weight:900}
 .say .coin{display:inline-block;margin-left:8px;padding:0 8px;border:2px solid #000;background:#FFD400;color:#000;font-size:14px;font-weight:900;vertical-align:middle}
 .say .coin.none{background:#ddd;color:#555}
 
@@ -354,6 +354,18 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .stats small{font-size:12px;font-weight:900}
 
 /* 升級 */
+.me .coins:active{transform:translate(2px,2px)}
+#wdm{position:fixed;inset:0;z-index:31;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
+#wdm.show{display:flex}
+#wdm .box{background:var(--paper);border:var(--bd);box-shadow:8px 8px 0 #000;padding:20px 18px;max-width:360px;width:100%;max-height:92vh;overflow:auto}
+#wdm .box>b{display:block;font-size:22px;font-weight:900;text-align:center}
+#wdm .big{font-family:var(--display);font-size:46px;text-align:center;line-height:1.1;margin:6px 0 2px}
+#wdm .tip{font-size:13px;font-weight:700;color:var(--sub);text-align:center;margin-bottom:12px;line-height:1.5}
+#wdm .btn{margin-top:8px}
+#wdm .hist{margin-top:14px;border-top:2px dashed var(--ink);padding-top:10px;font-size:14px;font-weight:700}
+#wdm .hist h4{margin:0 0 6px;font-size:14px;font-weight:900}
+#wdm .hist .row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #bbb}
+#wdm .hist .row:last-child{border-bottom:0}
 #lvup{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:20px}
 #lvup.show{display:flex}
 #lvup .box{background:var(--hit);border:4px solid var(--ink);box-shadow:8px 8px 0 #000;padding:26px 22px;text-align:center;max-width:340px;width:100%;animation:boom .6s cubic-bezier(.2,1.8,.5,1)}
@@ -477,6 +489,7 @@ button,a,label,.btn{touch-action:manipulation}
 <div id="flash"></div>
 <div id="claw"><i></i><i></i><i></i></div>
 <div id="cutin"><div class="band"><small>必殺技</small><b></b></div></div>
+<div id="wdm"><div class="box"><b>💰 金幣提領</b><div class="big"></div><div class="tip"></div><button class="btn go wide" data-wd="ok">確認提領</button><button class="btn wide" data-wd="no">取消</button><div class="hist"></div></div></div>
 <div id="lvup"><div class="box"><b>LEVEL UP!</b><img class="hero" alt="勇者貓"><div class="t"></div><div class="rw"></div><div class="unlock"></div><button class="btn wide" data-close>繼續</button></div></div>
 <div id="toast"></div>
 <div id="zoom"><button class="x" aria-label="關閉">✕</button><img alt="放大圖"></div>
@@ -1208,7 +1221,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', revN: 10, wlast: {}, day: null, coins: 0, qwin: {}, cards: 0, revives: 0, stats: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, cards: 0, revives: 0, stats: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -1336,7 +1349,7 @@ function home() {
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
-        <div class="coins">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
+        <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
         <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
     </section>`;
@@ -1510,7 +1523,7 @@ function profile() {
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　總經驗 ${db.exp}</div>
-        <div class="coins">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
+        <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
       </div>
     </section>
     <button class="btn wide gal-btn" data-act="gallery">📖 稱號與造型圖鑑</button>
@@ -1539,7 +1552,7 @@ function profile() {
 
 /* ===== 雲端紀錄：進度存到 Google 試算表（Apps Script），題庫不存，匯入時從 GitHub 抓 ===== */
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw923EWK5I6juwYzz0tywW1McYuaD2WpKSueoR5RybEioYCo/exec';
-const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards', 'revives', 'stats'];
+const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards', 'revives', 'stats', 'wd'];
 const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
 let syncList = null;
 const netMsg = e => /fetch|network|load failed/i.test(e.message || '') ? '連不上 Google，請確認網路' : (e.message || '失敗');
@@ -1636,8 +1649,11 @@ function mergeProg(L, B, C) {
     const d = l - (b || 0);
     return Math.max(0, c + (canDrop ? d : Math.max(0, d)));
   };
-  ['exp', 'kills', 'coins'].forEach(k => { out[k] = add(L[k], B && B[k], C[k]); });
-  ['cards', 'revives'].forEach(k => { out[k] = add(L[k], B && B[k], C[k], true); });      // 會被用掉的卡：增量可以是負的
+  ['exp', 'kills'].forEach(k => { out[k] = add(L[k], B && B[k], C[k]); });
+  ['coins', 'cards', 'revives'].forEach(k => { out[k] = add(L[k], B && B[k], C[k], true); });      // 會被用掉／提領的：增量可以是負的
+  // 提領紀錄：兩邊聯集（同一筆時間＋金額只算一次），照時間排
+  const wdSeen = new Set();
+  out.wd = [].concat(C.wd || [], L.wd || []).filter(x => x && x.at && x.n > 0 && !wdSeen.has(x.at + '|' + x.n) && wdSeen.add(x.at + '|' + x.n)).sort((a, b) => a.at - b.at);
   out.qwin = {};
   ids(g(L, 'qwin'), g(C, 'qwin')).forEach(k => { out.qwin[k] = add(g(L, 'qwin')[k], B && g(B, 'qwin')[k], g(C, 'qwin')[k]); });
   out.stats = {};
@@ -2874,6 +2890,33 @@ function showLevelUp(before) {
   box.classList.add('show'); SFX.lvup(true); vibrate([40, 30, 40, 30, 80]);
 }
 
+/* ===== 金幣提領：點金幣 → 確認 → 金幣歸零，記下這次提領多少 ===== */
+function withdrawOpen() {
+  const box = document.getElementById('wdm'), n = db.coins || 0, log = db.wd || [];
+  const total = log.reduce((a, x) => a + x.n, 0);
+  const d = t => { const x = new Date(t); return `${x.getMonth() + 1}/${x.getDate()} ${String(x.getHours()).padStart(2, '0')}:${String(x.getMinutes()).padStart(2, '0')}`; };
+  box.querySelector('.big').textContent = `${n} 元`;
+  box.querySelector('.tip').textContent = n > 0 ? '確認提領後，金幣會歸零，並記錄這次提領的金額。' : '目前沒有金幣可以提領，多打幾場再來吧！';
+  const ok = box.querySelector('[data-wd=ok]'); ok.textContent = n > 0 ? `確認提領 ${n} 元` : '沒有金幣可提領'; ok.disabled = n <= 0;
+  box.querySelector('.hist').innerHTML = `<h4>提領紀錄　累計 ${total} 元（${log.length} 次）</h4>` +
+    (log.length ? log.slice(-10).reverse().map(x => `<div class="row"><span>${d(x.at)}</span><span>提領 ${x.n} 元</span></div>`).join('') + (log.length > 10 ? '<div class="sub">只列最近 10 次</div>' : '') : '<div class="sub">還沒有提領過</div>');
+  box.classList.add('show');
+}
+function withdrawDo() {
+  const n = db.coins || 0; if (n <= 0) return;
+  if (!db.wd) db.wd = [];
+  db.wd.push({ at: Date.now(), n }); db.coins = 0; save();
+  document.querySelectorAll('.coins').forEach(el => { el.textContent = '💰 0 元'; });
+  document.getElementById('wdm').classList.remove('show');
+  toast(`已提領 ${n} 元，金幣歸零`); SFX.hit && SFX.hit(1); vibrate([40, 30, 80]);
+  setTimeout(autoSync, 500);
+}
+document.getElementById('wdm').addEventListener('click', e => {
+  const t = e.target.closest('[data-wd]');
+  if (e.target.id === 'wdm' || (t && t.dataset.wd === 'no')) document.getElementById('wdm').classList.remove('show');
+  else if (t && t.dataset.wd === 'ok') withdrawDo();
+});
+
 /* ===== 稱號與造型圖鑑：每個稱號的貓造型、每 5 級一款的外框，沒達到的先蓋黑影 ===== */
 function gallery() {
   Boss3D.stop(); window.scrollTo(0, 0); setTheme('');
@@ -3103,6 +3146,7 @@ const ACT = {
   cards: d => cards(refsOf(d.id)),
   review: d => review(refsOf(d.id, 'wrong'), bankOf(d.id).title),
   gallery: () => gallery(),
+  withdraw: () => withdrawOpen(),
   toggleRev: () => { revOpen = !revOpen; const y = window.scrollY; home(); window.scrollTo(0, y); },
   allQuiz: () => startQuiz(pickRevenge(allWrongRefs(), db.revN || 10), REVENGE),
   setRevN: d => { db.revN = +d.n; save(); const y = window.scrollY; home(); window.scrollTo(0, y); },
