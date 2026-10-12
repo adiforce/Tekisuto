@@ -245,6 +245,32 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(0,0,0,.12) 1.2px,transparent 1.5px);background-size:8px 8px;pointer-events:none}
 .stage .cv{position:absolute;left:0;right:0;top:0;bottom:46px}
 .stage .cv canvas{display:block}
+/* 答對時魔王外框（.stage）的動態：小招＝彈一下＋小圈、二連擊＝彈得更大＋黃框＋圈、大招＝劇烈晃動放大＋彩虹閃框＋三圈衝擊波 */
+@keyframes stg1{25%{transform:scale(1.035) rotate(-.4deg);box-shadow:0 0 0 4px #FFD400,0 0 16px 4px #FFD400,5px 5px 0 #000;filter:brightness(1.12)}}
+@keyframes stg2{18%{transform:scale(1.065) rotate(-1.2deg);box-shadow:0 0 0 6px #FFD400,0 0 28px 8px #FFD400,5px 5px 0 #000;filter:brightness(1.2)}
+  42%{transform:scale(.99) rotate(1deg);box-shadow:0 0 0 4px var(--c),0 0 20px 5px var(--c),5px 5px 0 #000}
+  66%{transform:scale(1.025) rotate(-.5deg);box-shadow:0 0 0 3px #FFD400,0 0 14px 3px #FFD400,5px 5px 0 #000}}
+@keyframes stgU{
+  10%{transform:scale(1.1) rotate(-2.2deg);box-shadow:0 0 0 9px #fff,0 0 56px 18px #FFD400,5px 5px 0 #000;filter:brightness(1.7) saturate(1.5)}
+  22%{transform:scale(.97) rotate(2deg) translateX(9px);box-shadow:0 0 0 9px #FF2E2E,0 0 52px 15px #FF2E2E,5px 5px 0 #000;filter:brightness(1.3)}
+  34%{transform:scale(1.07) rotate(-1.6deg) translateX(-9px);box-shadow:0 0 0 9px #3DDCFF,0 0 52px 15px #3DDCFF,5px 5px 0 #000}
+  46%{transform:scale(1.02) rotate(1.4deg) translateX(6px);box-shadow:0 0 0 9px #7CFF5D,0 0 48px 13px #7CFF5D,5px 5px 0 #000}
+  58%{transform:scale(1.06) rotate(-1deg) translateX(-5px);box-shadow:0 0 0 8px #B45DFF,0 0 46px 12px #B45DFF,5px 5px 0 #000}
+  72%{transform:scale(1.02) rotate(.6deg);box-shadow:0 0 0 6px #FFD400,0 0 32px 8px #FFD400,5px 5px 0 #000;filter:brightness(1.2)}
+  86%{transform:scale(1.01);box-shadow:0 0 0 3px #fff,0 0 16px 3px #fff,5px 5px 0 #000}}
+@keyframes stgR{from{transform:scale(1);opacity:.95}to{transform:scale(var(--rs,8));opacity:0}}
+.stage.fx-hit1{animation:stg1 .32s ease-out}
+.stage.fx-hit2{animation:stg2 .5s ease-out}
+.stage.fx-ult{animation:stgU 1.05s ease-out}
+.stage.fx-hit1::after,.stage.fx-hit2::after,.stage.fx-ult::after,.stage.fx-ult .rg2,.stage.fx-ult .rg3{content:"";position:absolute;left:50%;top:44%;width:36px;height:36px;margin:-18px 0 0 -18px;border:5px solid #fff;border-radius:50%;pointer-events:none;z-index:4;box-shadow:0 0 0 3px #000}
+.stage.fx-hit1::after{--rs:6;animation:stgR .4s ease-out}
+.stage.fx-hit2::after{--rs:9;border-color:#FFD400;animation:stgR .55s ease-out}
+.stage.fx-ult::after{--rs:14;border-color:#FFD400;animation:stgR .8s ease-out}
+.stage.fx-ult .rg2{--rs:14;border-color:#FF2E2E;animation:stgR .8s ease-out .12s both;content:""}
+.stage.fx-ult .rg3{--rs:14;border-color:#3DDCFF;animation:stgR .8s ease-out .24s both;content:""}
+.stage .rg2,.stage .rg3{display:none}
+.stage.fx-ult .rg2,.stage.fx-ult .rg3{display:block}
+@media (prefers-reduced-motion:reduce){.stage.fx-hit1,.stage.fx-hit2,.stage.fx-ult,.stage.fx-hit1::after,.stage.fx-hit2::after,.stage.fx-ult::after,.stage .rg2,.stage .rg3{animation:none!important}}
 .stage.compact{height:176px}
 .stage.flat{height:auto;background:var(--paper)}
 .stage.flat::before,.stage.flat .cv,.stage.flat .scene{display:none}
@@ -2659,6 +2685,16 @@ function showCutin(name) {
   c.classList.remove('show'); void c.offsetWidth; c.classList.add('show');
   clearTimeout(showCutin.t); showCutin.t = setTimeout(() => c.classList.remove('show'), 1300);
 }
+// 答對時讓魔王外框動一下：kind＝hit1／hit2／ult；delay＝等 3D 招式落下的時間（大招要等衝刺）
+function stageFx(kind, delay) {
+  setTimeout(() => {
+    const el = (S && S.stageEl) || document.querySelector('.stage'); if (!el || !document.body.contains(el)) return;
+    if (!el.querySelector('.rg2')) el.insertAdjacentHTML('beforeend', '<i class="rg2"></i><i class="rg3"></i>');
+    ['fx-hit1', 'fx-hit2', 'fx-ult'].forEach(c => el.classList.remove(c)); void el.offsetWidth;
+    el.classList.add('fx-' + kind);
+    clearTimeout(el._fxT); el._fxT = setTimeout(() => el.classList.remove('fx-' + kind), kind === 'ult' ? 1300 : 650);
+  }, delay || 0);
+}
 function showFx(big, small, good) {
   const fx = document.getElementById('fx');
   fx.style.setProperty('--fxc', good ? getComputedStyle(document.documentElement).getPropertyValue('--c') : '#000');
@@ -2729,6 +2765,7 @@ function pick(k) {
     }
     if (final) S.bossHp = 0;
     const koMs = Boss3D[move](final, tier);
+    stageFx(move, move === 'ult' ? 700 : 120);                 // 魔王外框跟著動（小招彈一下、二連擊更大、大招浮誇）
     if (!final) Boss3D.setAngry(S.bossHp / S.n <= .25);
     if (final) setTimeout(() => { showFx('K.O.!', 'BOSS 被擊倒了！', true); SFX.win(); }, koMs || (move === 'ult' ? 1500 : 650));
   } else {

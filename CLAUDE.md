@@ -70,6 +70,7 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 | 個人資料 | `profile()`：各題庫挑戰 BOSS 的次數、平均、最高、最近 |
 | 雲端紀錄 | 進度匯出／匯入到 Google 試算表 |
 | 點陣 BOSS | `Boss3D` 模組（名字沿用舊版，現在是點陣）：three.js 舞台＋一張點陣貓貼圖，`spec(kind)` 定義每種貓的毛色和配件，姿勢有 stand／puff（生氣）／ko，另有 `tired`（打完大招累癱約 2 秒，是疊加狀態不是姿勢）；特效有 `HIT_POOL`（普通攻擊依階級抽招）、`KIND_FX`（各科必殺技專屬特效），小圖示在 `ICONS` |
+| 魔王外框動態 | `stageFx(kind, delay)`：答對時給 `.stage` 加 `fx-hit1`／`fx-hit2`／`fx-ult`（CSS 動畫，大招延遲 700ms 對齊 3D 招式落下），ult 會插入 `.rg2`／`.rg3` 兩個衝擊波圈；`prefers-reduced-motion` 時關閉 |
 | 稱號外框 | `.me[data-fr=1..10]`：每 5 級一款（`frameOf(lv)`），純 CSS，`@property --fa` 讓高等級邊框轉動；首頁和個人資料的 `.me` 用 `frAttr(L.lv)` 帶上 |
 | 復仇嚴重度 | `SEV`／`sevOf(n)`：復仇區塊依錯題數每 10 題升一級（共 7 級，`data-sev` 0～6），CSS 在 `.bank.revenge[data-sev]`；區塊預設收合（只留嚴重度、HP、今天消滅數、開戰鈕），`revOpen` 展開才看到提示、每場題數、筆記／修練；越高越亮、越會脈動／抖動。復仇戰一場抽 `db.revN`（10／20／30）題，`pickRevenge` 優先抽最久沒碰的（`db.wlast`）；`db.day` 記今天消滅題數和已領的降級獎勵；復仇戰打贏有通關獎勵 `revBonus(題數)`（10 題 +3、20 題 +8、30 題 +15，走 `result()` 的 `clear`）；開戰前記 `S.sev0`，`result()` 發現嚴重度降級就每級每天發一次刪去卡＋10 元 |
 | 稱號圖鑑 | `gallery()`（個人資料頁的「📖 稱號與造型圖鑑」）：11 張外框稱號卡（Lv1、5、10…50）＋`TITLES` 全部稱號格，沒達到的蓋黑影；新增稱號或外框時它會自動帶出來 |
