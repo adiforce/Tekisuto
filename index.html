@@ -77,6 +77,34 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 
 .me{display:flex;gap:14px;align-items:center;padding:14px 16px;margin-bottom:22px;background:var(--hit)}
 .me[data-act]{cursor:pointer;position:relative}
+/* 個人稱號外框：每 5 級換一款（Lv5 銅、10 銀、15 金、20 翡翠、25 藍寶石、30 紅寶石、35 紫水晶、40 烈焰、45 極光、50 白金彩虹）；Lv1～4 沒有外框 */
+@property --fa{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes frspin{to{--fa:360deg}}
+@keyframes frglow{50%{filter:brightness(1.35) saturate(1.2)}}
+.me[data-fr]{position:relative}
+.me[data-fr]::before,.me[data-fr]::after{content:"";position:absolute;pointer-events:none}
+.me[data-fr]::before{inset:-9px;border:7px solid transparent;border-image:var(--fb) 1;box-shadow:0 0 0 2px #000,inset 0 0 0 2px #000,var(--fg,0 0 0 0 transparent)}
+.me[data-fr]::after{inset:-16px;background:
+  radial-gradient(circle at 50% 50%,var(--fc) 0 9px,#000 9px 12px,transparent 12.5px) top left/26px 26px no-repeat,
+  radial-gradient(circle at 50% 50%,var(--fc) 0 9px,#000 9px 12px,transparent 12.5px) top right/26px 26px no-repeat,
+  radial-gradient(circle at 50% 50%,var(--fc) 0 9px,#000 9px 12px,transparent 12.5px) bottom left/26px 26px no-repeat,
+  radial-gradient(circle at 50% 50%,var(--fc) 0 9px,#000 9px 12px,transparent 12.5px) bottom right/26px 26px no-repeat}
+.me[data-fr="1"]{--fb:linear-gradient(135deg,#f0b27a,#8a4b14,#e59a52,#6b3a10);--fc:#e59a52}
+.me[data-fr="2"]{--fb:linear-gradient(135deg,#fff,#8e9bab,#e8eef5,#6f7c8c);--fc:#e8eef5}
+.me[data-fr="3"]{--fb:linear-gradient(135deg,#fff3a8,#d49a00,#ffd84a,#9a6a00);--fc:#ffd84a;--fg:0 0 14px #ffd84a99}
+.me[data-fr="4"]{--fb:linear-gradient(135deg,#8dffd0,#0a7a4f,#2ee59d,#07573a);--fc:#2ee59d;--fg:0 0 14px #2ee59d88}
+.me[data-fr="5"]{--fb:linear-gradient(135deg,#a8d2ff,#1d3fbf,#5aa7ff,#142c85);--fc:#5aa7ff;--fg:0 0 16px #5aa7ffaa}
+.me[data-fr="6"]{--fb:linear-gradient(135deg,#ff9aa5,#8a0f22,#ff4d5e,#5c0715);--fc:#ff4d5e;--fg:0 0 18px #ff4d5ecc}
+.me[data-fr="7"]{--fb:conic-gradient(from var(--fa),#e0b0ff,#5a189a,#c77dff,#3c096c,#e0b0ff);--fc:#c77dff;--fg:0 0 18px #c77dffcc;animation:frspin 6s linear infinite}
+.me[data-fr="8"]{--fb:conic-gradient(from var(--fa),#ffe066,#ff4d00,#d00000,#ff9500,#ffe066);--fc:#ff7a00;--fg:0 0 20px #ff7a00cc;animation:frspin 4s linear infinite}
+.me[data-fr="9"]{--fb:conic-gradient(from var(--fa),#7cf5ff,#ff8be6,#fff27a,#8bffb0,#7cf5ff);--fc:#7cf5ff;--fg:0 0 20px #7cf5ffcc;animation:frspin 5s linear infinite}
+.me[data-fr="10"]{--fb:conic-gradient(from var(--fa),#ff5d5d,#ffe45d,#5dff8a,#5dd6ff,#b45dff,#ff5dd0,#ff5d5d);--fc:#fff;--fg:0 0 24px #fff,0 0 36px #ffffff88;animation:frspin 3s linear infinite,frglow 2.4s ease-in-out infinite}
+.me[data-fr="10"]::after{inset:-16px;background:
+  radial-gradient(circle at 50% 50%,#fff 0 7px,#000 7px 10px,transparent 10.5px) top left/32px 32px no-repeat,
+  radial-gradient(circle at 50% 50%,#fff 0 7px,#000 7px 10px,transparent 10.5px) top right/32px 32px no-repeat,
+  radial-gradient(circle at 50% 50%,#fff 0 7px,#000 7px 10px,transparent 10.5px) bottom left/32px 32px no-repeat,
+  radial-gradient(circle at 50% 50%,#fff 0 7px,#000 7px 10px,transparent 10.5px) bottom right/32px 32px no-repeat}
+@media (prefers-reduced-motion:reduce){.me[data-fr]{animation:none!important}}
 .me .go-prof{position:absolute;right:10px;top:8px;font-size:13px;font-weight:900}
 .prof-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 18px}
 .prof-sum div{border:var(--bd);background:var(--paper);padding:8px 4px;text-align:center}
@@ -478,6 +506,8 @@ function levelOf(exp) {
   while (rest >= needExp(lv)) { rest -= needExp(lv); lv++; }
   return { lv, cur: rest, need: needExp(lv) };
 }
+const frameOf = lv => Math.min(10, Math.floor(lv / 5));   // 稱號外框款式：0＝沒有，1～10 每 5 級一款
+const frAttr = lv => frameOf(lv) ? ` data-fr="${frameOf(lv)}"` : '';
 const titleOf = lv => TITLES.filter(t => lv >= t[0]).pop()[1];
 const TIER_HIT = ['貓爪拳', '三連爪痕斬', '爪痕衝擊波', '天降落雷', '火焰爆炸', '龍捲旋風', '神話亂舞', '龍焰咆哮', '流星殞落', '白金審判', '永恆喵神降臨'];
 const TIER_ULT = ['能量光束', '電光光束', '十字光束', '流星雨', '巨大能量球', '七彩光束', '終極奧義', '龍息光束', '星河流星雨', '白金聖光', '創世之光'];
@@ -947,6 +977,7 @@ const MUSIC_SLOTS = {                                        // vol 音量、max
   exit: { vol: .9, max: 8 },                                 // 退出關卡
   levelup: { vol: .9, max: 12 },                             // 升級
   lose: { vol: .9, max: 12 },                                // 敗北
+  revenge: { vol: .9, max: 12 },                             // 進復仇戰（有放就取代進入關卡的音）
   relife: { vol: .9, max: 12 },                              // 使用復活卡
   win: { vol: .9, max: 12 },                                 // 勝利（擊倒 BOSS）
   result: { once: true, vol: .6, max: 90 }                   // 結算畫面：進戰果頁播一遍（等勝利／敗北音效播完才接），離開戰果頁就停
@@ -1201,7 +1232,7 @@ function home() {
   const L = levelOf(db.exp);
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音效開關">${db.sound ? '🔊' : '🔇'}</button></div>
-    <section class="panel me" data-act="profile"><span class="go-prof">個人資料 ›</span>
+    <section class="panel me" data-act="profile"${frAttr(L.lv)}><span class="go-prof">個人資料 ›</span>
       <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
         <div class="ttl">${titleOf(L.lv)}</div>
@@ -1370,7 +1401,7 @@ function profile() {
   const tn = all.reduce((a, x) => a + x.n, 0), tsum = all.reduce((a, x) => a + x.sum, 0), tw = all.reduce((a, x) => a + (x.win || 0), 0);
   const day = t => { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()}`; };
   let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>個人資料</h1></header>
-    <section class="panel me">
+    <section class="panel me"${frAttr(L.lv)}>
       <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
         <div class="ttl">${titleOf(L.lv)}</div>
@@ -2497,7 +2528,7 @@ function startQuiz(refs, opt) {
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
   SET.all = toRefs(S.items);
-  Music.base(false); Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
+  Music.base(false); if (!(opt.sub === '錯題' && Music.shot('revenge'))) Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
   setTheme(opt.sub);
   const x = subOf(opt.sub), stage = document.createElement('div');
   stage.className = 'panel stage';
