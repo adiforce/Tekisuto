@@ -165,6 +165,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .revenge .sevbar{display:inline-flex;gap:3px}
 .revenge .sevbar i{display:block;width:16px;height:12px;border:2px solid #000;background:#ddd}
 .revenge .sevbar i.on{background:var(--sc)}
+.revenge .revn{display:flex;align-items:center;gap:6px;margin:6px 0 10px;font-size:14px;font-weight:900}
+.revenge .revn button{font:inherit;padding:2px 10px;border:2px solid #000;background:#fff;color:#000;cursor:pointer}
+.revenge .revn button.on{background:var(--sc);color:var(--sk,#fff)}
 .revenge .sevtip{font-size:14px;font-weight:900;color:var(--ink);margin:2px 0 4px;padding-left:8px;border-left:5px solid var(--sc)}
 .bank.revenge[data-sev="4"] .sevtip,.bank.revenge[data-sev="5"] .sevtip,.bank.revenge[data-sev="6"] .sevtip{color:#fff}
 .bank.revenge[data-sev="1"],.bank.revenge[data-sev="2"],.bank.revenge[data-sev="3"],.bank.revenge[data-sev="4"],.bank.revenge[data-sev="5"],.bank.revenge[data-sev="6"]{box-shadow:0 0 0 3px var(--sc),var(--sh)}
@@ -1172,7 +1175,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', coins: 0, qwin: {}, cards: 0, revives: 0, stats: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', revN: 10, wlast: {}, day: null, coins: 0, qwin: {}, cards: 0, revives: 0, stats: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -1203,8 +1206,16 @@ const wrongSet = id => new Set(db.wrong[id] || []);
 function markWrong(bid, qid, isWrong) {
   const s = wrongSet(bid);
   isWrong ? s.add(qid) : s.delete(qid);
-  db.wrong[bid] = [...s]; save();
+  db.wrong[bid] = [...s];
+  if (!db.wlast) db.wlast = {};
+  if (isWrong) db.wlast[bid + '|' + qid] = Date.now(); else delete db.wlast[bid + '|' + qid];   // 復仇戰優先抽最久沒碰的題目
+  save();
 }
+// 今天消滅了幾題、今天領過哪幾級的降級獎勵（跨日自動歸零）
+const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+function dayStat() { if (!db.day || db.day.d !== dayKey()) db.day = { d: dayKey(), cleared: 0, rw: [] }; return db.day; }
+// 復仇戰一場抽 n 題：最久沒碰的優先（同時間的隨機）
+const pickRevenge = (refs, n) => shuffle(refs).sort((a, b) => ((db.wlast || {})[a.b + '|' + a.q] || 0) - ((db.wlast || {})[b.b + '|' + b.q] || 0)).slice(0, n);
 function addBank(b) {
   const existed = !!db.banks[b.id];
   db.banks[b.id] = b;
@@ -1268,12 +1279,12 @@ const optList = (q, order) => `<ul class="copts">${order.map((oi, k) =>
 /* ===== 復仇戰嚴重度：錯題每累積 10 題升一級 ===== */
 const SEV = [
   { n: '輕微', ic: '⚠️', c: '#FF6B6B', tip: '還很輕鬆，有空順手清掉' },
-  { n: '注意', ic: '⚠️', c: '#FFC400', tip: '該開始復習了，先清掉一批' },
-  { n: '警告', ic: '⚠️', c: '#FF8A00', tip: '錯題在堆積，今天就打一場' },
-  { n: '危險', ic: '🚨', c: '#FF2E2E', tip: '再不復習就要爆了！' },
-  { n: '嚴重', ic: '🚨', c: '#C70000', tip: '怨念暴增，立刻開戰！' },
-  { n: '失控', ic: '☠️', c: '#B0002A', tip: '幽靈快壓不住了，馬上處理！' },
-  { n: '暴走', ic: '☠️', c: '#9B30FF', tip: '怨靈暴走！！先打 10 題再說' }
+  { n: '注意', ic: '⚠️', c: '#FFC400', tip: '該開始復習了，先清一小批' },
+  { n: '警告', ic: '⚠️', c: '#FF8A00', tip: '錯題在堆積，今天打一場就好' },
+  { n: '危險', ic: '🚨', c: '#FF2E2E', tip: '先打 10 題就好，一步一步清' },
+  { n: '嚴重', ic: '🚨', c: '#C70000', tip: '怨念變強了，先清 10 題壓一壓' },
+  { n: '失控', ic: '☠️', c: '#B0002A', tip: '先清 10 題，馬上就會降級' },
+  { n: '暴走', ic: '☠️', c: '#9B30FF', tip: '先打 10 題，就開始壓制它了' }
 ];
 const sevOf = n => Math.min(SEV.length - 1, Math.floor(n / 10));
 
@@ -1304,17 +1315,18 @@ function home() {
   const allW = allWrongRefs();
   if (allW.length) {
     const nb = new Set(allW.map(r => r.b)).size;
-    const sv = sevOf(allW.length), SV = SEV[sv], toNext = sv < SEV.length - 1 ? (sv + 1) * 10 - allW.length : 0;
+    const sv = sevOf(allW.length), SV = SEV[sv], toDown = sv > 0 ? allW.length - (sv * 10 - 1) : 0, rn = [10, 20, 30].includes(db.revN) ? db.revN : 10, dayN = dayStat().cleared;
     h += `<section class="panel bank revenge" data-sev="${sv}" style="--sc:${SV.c}">
       <div class="band"><b>${SV.n}</b></div>
       <div class="body">
         <span class="tag"><span>復仇戰</span></span>
         <div class="sev"><span class="sevn">${SV.ic} 嚴重度 ${sv + 1}／${SEV.length}・${SV.n}</span><span class="sevbar">${SEV.map((_, i) => `<i class="${i <= sv ? 'on' : ''}"></i>`).join('')}</span></div>
         <h2>幽靈怨念喵　HP ${allW.length}</h2>
-        <div class="sevtip">${SV.tip}${toNext ? `（再 ${toNext} 題升到「${SEV[sv + 1].n}」）` : ''}</div>
-        <div class="meta">來自 ${nb} 個題庫的錯題，答對就會消滅</div>
+        <div class="sevtip">${SV.tip}${toDown ? `（再清 ${toDown} 題降到「${SEV[sv - 1].n}」）` : ''}</div>
+        <div class="meta">今天已消滅 <b>${dayN}</b> 題｜來自 ${nb} 個題庫，答對就會消滅</div>
+        <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題</button>`).join('')}</div>
         <div class="grid three">
-          <button class="btn go" data-act="allQuiz">開戰</button>
+          <button class="btn go" data-act="allQuiz">開戰（${Math.min(rn, allW.length)} 題）</button>
           <button class="btn" data-act="allReview">筆記</button>
           <button class="btn" data-act="allCards">修練</button>
         </div>
@@ -2582,6 +2594,7 @@ function startQuiz(refs, opt) {
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
   SET.all = toRefs(S.items);
+  S.sev0 = sevOf(allWrongRefs().length);                      // 開戰前的復仇嚴重度，打完降級有獎勵
   Music.base(false); if (!(opt.sub === '錯題' && Music.shot('revenge'))) Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
   setTheme(opt.sub);
   const x = subOf(opt.sub), stage = document.createElement('div');
@@ -2685,6 +2698,7 @@ function pick(k) {
     const why = it.q.why && it.q.why[it.order[j]];
     if (j !== right && why) bt.lastElementChild.insertAdjacentHTML('beforeend', `<small class="why">✘ ${fmt(why)}</small>`);
   });
+  if (ok && wrongSet(it.bid).has(it.q.id)) dayStat().cleared++;     // 原本是錯題、這次答對＝消滅一題
   markWrong(it.bid, it.q.id, !ok);
   let say, gain = -1;
   if (ok) {
@@ -2759,6 +2773,16 @@ function result() {
     if (!old || RANK_ORDER.indexOf(rank) > RANK_ORDER.indexOf(old)) db.best[S.recordBid] = rank;
     db.last[S.recordBid] = { score: S.correct, total: n, at: Date.now() };
   }
+  // 錯題清少了、嚴重度往下掉：每一級每天第一次給 ✂️刪去卡 ×1＋💰10 元
+  let dropLine = '';
+  const sevNow = sevOf(allWrongRefs().length);
+  if (sevNow < S.sev0) {
+    const ds = dayStat(); let cards = 0;
+    for (let lv = S.sev0 - 1; lv >= sevNow; lv--) if (!ds.rw.includes(lv)) { ds.rw.push(lv); cards++; }
+    if (cards) { db.cards = (db.cards || 0) + cards; db.coins += cards * 10; S.coins += cards * 10; }
+    save();
+    dropLine = `<div class="line">🎉 幽靈降級了！嚴重度降到「${SEV[sevNow].n}」${cards ? `<br>獎勵：✂️ 刪去卡 ×${cards}　💰 +${cards * 10} 元` : '（這一級今天的獎勵已領過）'}</div>`;
+  }
   const up = gainExp(exp);
   SET.last = { title: S.title, boss: S.boss, sub: S.sub, refs: S.wrong.slice() };
   const answered = S.i + 1, wn = S.wrong.length;
@@ -2773,6 +2797,7 @@ function result() {
         <div><b>+${exp}</b><small>EXP</small></div>
       </div>
       <div class="line">💰 本場 +${S.coins} 元${clear ? `（含通關 +${clear}）` : ''}　目前共 ${db.coins} 元</div>
+      ${dropLine}
     </section>
     <div class="grid">
       ${wn ? `<button class="btn go span2" data-act="reviewLast">看作戰筆記（${wn} 題錯題）</button>
@@ -2996,7 +3021,8 @@ const ACT = {
     : startQuiz(refsOf(d.id), { ...quizOpt(d.id), recordBid: d.id }),
   cards: d => cards(refsOf(d.id)),
   review: d => review(refsOf(d.id, 'wrong'), bankOf(d.id).title),
-  allQuiz: () => startQuiz(allWrongRefs(), REVENGE),
+  allQuiz: () => startQuiz(pickRevenge(allWrongRefs(), db.revN || 10), REVENGE),
+  setRevN: d => { db.revN = +d.n; save(); const y = window.scrollY; home(); window.scrollTo(0, y); },
   allReview: () => review(allWrongRefs(), '全部錯題'),
   allCards: () => cards(allWrongRefs()),
   pick: d => pick(+d.k),

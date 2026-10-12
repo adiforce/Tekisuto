@@ -71,11 +71,11 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 | 雲端紀錄 | 進度匯出／匯入到 Google 試算表 |
 | 點陣 BOSS | `Boss3D` 模組（名字沿用舊版，現在是點陣）：three.js 舞台＋一張點陣貓貼圖，`spec(kind)` 定義每種貓的毛色和配件，姿勢有 stand／puff（生氣）／ko，另有 `tired`（打完大招累癱約 2 秒，是疊加狀態不是姿勢）；特效有 `HIT_POOL`（普通攻擊依階級抽招）、`KIND_FX`（各科必殺技專屬特效），小圖示在 `ICONS` |
 | 稱號外框 | `.me[data-fr=1..10]`：每 5 級一款（`frameOf(lv)`），純 CSS，`@property --fa` 讓高等級邊框轉動；首頁和個人資料的 `.me` 用 `frAttr(L.lv)` 帶上 |
-| 復仇嚴重度 | `SEV`／`sevOf(n)`：復仇區塊依錯題數每 10 題升一級（共 7 級，`data-sev` 0～6），CSS 在 `.bank.revenge[data-sev]`；Lv 越高越亮、越會脈動／抖動 |
+| 復仇嚴重度 | `SEV`／`sevOf(n)`：復仇區塊依錯題數每 10 題升一級（共 7 級，`data-sev` 0～6），CSS 在 `.bank.revenge[data-sev]`；越高越亮、越會脈動／抖動。復仇戰一場抽 `db.revN`（10／20／30）題，`pickRevenge` 優先抽最久沒碰的（`db.wlast`）；`db.day` 記今天消滅題數和已領的降級獎勵；開戰前記 `S.sev0`，`result()` 發現嚴重度降級就每級每天發一次刪去卡＋10 元 |
 | 音量 | `db.vol`（l／m／s）＋ `outNode()` 總音量 gain，所有聲音都經過它；首頁 🔊 按鈕輪流切 大→中→小→靜音 |
 | 自動更新 | 檔尾 IIFE：開啟與切回前景（間隔 5 分鐘）用 `cache:'no-store'` 問 index.html 的 ETag／Last-Modified，跟 localStorage `beishu.ver` 不同就換成 `?v=版本` 網址重載；戰鬥中、草稿紙開著、1 分鐘內重載過都不動 |
 | 自訂音樂 | `MUSIC_SLOTS`＋`Music` 模組：每個位置先找 .mp3、再 .m4a、再 .mid（`parseMidi`／`playMidi`／`loopMidi`）。`Music.shot(名)` 一次性播放，有檔案回傳 true；`Music.base(true/false)` 控制基地音樂（只播一遍）、`Music.result(true)` 結算音樂（`base()` 會順便把它停掉）；第一次點畫面才載入。新增位置：加進 `MUSIC_SLOTS` 並在對應事件呼叫 |
-| 草稿紙 | `Pad` 模組：全螢幕空白畫布（canvas＋指標事件），作答時在上方顯示題目、附圖、選項。入口是戰鬥頂列的 ✏️ 與首頁的「空白畫布」按鈕。筆畫只存在記憶體，換題或換場戰鬥就清空；用過 Apple Pencil 後手指觸碰不畫（防手掌誤觸）；草稿紙內文字一律不可選取，並擋掉 selectstart／contextmenu、有選取就清掉（iPad 長按會跳出全選並吃掉下一次點擊） |
+| 草稿紙 | `Pad` 模組：全螢幕空白畫布（canvas＋指標事件），作答時在上方顯示題目、附圖、選項。入口是戰鬥頂列的 ✏️（首頁的按鈕已拿掉，`ACT.padOpen` 還在）。筆畫只存在記憶體，換題或換場戰鬥就清空；用過 Apple Pencil 後手指觸碰不畫（防手掌誤觸）；草稿紙內文字一律不可選取，並擋掉 selectstart／contextmenu、有選取就清掉（iPad 長按會跳出全選並吃掉下一次點擊） |
 | 魔王背景 | `Scene` 模組：依科目 kind 用 SVG 方塊拼 96×56 的點陣場景，貼在 three.js 舞台後面，新增科目時要在 `D` 裡補一個 kind |
 | 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result`；一場最多 `MAX_Q`（30）題，超過就隨機抽，重新挑戰時從整份重抽 |
 | 事件 | `ACT` 物件：`data-act="xxx"` 的按鈕點下去會呼叫 `ACT.xxx(dataset, el)` |
