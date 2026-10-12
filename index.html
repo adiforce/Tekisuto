@@ -947,6 +947,7 @@ const MUSIC_SLOTS = {                                        // vol 音量、max
   exit: { vol: .9, max: 8 },                                 // 退出關卡
   levelup: { vol: .9, max: 12 },                             // 升級
   lose: { vol: .9, max: 12 },                                // 敗北
+  relife: { vol: .9, max: 12 },                              // 使用復活卡
   win: { vol: .9, max: 12 },                                 // 勝利（擊倒 BOSS）
   result: { once: true, vol: .6, max: 90 }                   // 結算畫面：進戰果頁播一遍（等勝利／敗北音效播完才接），離開戰果頁就停
 };
@@ -2574,7 +2575,7 @@ function useRevive() {
   db.revives--; save();
   S.hp = S.maxHp; S.revived = (S.revived || 0) + 1;
   const last = S.i === S.items.length - 1;
-  showFx('REVIVE!', '復活！愛心補滿！', true); SFX.lvup && SFX.lvup(); vibrate([40, 30, 80]);
+  showFx('REVIVE!', '復活！愛心補滿！', true); if (!Music.shot('relife') && SFX.lvup) SFX.lvup(); vibrate([40, 30, 80]);
   if (last) {
     S.bossHp = 0;
     setTimeout(() => { Boss3D.hit1(true); showFx('K.O.!', '復活逆轉，BOSS 倒下了！', true); SFX.win(); }, 900);
@@ -2954,7 +2955,7 @@ const ACT = {
 };
 app.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
-  const fn = ACT[el.dataset.act]; if (fn) fn(el.dataset, el, e);
+  const fn = ACT[el.dataset.act]; if (fn) { Music.result(false); fn(el.dataset, el, e); }   // 戰果頁按任何按鈕（跳去哪都一樣）結算音樂就停
 });
 document.getElementById('zoom').querySelector('.x').addEventListener('click', () => document.getElementById('zoom').classList.remove('show'));
 document.getElementById('lvup').addEventListener('click', e => { if (e.target.closest('[data-close]') || e.target.id === 'lvup') e.currentTarget.classList.remove('show'); });

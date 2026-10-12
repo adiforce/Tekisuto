@@ -13,7 +13,7 @@ index.html                 播放器本體（約 2200 行）
 banks/*.json               題庫，一個單元一個檔，檔名＝id
 banks/img/*.jpg            附圖題的圖片，檔名 {題庫id}-{英文短名}.jpg
 banks/index.json           題庫清單，由 GitHub Actions 自動產生，不要手動建或提交
-audio/{base,enter,exit,levelup,lose(lost 也行),win,result}.mp3 或 .mid   自訂音樂／音效（選用，使用者自己放；兩種都有用 mp3；沒放就用原本的合成音或安靜。base 每次回到基地從頭播一遍（播完就安靜，進戰鬥後重置），enter 開戰、exit 撤退、lose 敗北、win 擊倒 BOSS、levelup 升級、result 結算畫面（進戰果頁播一遍，等 win／lose 播完才接，離開就停）；midi 用內建電子音色合成播放）
+audio/{base,enter,exit,levelup,lose(lost 也行),win,relife,result}.mp3 或 .mid   自訂音樂／音效（選用，使用者自己放；兩種都有用 mp3；沒放就用原本的合成音或安靜。base 每次回到基地從頭播一遍（播完就安靜，進戰鬥後重置），enter 開戰、exit 撤退、lose 敗北、win 擊倒 BOSS、levelup 升級、relife 使用復活卡、result 結算畫面（進戰果頁播一遍，等 win／lose 播完才接，按任何按鈕就停）；midi 用內建電子音色合成播放）
 .github/workflows/pages.yml  產生 banks/index.json 後部署 Pages
 backup/                    舊的日文假名題庫備份，不會被讀取
 jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
