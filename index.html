@@ -1713,7 +1713,10 @@ async function syncCore(name, noBase) {
   if (old) {
     const raw = (await syncGet({ action: 'load', name })).data;
     try { cloud = JSON.parse(raw); } catch (e) { throw new Error('雲端紀錄格式錯誤'); }
-    const lost = await fetchMissing((cloud.banks || []).filter(x => !lostSeen.has(x.id)));
+    // 上次同步時有、現在這台沒有＝這台刪掉的，不要再從 GitHub 抓回來（不然刪了會復活）
+    const base0 = noBase ? null : readBase();
+    const gone = id => !!base0 && (base0.order || []).includes(id) && !db.order.includes(id);
+    const lost = await fetchMissing((cloud.banks || []).filter(x => !lostSeen.has(x.id) && !gone(x.id)));
     lost.forEach(x => lostSeen.add(x.id));
   }
   if (S) return { changed: false, skipped: true };                 // 等的時候開始戰鬥了，這次不動進度，打完再同步
