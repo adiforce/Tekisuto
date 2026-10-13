@@ -469,6 +469,25 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 #sheet .box2{background:var(--paper);width:100%;max-width:720px;border-top:var(--bd);padding:16px 16px calc(16px + env(safe-area-inset-bottom));display:grid;gap:12px}
 #sheet .box2 h3{margin:0 0 2px;font-size:16px;text-align:center;font-weight:900}
 
+/* ===== 小魔王：偶爾出來在畫面上晃的小貓。整個蓋在畫面上但不吃點擊（pointer-events:none），選項、按鈕照常能按 ===== */
+#mini{position:fixed;left:0;top:0;z-index:20;width:var(--ms,54px);height:var(--ms,54px);pointer-events:none;display:none;will-change:transform}
+#mini.on{display:block}
+#mini .mw{width:100%;height:100%}
+#mini canvas{display:block;width:100%;height:100%;image-rendering:pixelated;filter:drop-shadow(0 2px 0 rgba(0,0,0,.22))}
+#mini.walk .mw{animation:miBob .36s steps(2,end) infinite}
+#mini.hop .mw{animation:miHop .5s ease-out}
+#mini.pop .mw{animation:miPop .28s ease-out}
+@keyframes miBob{50%{transform:translateY(-2px)}}
+@keyframes miHop{0%,100%{transform:translateY(0)}30%{transform:translateY(-16px)}55%{transform:translateY(0)}72%{transform:translateY(-7px)}}
+@keyframes miPop{from{transform:scale(.2)}70%{transform:scale(1.15)}to{transform:scale(1)}}
+#mini .mb{position:absolute;left:50%;bottom:100%;margin-bottom:8px;transform:translateX(calc(-50% + var(--bx,0px)));width:max-content;max-width:min(210px,72vw);
+  background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:8px;box-shadow:2px 2px 0 var(--ink);
+  padding:3px 10px;font-size:13px;line-height:1.5;font-weight:900;text-align:center;opacity:0;transition:opacity .15s}
+#mini .mb.show{opacity:1}
+#mini .mb::after{content:"";position:absolute;left:calc(50% - var(--bx,0px));bottom:-7px;width:9px;height:9px;background:var(--paper);border:solid var(--ink);border-width:0 2px 2px 0;transform:translateX(-50%) rotate(45deg)}
+#mini .mb.below{bottom:auto;top:100%;margin:8px 0 0}
+#mini .mb.below::after{bottom:auto;top:-7px;border-width:2px 0 0 2px}
+
 @keyframes boom{0%{transform:scale(.2) rotate(-14deg)}100%{transform:scale(1) rotate(-4deg)}}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(25deg)}}
 @keyframes pop{0%{transform:rotate(-8deg) scale(1.5)}100%{transform:rotate(-8deg) scale(1)}}
@@ -1236,7 +1255,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, cards: 0, revives: 0, stats: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', mini: true, revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, cards: 0, revives: 0, stats: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -1578,6 +1597,7 @@ function profile() {
       </div>
     </section>
     <button class="btn wide gal-btn" data-act="gallery">📖 稱號與造型圖鑑</button>
+    <button class="btn wide gal-btn" data-act="toggleMini" aria-pressed="${db.mini !== false}">${db.mini === false ? '💤 小魔王：休息中（點一下請牠出來）' : '🐾 小魔王：出來晃中（點一下請牠休息）'}</button>
     <div class="prof-sum">
       <div><b>${tn}</b><small>挑戰場數</small></div>
       <div><b>${tn ? Math.round(tsum / tn) : '—'}</b><small>平均分數</small></div>
@@ -2594,8 +2614,21 @@ const Boss3D = (() => {
     }
   }
 
+  /* --- 小魔王用：不靠 three.js，直接把某一種貓畫成一張 54x54 的 canvas（同樣的姿勢只畫一次，之後拿快取）--- */
+  const SPR = {};
+  function sprite(kind, hex, f) {
+    f = f || {};
+    const key = [kind, hex, f.pose || 'stand', f.eyes || 'open', f.tail ? 1 : 0, f.brows ? 1 : 0, f.hiss ? 1 : 0].join('|');
+    if (SPR[key]) return SPR[key];
+    const cv = document.createElement('canvas'); cv.width = cv.height = W;
+    const ctx = cv.getContext('2d'), img = ctx.createImageData(W, W), d = img.data;
+    drawCat(spec(kind, hexStr(hex)), f).forEach((c, i) => { if (!c) return; const v = rgb(c); d[i * 4] = v[0]; d[i * 4 + 1] = v[1]; d[i * 4 + 2] = v[2]; d[i * 4 + 3] = 255; });
+    ctx.putImageData(img, 0, 0);
+    return (SPR[key] = cv);
+  }
+
   return {
-    load, start, stop, resize,
+    load, start, stop, resize, sprite,
     available: () => !!T,
     running: () => !!R,
     _debug: () => R,
@@ -2714,7 +2747,7 @@ function startQuiz(refs, opt) {
     <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><button class="icon" data-act="padOpen" aria-label="草稿紙">✏️</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
     <div class="hud" id="hud"></div>`;
   if (window.ResizeObserver) new ResizeObserver(() => Boss3D.resize()).observe(stage);
-  S.stageEl = stage; S.ult = x.ult;
+  S.stageEl = stage; S.ult = x.ult; S.kind = x.kind; S.kc = x.c;      // 小魔王（畫面上晃的小貓）跟著這場的魔王換貓種
   renderQ();
   const mine = S;
   Boss3D.load().then(ok => {
@@ -3202,6 +3235,11 @@ const ACT = {
     home(); toast(nx === 'off' ? '音效：關' : '音量：' + { l: '大', m: '中', s: '小' }[nx]);
     if (db.sound) SFX.hit(1);
   },
+  // 小魔王（畫面上晃的小貓）開關：存在這台裝置，不進雲端紀錄
+  toggleMini: () => {
+    db.mini = db.mini === false; save(); Mini.refresh();
+    profile(); toast(db.mini ? '小魔王出來晃囉 🐾' : '小魔王去睡覺了 💤');
+  },
   quiz: d => d.mode === 'wrong'
     ? startQuiz(refsOf(d.id, 'wrong'), quizOpt(d.id, '・錯題'))
     : startQuiz(refsOf(d.id), { ...quizOpt(d.id), recordBid: d.id }),
@@ -3276,9 +3314,171 @@ window.addEventListener('scroll', () => {
   else if (y < 8 && c.contains('compact')) c.remove('compact');
 }, { passive: true });
 
+/* ===== 小魔王：偶爾從螢幕邊走出來晃一下、講一句加油的話，過一陣子再走掉。不吃點擊（點到牠，底下的按鈕照樣會動）；
+   答題畫面只在右下角一小段底邊走；草稿紙、升級、各種彈窗開著時先躲起來；系統設定「減少動態」時不走路、只站在右下角 ===== */
+const Mini = (() => {
+  const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SAY = ['喵～慢慢來，會背起來的。', '再看一遍就更熟了！', '我在旁邊陪你。', '錯了也沒關係，貓有九條命。', '喝口水，休息一下再繼續。',
+    '背不起來？換個方式記記看。', '一次背一點點就好～', '你今天已經很認真了喔。', '眼睛累了就看看遠方，喵。', '呼嚕呼嚕…加油！',
+    '重點圈起來，比較不會忘。', '再一下下就背完了！', '肉球幫你按個讚 🐾'];
+  const SAY_BAT = ['看清楚題目再選喔！', '穩穩的，不要慌～', '不確定就先刪去一個選項。', '答錯就看解釋，下次就會了！', '魔王的血量在掉了，衝！',
+    '深呼吸，你可以的。', '這題我相信你！', '先想想這題在考什麼。'];
+  const POKE = ['喵？', '癢癢的啦～', '被你發現了 🐾', '別戳我，快去背書！', '再戳我就要背書給你聽喔。', '呼嚕～'];
+  const SPEED = 36;                                    // 走路速度（px／秒）
+  let el, mb, cv, ctx, SZ = 54, cur = null;
+  let st = 'away', x = 0, y = 0, tx = 0, ty = 0;       // away 躲著、walk 走、idle 站著、leave 走出畫面
+  let until = 0, visitEnd = 0, sayAt = 0, hideAt = 0, last = 0, chk = 0, pokeAt = 0, bw = 0, bh = 0;
+  let bat = false, blk = false, bnd = null, lastSay = '', raf = 0, tm = 0;
+  const now = () => performance.now();
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const on = () => db.mini !== false;
+  const shown = () => !!el && el.classList.contains('on');
+
+  function size() { SZ = innerWidth >= 700 ? 81 : 54; el.style.setProperty('--ms', SZ + 'px'); }   // 手機 1 格＝1 點，平板放大 1.5 倍
+  function bounds() {                                  // 可以走的範圍（避開瀏海、Home 條）；答題畫面只剩右下角一小段底邊
+    const cs = getComputedStyle(document.body), p = k => parseFloat(cs[k]) || 0;
+    const b = { x0: 6 + p('paddingLeft'), x1: innerWidth - SZ - 6 - p('paddingRight'), y0: 6 + p('paddingTop'), y1: innerHeight - SZ - 4 - p('paddingBottom') };
+    if (bat) { b.x0 = Math.max(b.x0, b.x1 - 120); b.y0 = b.y1; }
+    return b;
+  }
+  const place = () => { el.style.transform = `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`; };
+  function draw(t) {
+    const k = bat && S && S.kind ? [S.kind, S.kc] : [DEFAULT_SUB.kind, DEFAULT_SUB.c];     // 答題時跟著這場的魔王換貓種，其它畫面用預設的米克斯
+    const walking = st === 'walk' || st === 'leave';
+    const f = REDUCE ? {} : { tail: Math.floor(t / (walking ? 200 : 900)) % 2 === 1, eyes: st === 'idle' && t % 3300 < 150 ? 'blink' : 'open' };
+    const src = Boss3D.sprite(k[0], k[1], f);
+    if (src === cur) return;
+    cur = src; if (cv.width !== src.width) cv.width = cv.height = src.width;
+    ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(src, 0, 0);
+  }
+  function pop() { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); setTimeout(() => el.classList.remove('pop'), 320); }
+
+  function fitBubble() {                               // 對話框不要超出螢幕；貓在最上面時改放在下面
+    const l = x + SZ / 2 - bw / 2, vw = innerWidth;
+    const sh = l < 6 ? 6 - l : l + bw > vw - 6 ? vw - 6 - (l + bw) : 0;
+    mb.style.setProperty('--bx', Math.round(sh) + 'px');
+    mb.classList.toggle('below', y < bh + 14);
+  }
+  function hideBubble() { mb.classList.remove('show'); hideAt = 0; }
+  function say(t, pool) {
+    pool = pool || (bat ? SAY_BAT : SAY);
+    let s; do { s = pool[Math.floor(Math.random() * pool.length)]; } while (s === lastSay && pool.length > 1);
+    lastSay = s; mb.textContent = s; mb.classList.add('show');
+    const r = mb.getBoundingClientRect(); bw = r.width; bh = r.height;
+    hideAt = t + 2400 + s.length * 110;
+    sayAt = t + (bat ? rnd(25e3, 45e3) : rnd(14e3, 26e3));
+    if (st === 'walk') { st = 'idle'; until = Math.max(until, hideAt); }            // 邊走邊講太怪，停下來講
+    fitBubble();
+  }
+
+  function pickTarget() {
+    const b = bnd;
+    if (bat) { tx = rnd(b.x0, b.x1); ty = b.y1; return; }
+    tx = Math.random() < .6 ? (Math.random() < .5 ? rnd(b.x0, b.x0 + 60) : rnd(b.x1 - 60, b.x1)) : rnd(b.x0, b.x1);   // 多半沿著左右邊走，比較不擋字
+    tx = clamp(tx, b.x0, b.x1); ty = rnd(b.y0, b.y1);
+  }
+  function arrive(t) {
+    bnd = bounds();
+    el.classList.add('on'); cur = null;
+    visitEnd = t + (bat ? rnd(35e3, 70e3) : rnd(45e3, 90e3)); sayAt = t + rnd(3e3, 6e3);
+    if (REDUCE) { x = bnd.x1; y = bnd.y1; st = 'idle'; until = t + 5000; pop(); return; }
+    const fromR = bat || Math.random() < .5;           // 答題時固定從右邊走進來
+    x = fromR ? innerWidth + 4 : -SZ - 4; y = bat ? bnd.y1 : rnd(bnd.y0, bnd.y1);
+    tx = clamp(fromR ? innerWidth - SZ - rnd(30, 160) : rnd(30, 160), bnd.x0, bnd.x1); ty = y;
+    st = 'walk';
+  }
+  function gone() {
+    el.classList.remove('on', 'walk', 'hop', 'pop'); hideBubble();
+    st = 'away'; until = now() + (bat ? 1.5 : 1) * rnd(25e3, 70e3);
+  }
+  function leave() {
+    if (REDUCE) { gone(); return; }
+    st = 'leave'; hideBubble();
+    tx = bat || x + SZ / 2 > innerWidth / 2 ? innerWidth + 4 : -SZ - 4; ty = y;
+  }
+  function stepTo(dt) {                                // 往目標走一小步，到了回傳 true
+    const dx = tx - x, dy = ty - y, d = Math.hypot(dx, dy), s = SPEED * dt;
+    if (d <= s) { x = tx; y = ty; return true; }
+    x += dx / d * s; y += dy / d * s; return false;
+  }
+
+  function schedule() {
+    if (raf || tm || !on() || document.hidden) return;
+    if (st === 'away' || blk) tm = setTimeout(tick, 400); else raf = requestAnimationFrame(tick);      // 躲著的時候不用每格畫面都醒來
+  }
+  function kick() { cancelAnimationFrame(raf); clearTimeout(tm); raf = tm = 0; last = now(); schedule(); }
+  function tick() {
+    raf = tm = 0;
+    if (!on()) { if (shown()) gone(); return; }
+    if (document.hidden) return;                       // 切到背景就暫停，切回來 visibilitychange 會再叫醒
+    const t = now(), dt = Math.min(.1, (t - last) / 1000); last = t;
+    if (t - chk > 250 || !bnd) {
+      chk = t;
+      blk = !!document.querySelector('#pad.show,#lvup.show,#wdm.show,#sheet.show,#zoom.show,#cutin.show');
+      const nb = !!document.querySelector('#app .stage');                        // 有魔王舞台＝正在答題
+      if (nb !== bat) {
+        bat = nb; bnd = bounds();
+        if (shown()) { x = clamp(x, bnd.x0, bnd.x1); y = bat ? bnd.y1 : clamp(y, bnd.y0, bnd.y1); st = 'idle'; until = t + 400; hideBubble(); place(); pop(); }
+      }
+      bnd = bounds();
+      if (shown()) { y = clamp(y, bnd.y0, bnd.y1); ty = clamp(ty, bnd.y0, bnd.y1); }
+    }
+    if (blk) {                                          // 彈窗開著：躲起來，計時一起暫停
+      el.style.visibility = 'hidden';
+      const f = dt * 1000; until += f; visitEnd += f; sayAt += f; if (hideAt) hideAt += f;
+      schedule(); return;
+    }
+    el.style.visibility = '';
+    if (st === 'away') {
+      if (t >= until) arrive(t); else { schedule(); return; }
+    } else if (st === 'walk' || st === 'leave') {
+      if (stepTo(dt)) {
+        if (st === 'leave') { gone(); schedule(); return; }
+        st = 'idle'; until = t + (bat ? rnd(2500, 7000) : rnd(2000, 6000));
+      }
+    } else if (t >= until) {                            // idle 站夠了：該走了就走出畫面，不然換個地方
+      if (t >= visitEnd) leave();
+      else if (REDUCE) until = t + 5000;
+      else { pickTarget(); st = 'walk'; }
+    }
+    if (hideAt && t >= hideAt) hideBubble();
+    else if (hideAt) fitBubble();
+    else if (st !== 'leave' && t >= sayAt) say(t);
+    el.classList.toggle('walk', st === 'walk' || st === 'leave');
+    place(); draw(t);
+    schedule();
+  }
+
+  // 點到牠就跳一下、說句話（只在非答題畫面）；不擋事件，底下的按鈕照樣會被點到
+  function poke(e) {
+    if (!shown() || bat || blk || st === 'leave') return;
+    if (e.clientX < x - 6 || e.clientX > x + SZ + 6 || e.clientY < y - 6 || e.clientY > y + SZ + 6) return;
+    el.classList.remove('hop'); void el.offsetWidth; el.classList.add('hop'); setTimeout(() => el.classList.remove('hop'), 520);
+    const t = now(); if (t - pokeAt > 1500) { pokeAt = t; say(t, POKE); }
+  }
+  function refresh() {                                  // 首頁開關按下去
+    if (on()) { if (st === 'away') until = Math.min(until, now() + 800); kick(); }
+    else { clearTimeout(tm); cancelAnimationFrame(raf); raf = tm = 0; if (shown()) gone(); }
+  }
+  function start() {
+    el = document.createElement('div'); el.id = 'mini'; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = '<div class="mb"></div><div class="mw"><canvas width="54" height="54"></canvas></div>';
+    document.body.appendChild(el);
+    mb = el.querySelector('.mb'); cv = el.querySelector('canvas'); ctx = cv.getContext('2d');
+    size();
+    addEventListener('resize', () => { size(); bnd = bounds(); if (shown()) { x = clamp(x, bnd.x0 - SZ, bnd.x1 + SZ + 8); y = clamp(y, bnd.y0, bnd.y1); } });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
+    document.addEventListener('pointerdown', poke, { capture: true, passive: true });
+    until = now() + 2500; kick();                       // 打開網頁幾秒後第一次出來
+  }
+  return { start, refresh, _debug: () => ({ st, x, y, tx, ty, bat, blk, SZ, shown: shown(), bnd, say: mb && mb.textContent }), _go: () => { until = 0; kick(); } };
+})();
+
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
 home();
+Mini.start();
 autoSync(true);
 const bankUrl = new URLSearchParams(location.search).get('bank');
 if (bankUrl) {
