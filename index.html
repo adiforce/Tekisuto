@@ -570,6 +570,8 @@ const subVars = s => { const x = subOf(s); return `--c:${x.c};--c-ink:${x.ink}`;
 const subName = s => (s || '').trim() || '未分類';
 // 不計獎勵的科目（日文等自由練習用）：答題不給金幣、經驗，也不進復仇戰
 const NO_REWARD = new Set(['其它']);
+// 不計獎勵的科目每場隨機出魔王：從有 BOSS 的正式科目抽一個（不含「錯題」和不計獎勵的科目本身）
+const randomBossSub = () => pickOne(Object.keys(SUBJECTS).filter(k => k !== '錯題' && !NO_REWARD.has(k)));
 const bankNoRew = bid => { const b = db.banks[bid]; return !!b && NO_REWARD.has((b.subject || '').trim()); };
 /* 科目篩選列：items 是科目名稱陣列，cur 是目前選的（'' = 全部） */
 function subChips(items, cur, act) {
@@ -2658,8 +2660,10 @@ function startQuiz(refs, opt) {
   SET.all = toRefs(S.items);
   S.sev0 = sevOf(allWrongRefs().length);                      // 開戰前的復仇嚴重度，打完降級有獎勵
   Music.base(false); if (!(opt.sub === '錯題' && Music.shot('revenge'))) Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
-  setTheme(opt.sub);
-  const x = subOf(opt.sub), stage = document.createElement('div');
+  const look = NO_REWARD.has((opt.sub || '').trim()) ? randomBossSub() : opt.sub;   // 長相用哪一科的魔王（不計獎勵的科目隨機）
+  setTheme(look);
+  const x = subOf(look), stage = document.createElement('div');
+  if (look !== opt.sub) S.boss = x.boss;
   stage.className = 'panel stage';
   stage.innerHTML = `${Scene.html(x.kind)}<div class="cv"></div><div class="load">BOSS 登場中…</div>
     <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><button class="icon" data-act="padOpen" aria-label="草稿紙">✏️</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
