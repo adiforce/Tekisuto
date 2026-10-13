@@ -485,6 +485,13 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
   padding:3px 10px;font-size:13px;line-height:1.5;font-weight:900;text-align:center;opacity:0;transition:opacity .15s}
 #mini .mb.show{opacity:1}
 #mini .mb::after{content:"";position:absolute;left:calc(50% - var(--bx,0px));bottom:-7px;width:9px;height:9px;background:var(--paper);border:solid var(--ink);border-width:0 2px 2px 0;transform:translateX(-50%) rotate(45deg)}
+#mini .zz{position:absolute;right:-4px;top:-4px;width:24px;height:24px;display:none;color:var(--ink);font-weight:900}
+#mini.sleep .zz{display:block}
+#mini .zz i{position:absolute;left:0;bottom:0;font-style:normal;font-size:11px;opacity:0;animation:miZ 2.7s linear infinite;text-shadow:0 0 2px var(--paper),0 0 2px var(--paper)}
+#mini .zz i:nth-child(2){font-size:13px;animation-delay:.9s}
+#mini .zz i:nth-child(3){font-size:15px;animation-delay:1.8s}
+@keyframes miZ{0%{transform:translate(0,0);opacity:0}20%{opacity:1}100%{transform:translate(12px,-18px);opacity:0}}
+@media (prefers-reduced-motion:reduce){#mini .zz i{animation:none;opacity:1}#mini .zz i:nth-child(1){transform:translate(0,0)}#mini .zz i:nth-child(2){transform:translate(7px,-8px)}#mini .zz i:nth-child(3){transform:translate(14px,-17px)}}
 #mini .mb.below{bottom:auto;top:100%;margin:8px 0 0}
 #mini .mb.below::after{bottom:auto;top:-7px;border-width:2px 0 0 2px}
 
@@ -2178,7 +2185,7 @@ const Boss3D = (() => {
     else if (f.tired) { ell(b, 32, 38 + dy, 2.4, 2.2, ol); ell(b, 32, 38.5 + dy, 1.6, 1.4, '#FF7A90'); }      // 張嘴喘氣
     else {
       [[22, 26], [24, 26], [26, 26], [23, 27], [25, 27]].forEach(([x, y]) => putN(b, x, y + n, ol));                        // w 嘴
-      if (f.pose === 'ko') [[23, 28], [24, 28], [24, 29]].forEach(([x, y]) => putN(b, x, y + n, '#FF7A90'));                 // 吐舌頭
+      if (f.pose === 'ko' && !f.sleep) [[23, 28], [24, 28], [24, 29]].forEach(([x, y]) => putN(b, x, y + n, '#FF7A90'));                 // 吐舌頭
       else if (S.claws) { putN(b, 25, 28, '#FFFFFF'); putN(b, 26, 28, ol); putN(b, 25, 29, ol); }                                                 // 只剩一顆白白的小牙
     }
     [[4, 31], [5, 34], [55, 31], [54, 34]].forEach(([x, y]) => rect(b, x, y + dy, 6, 1, S.whisker));
@@ -2618,7 +2625,7 @@ const Boss3D = (() => {
   const SPR = {};
   function sprite(kind, hex, f) {
     f = f || {};
-    const key = [kind, hex, f.pose || 'stand', f.eyes || 'open', f.tail ? 1 : 0, f.brows ? 1 : 0, f.hiss ? 1 : 0].join('|');
+    const key = [kind, hex, f.pose || 'stand', f.eyes || 'open', f.tail ? 1 : 0, f.brows ? 1 : 0, f.hiss ? 1 : 0, f.sleep ? 1 : 0].join('|');
     if (SPR[key]) return SPR[key];
     const cv = document.createElement('canvas'); cv.width = cv.height = W;
     const ctx = cv.getContext('2d'), img = ctx.createImageData(W, W), d = img.data;
@@ -3324,11 +3331,12 @@ const Mini = (() => {
   const SAY_BAT = ['看清楚題目再選喔！', '穩穩的，不要慌～', '不確定就先刪去一個選項。', '答錯就看解釋，下次就會了！', '魔王的血量在掉了，衝！',
     '深呼吸，你可以的。', '這題我相信你！', '先想想這題在考什麼。'];
   const POKE = ['喵？', '癢癢的啦～', '被你發現了 🐾', '別戳我，快去背書！', '再戳我就要背書給你聽喔。', '呼嚕～'];
+  const WAKE = ['喵嗚…我剛剛夢到小魚乾。', '（打哈欠）幹嘛啦～', '嗯？我沒睡啊…', '伸個懶腰，繼續陪你！', '被你叫醒了，快去背書！'];
   const SPEED = 36;                                    // 走路速度（px／秒）
   let el, mb, cv, ctx, SZ = 54, cur = null;
   let st = 'away', x = 0, y = 0, tx = 0, ty = 0;       // away 躲著、walk 走、idle 站著、leave 走出畫面
   let until = 0, visitEnd = 0, sayAt = 0, hideAt = 0, last = 0, chk = 0, pokeAt = 0, bw = 0, bh = 0;
-  let bat = false, blk = false, bnd = null, lastSay = '', raf = 0, tm = 0;
+  let nsl = 0, bat = false, blk = false, bnd = null, lastSay = '', raf = 0, tm = 0;
   const now = () => performance.now();
   const rnd = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -3346,7 +3354,7 @@ const Mini = (() => {
   function draw(t) {
     const k = bat && S && S.kind ? [S.kind, S.kc] : [DEFAULT_SUB.kind, DEFAULT_SUB.c];     // 答題時跟著這場的魔王換貓種，其它畫面用預設的米克斯
     const walking = st === 'walk' || st === 'leave';
-    const f = REDUCE ? {} : { tail: Math.floor(t / (walking ? 200 : 900)) % 2 === 1, eyes: st === 'idle' && t % 3300 < 150 ? 'blink' : 'open' };
+    const f = st === 'sleep' ? { pose: 'ko', eyes: 'blink', sleep: true } : REDUCE ? {} : { tail: Math.floor(t / (walking ? 200 : 900)) % 2 === 1, eyes: st === 'idle' && t % 3300 < 150 ? 'blink' : 'open' };
     const src = Boss3D.sprite(k[0], k[1], f);
     if (src === cur) return;
     cur = src; if (cv.width !== src.width) cv.width = cv.height = src.width;
@@ -3372,6 +3380,16 @@ const Mini = (() => {
     fitBubble();
   }
 
+  function sleepNow(t) {                               // 站一陣子後趴下睡覺（答題時不睡）
+    st = 'sleep'; until = t + rnd(8e3, 15e3); hideBubble(); el.classList.remove('walk'); el.classList.add('sleep');
+    sayAt = Math.max(sayAt, until + 2500);
+  }
+  function wake(t, poked) {
+    el.classList.remove('sleep'); st = 'idle'; until = t + (poked ? 3000 : 1500); cur = null; nsl = t + 25e3;      // 醒來 25 秒內不再睡
+    el.classList.remove('hop'); void el.offsetWidth; el.classList.add('hop'); setTimeout(() => el.classList.remove('hop'), 520);
+    if (poked) { pokeAt = t; say(t, WAKE); } else sayAt = Math.max(sayAt, t + 2500);
+  }
+
   function pickTarget() {
     const b = bnd;
     if (bat) { tx = rnd(b.x0, b.x1); ty = b.y1; return; }
@@ -3389,7 +3407,7 @@ const Mini = (() => {
     st = 'walk';
   }
   function gone() {
-    el.classList.remove('on', 'walk', 'hop', 'pop'); hideBubble();
+    el.classList.remove('on', 'walk', 'hop', 'pop', 'sleep'); hideBubble();
     st = 'away'; until = now() + (bat ? 1.5 : 1) * rnd(25e3, 70e3);
   }
   function leave() {
@@ -3419,7 +3437,7 @@ const Mini = (() => {
       const nb = !!document.querySelector('#app .stage');                        // 有魔王舞台＝正在答題
       if (nb !== bat) {
         bat = nb; bnd = bounds();
-        if (shown()) { x = clamp(x, bnd.x0, bnd.x1); y = bat ? bnd.y1 : clamp(y, bnd.y0, bnd.y1); st = 'idle'; until = t + 400; hideBubble(); place(); pop(); }
+        if (shown()) { el.classList.remove('sleep'); x = clamp(x, bnd.x0, bnd.x1); y = bat ? bnd.y1 : clamp(y, bnd.y0, bnd.y1); st = 'idle'; until = t + 400; hideBubble(); place(); pop(); }
       }
       bnd = bounds();
       if (shown()) { y = clamp(y, bnd.y0, bnd.y1); ty = clamp(ty, bnd.y0, bnd.y1); }
@@ -3437,14 +3455,17 @@ const Mini = (() => {
         if (st === 'leave') { gone(); schedule(); return; }
         st = 'idle'; until = t + (bat ? rnd(2500, 7000) : rnd(2000, 6000));
       }
+    } else if (st === 'sleep') {
+      if (t >= until || t >= visitEnd + 4000) wake(t);
     } else if (t >= until) {                            // idle 站夠了：該走了就走出畫面，不然換個地方
       if (t >= visitEnd) leave();
+      else if (!bat && t > nsl && Math.random() < .35 && visitEnd - t > 15e3) sleepNow(t);
       else if (REDUCE) until = t + 5000;
       else { pickTarget(); st = 'walk'; }
     }
     if (hideAt && t >= hideAt) hideBubble();
     else if (hideAt) fitBubble();
-    else if (st !== 'leave' && t >= sayAt) say(t);
+    else if (st !== 'leave' && st !== 'sleep' && t >= sayAt) say(t);
     el.classList.toggle('walk', st === 'walk' || st === 'leave');
     place(); draw(t);
     schedule();
@@ -3453,6 +3474,7 @@ const Mini = (() => {
   // 點到牠就跳一下、說句話（只在非答題畫面）；不擋事件，底下的按鈕照樣會被點到
   function poke(e) {
     if (!shown() || bat || blk || st === 'leave') return;
+    if (st === 'sleep' && !(e.clientX < x - 6 || e.clientX > x + SZ + 6 || e.clientY < y - 6 || e.clientY > y + SZ + 6)) { wake(now(), true); return; }
     if (e.clientX < x - 6 || e.clientX > x + SZ + 6 || e.clientY < y - 6 || e.clientY > y + SZ + 6) return;
     el.classList.remove('hop'); void el.offsetWidth; el.classList.add('hop'); setTimeout(() => el.classList.remove('hop'), 520);
     const t = now(); if (t - pokeAt > 1500) { pokeAt = t; say(t, POKE); }
@@ -3463,7 +3485,7 @@ const Mini = (() => {
   }
   function start() {
     el = document.createElement('div'); el.id = 'mini'; el.setAttribute('aria-hidden', 'true');
-    el.innerHTML = '<div class="mb"></div><div class="mw"><canvas width="54" height="54"></canvas></div>';
+    el.innerHTML = '<div class="mb"></div><div class="zz"><i>z</i><i>Z</i><i>z</i></div><div class="mw"><canvas width="54" height="54"></canvas></div>';
     document.body.appendChild(el);
     mb = el.querySelector('.mb'); cv = el.querySelector('canvas'); ctx = cv.getContext('2d');
     size();
@@ -3472,7 +3494,7 @@ const Mini = (() => {
     document.addEventListener('pointerdown', poke, { capture: true, passive: true });
     until = now() + 2500; kick();                       // 打開網頁幾秒後第一次出來
   }
-  return { start, refresh, _debug: () => ({ st, x, y, tx, ty, bat, blk, SZ, shown: shown(), bnd, say: mb && mb.textContent }), _go: () => { until = 0; kick(); } };
+  return { start, refresh, _debug: () => ({ st, x, y, tx, ty, bat, blk, SZ, shown: shown(), bnd, say: mb && mb.textContent }), _go: () => { until = 0; kick(); }, _sleep: () => { sleepNow(now()); kick(); } };
 })();
 
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
