@@ -212,6 +212,8 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .qcard{padding:16px;margin-bottom:16px;position:relative}
 .qcard .src{display:inline-block;font-size:12px;font-weight:900;border:2px solid var(--ink);padding:0 8px;margin-bottom:8px}
 .qtext{font-size:19px;font-weight:900;line-height:1.6}
+.qref{font-size:12px;font-weight:700;opacity:.6;margin-top:6px}     /* 題目出處（參考…）：小小的、不搶題目 */
+.rv .qref{margin:4px 0 0 38px}
 .opts{display:grid;gap:12px}
 .opt{appearance:none;width:100%;text-align:left;cursor:pointer;background:var(--paper);border:var(--bd);border-radius:6px;
   box-shadow:4px 4px 0 var(--ink);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;font-size:17px;font-weight:700;
@@ -1217,6 +1219,9 @@ function normalize(raw) {
       id: qid, q: String(text), options: opts.map(String), answer: a,
       explain: String(q.explain || ''), point: String(q.point || ''), mnemonic: String(q.mnemonic || ''),
       image: String(q.image || ''),
+      // 選填欄位有值才放進去（沒填的題庫維持原樣，匯入頁才不會誤判成「有更新」）
+      ...(q.ref ? { ref: String(q.ref) } : {}),                   // 出處小標籤（例：參考 穩紮穩打N4 30-151 單元）
+      ...(Array.isArray(q.aka) && q.aka.length ? { aka: q.aka.map(String).filter(Boolean) } : {}),   // 曾用過的舊 id；載入題庫時把舊紀錄換到現在的 id
       why: Array.isArray(q.why) && q.why.length === opts.length ? q.why.map(x => String(x || '')) : [],
       lock: !!q.lock
     };
@@ -1267,10 +1272,43 @@ const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getM
 function dayStat() { if (!db.day || db.day.d !== dayKey()) db.day = { d: dayKey(), cleared: 0, rw: [] }; return db.day; }
 // 復仇戰一場抽 n 題：最久沒碰的優先（同時間的隨機）
 const pickRevenge = (refs, n) => shuffle(refs).sort((a, b) => ((db.wlast || {})[a.b + '|' + a.q] || 0) - ((db.wlast || {})[b.b + '|' + b.q] || 0)).slice(0, n);
+// 舊 id → 現在的 id：題目的 aka，加上「題目文字 hash」（沒寫 aka 時，舊版就是用這個當 id）
+function idAliases(b) {
+  const map = {};
+  b.questions.forEach(q => {
+    const h = 'h' + hash(String(q.q).replace(/\s+/g, ''));
+    [...(q.aka || []), h].forEach(a => { if (a !== q.id) map[a] = q.id; });
+  });
+  return map;
+}
+// 把這個題庫的錯題、答對次數、復仇排序，從舊 id 換成現在的 id（新 id 已經有紀錄就保留較大的）
+function remapIds(bid) {
+  const b = db.banks[bid]; if (!b) return false;
+  const map = idAliases(b), real = new Set(b.questions.map(q => q.id));
+  let changed = false;
+  const mv = x => (!real.has(x) && map[x]) ? map[x] : x;
+  if (Array.isArray(db.wrong[bid])) {
+    const w = [...new Set(db.wrong[bid].map(mv))];
+    if (w.length !== db.wrong[bid].length || w.some((x, i) => x !== db.wrong[bid][i])) { db.wrong[bid] = w; changed = true; }
+  }
+  for (const tbl of [db.qwin, db.wlast]) {
+    if (!tbl) continue;
+    const pre = bid + '|';
+    for (const k of Object.keys(tbl)) {
+      if (!k.startsWith(pre)) continue;
+      const q = k.slice(pre.length), to = mv(q);
+      if (to === q) continue;
+      const nk = pre + to;
+      tbl[nk] = Math.max(tbl[nk] || 0, tbl[k] || 0); delete tbl[k]; changed = true;
+    }
+  }
+  return changed;
+}
 function addBank(b) {
   const existed = !!db.banks[b.id];
   db.banks[b.id] = b;
   if (!existed) db.order.unshift(b.id);
+  remapIds(b.id);
   const ids = new Set(b.questions.map(q => q.id));
   db.wrong[b.id] = (db.wrong[b.id] || []).filter(x => ids.has(x));
   save();
@@ -1321,6 +1359,7 @@ function resolve(refs) {
 }
 const toRefs = items => items.map(it => ({ b: it.bid, q: it.q.id }));
 const isMulti = items => new Set(items.map(it => it.bid)).size > 1;
+const refTag = q => q.ref ? `<div class="qref">參考 ${esc(q.ref)}</div>` : '';
 const srcTag = it => `<span class="src" style="${subVars(it.sub)}">${esc(it.bt)}</span>`;
 const imgTag = q => q.image
   ? `<button class="qimg" data-act="zoom" data-src="${esc(q.image)}"><img src="${esc(q.image)}" alt="題目附圖" loading="lazy" onerror="this.parentNode.classList.add('broken')"></button>`
@@ -1573,6 +1612,7 @@ function applyProg(p) {
   // 這台裝置有、但紀錄裡沒有的題庫：保留題庫，排在最後
   const want = new Set(db.order);
   Object.keys(db.banks).forEach(id => { if (!want.has(id)) db.order.push(id); });
+  Object.keys(db.banks).forEach(remapIds);             // 雲端／備份裡可能還是舊 id（錯題、答對次數、復仇排序一起換）
   for (const id of Object.keys(db.wrong)) {
     const b = db.banks[id]; if (!b) continue;
     const ids = new Set(b.questions.map(q => q.id));
@@ -2696,6 +2736,7 @@ function renderQ() {
       ${S.multi ? srcTag(it) : ''}
       ${imgTag(it.q)}
       <div class="qtext">${fmt(it.q.q)}</div>
+      ${refTag(it.q)}
     </div>
     ${db.cards ? `<button class="btn sm cutbtn" data-act="useCut">✂️ 刪去卡 ×${db.cards}</button>` : ''}
     <div class="opts">${it.order.map((oi, k) =>
@@ -2976,6 +3017,7 @@ function review(refs, title) {
     h += `<article class="panel rv">
       ${multi ? srcTag(it) : ''}
       <div class="rv-q"><span class="num">${i + 1}</span><span>${fmt(q.q)}</span></div>
+      ${refTag(q)}
       ${imgTag(q)}
       <div class="rv-a">✔ <mark>${fmt(q.options[q.answer])}</mark></div>
       ${q.why && q.why.some(Boolean) ? `<ul class="rv-x">${q.options.map((o, i) => i !== q.answer && q.why[i] ? `<li><b>✘ ${fmt(o)}</b>：${fmt(q.why[i])}</li>` : '').join('')}</ul>` : ''}
@@ -3011,6 +3053,7 @@ function renderCard() {
         ${C.multi ? `<div style="text-align:center">${srcTag(it)}</div>` : ''}
         ${imgTag(q)}
         <div class="qtext">${fmt(q.q)}</div>
+        ${refTag(q)}
         ${needOpts(q) ? optList(q, it.order) : ''}</div>
       <div class="face back">
         <div class="ans"><mark>${needOpts(q) ? LETTER[it.order.indexOf(q.answer)] + '　' : ''}${fmt(q.options[q.answer])}</mark></div>

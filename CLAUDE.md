@@ -28,7 +28,10 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
   "subject": "地理",
   "questions": [
     {
+      "id": "dafc8e70-9cda-40d1-aa36-ce54ccfaae9e",
       "q": "題目",
+      "ref": "穩紮穩打N4 01-01 單元",
+      "aka": ["h1q7yv65"],
       "image": "banks/img/geo2-exam1-sea-delta.jpg",
       "lock": true,
       "options": ["A", "B", "C", "D"],
@@ -42,13 +45,16 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 }
 ```
 
-- `answer` 從 0 開始。`image`、`lock` 選填。
+- `answer` 從 0 開始。`image`、`lock`、`ref`、`aka` 選填。
 - `lock: true`：選項不打亂，只用在選項本身是圖上代號（甲乙丙丁、(A)～(D)）的題目。
 - `why`：和 `options` 一樣長、順序對應，**正解那格放空字串**，其他每格一句話說明為什麼錯。選項會被打亂，所以 `why` 裡不能用 A、B、C 指稱選項，要直接講內容。
 - 日文假名題庫（`jp-kana-*`）刻意沒有 `why`，選錯只是讀音不同，不用補。
 - `subject` 決定科目顏色和 BOSS，可用值見 `index.html` 的「科目：顏色、BOSS」區塊：國文、英文、歷史、地理、公民、生物、化學、物理、地科、數學、其它（「錯題」是復仇戰內部用的，題庫不要用）。不在表裡的會變成預設的米克斯貓。
 - id 命名：`{科目}{年級}-exam{段考}-{單元}`，科目代碼 chi／eng／hist／geo／civ／bio／chem／phy／earth／math。同一單元重出題 id 不變（錯題紀錄靠題目文字的 hash 對應，題目文字沒改就會保留）。
-- 題目 id 由 `normalize()` 用題目文字 hash 產生，不用寫在 JSON 裡。
+- 題目 `id`（uuid）：**新題庫每題都要帶**（uuid4，題庫內不重複），錯題、答對次數、復仇排序都靠它對應，之後怎麼改題目文字都不會掉紀錄。沒寫 `id` 的舊題庫（日文 N4 以外）由 `normalize()` 用題目文字 hash 產生（`h` 開頭），改題目文字會丟那題的紀錄。
+- `ref`：出處小標籤，自由文字，會在作答、作戰筆記、修練卡的題目下面顯示成「參考 {ref}」，所以要寫完整，例如 `穩紮穩打N4 01-01 單元`。不要再把出處塞進題目文字。
+- `aka`：這題曾用過的舊 id 清單，**只在換 id 時用**（例如舊題庫補 uuid，`aka` 放原本的 hash id）。載入題庫（`addBank`）和套用雲端進度（`applyProg`）時，`remapIds()` 會把錯題、`qwin`、`wlast` 裡的舊 id 換成現在的 id；沒寫 `aka` 時，也會試「題目文字 hash」這個舊 id。補 uuid 時 hash 必須用 index.html 的 `hash()` 算（空白先拿掉），不要自己換算法。
+- `ref`、`aka` 沒值時 `normalize()` 不會放進題目，這樣沒用到的題庫內容不變，匯入頁不會誤判成「有更新」。
 
 改題庫時：
 
