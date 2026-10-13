@@ -2645,7 +2645,7 @@ function showClaw() {
 
 // opt: { title, boss, sub, recordBid }
 // 一場最多 MAX_Q 題：題庫超過就隨機抽，重新挑戰時從整份重新抽
-const MAX_Q = 30;
+const MAX_Q = 20;
 function startQuiz(refs, opt) {
   const all = resolve(refs);
   if (!all.length) { toast('沒有可以挑戰的題目'); return; }
