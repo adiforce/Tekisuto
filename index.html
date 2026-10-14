@@ -158,8 +158,17 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
     linear-gradient(160deg,rgba(185,230,255,.34),rgba(120,195,240,.16) 55%,rgba(220,245,255,.4)),
     linear-gradient(115deg,transparent 40%,rgba(255,255,255,.5) 50%,transparent 60%);
   background-size:auto,auto,auto,250% 100%;background-repeat:no-repeat;animation:iceSweep 7s ease-in-out infinite}
-.bank.frozen::after{content:"";position:absolute;left:0;right:0;top:0;height:16px;z-index:2;pointer-events:none;
-  background:conic-gradient(from 150deg at 50% 0,#CFEEFF 0 60deg,transparent 0) 0 0/16px 15px repeat-x;filter:drop-shadow(0 1px 0 #5BAFD8) drop-shadow(0 0 1px #5BAFD8)}
+.bank.frozen::after{content:"";position:absolute;left:0;right:0;top:0;height:30px;z-index:2;pointer-events:none}
+.bank.frozen::after,.icefall{background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%2230%22 viewBox=%220 0 200 30%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23F7FDFF%22/%3E%3Cstop offset=%22.55%22 stop-color=%22%23C4EAFB%22/%3E%3Cstop offset=%221%22 stop-color=%22%238CCFF0%22 stop-opacity=%22.85%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d=%22M3 3 L12 3 Q10.2 7.7 7.3 14 Q4.6 7.0 3 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M5.3 4 Q5.7 6.3 6.8 10.1%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M14 3 L20 3 Q18.8 4.4 16.9 8 Q15.1 4.0 14 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M15.6 4 Q15.8 3.6 16.5 5.8%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M22 3 L34 3 Q31.6 13.2 27.8 24 Q24.2 12.0 22 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M25.1 4 Q25.6 10.8 27.0 17.3%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cellipse cx=%2227.8%22 cy=%2226.2%22 rx=%221.2%22 ry=%221.6%22 fill=%22%23BDE6FA%22 stroke=%22%235FAED6%22 stroke-width=%22.5%22/%3E%3Cpath d=%22M38 3 L45 3 Q43.6 6.1 41.4 11 Q39.3 5.5 38 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M39.8 4 Q40.1 5.0 40.9 7.9%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M48 3 L58 3 Q56.0 9.9 52.8 18 Q49.8 9.0 48 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M50.6 4 Q51.0 8.1 52.2 13.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M62 3 L67 3 Q66.0 3.9 64.4 7 Q62.9 3.5 62 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M63.3 4 Q63.5 3.1 64.1 5.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M70 3 L83 3 Q80.4 14.9 76.2 27 Q72.3 13.5 70 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M73.4 4 Q73.9 12.2 75.5 19.4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cellipse cx=%2276.2%22 cy=%2229.2%22 rx=%221.2%22 ry=%221.6%22 fill=%22%23BDE6FA%22 stroke=%22%235FAED6%22 stroke-width=%22.5%22/%3E%3Cpath d=%22M88 3 L96 3 Q94.4 7.2 91.8 13 Q89.4 6.5 88 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M90.1 4 Q90.4 5.9 91.4 9.4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M100 3 L106 3 Q104.8 5.0 102.9 9 Q101.1 4.5 100 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M101.6 4 Q101.8 4.0 102.5 6.5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M110 3 L121 3 Q118.8 11.0 115.3 20 Q112.0 10.0 110 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M112.9 4 Q113.3 9.0 114.6 14.4%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cellipse cx=%22115.3%22 cy=%2222.2%22 rx=%221.2%22 ry=%221.6%22 fill=%22%23BDE6FA%22 stroke=%22%235FAED6%22 stroke-width=%22.5%22/%3E%3Cpath d=%22M125 3 L132 3 Q130.6 5.5 128.4 10 Q126.3 5.0 125 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M126.8 4 Q127.1 4.5 127.9 7.2%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M136 3 L145 3 Q143.2 8.8 140.3 16 Q137.6 8.0 136 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M138.3 4 Q138.7 7.2 139.8 11.5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M149 3 L154 3 Q153.0 3.9 151.4 7 Q149.9 3.5 149 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M150.3 4 Q150.5 3.1 151.1 5.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M158 3 L170 3 Q167.6 12.7 163.8 23 Q160.2 11.5 158 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M161.1 4 Q161.6 10.3 163.0 16.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cellipse cx=%22163.8%22 cy=%2225.2%22 rx=%221.2%22 ry=%221.6%22 fill=%22%23BDE6FA%22 stroke=%22%235FAED6%22 stroke-width=%22.5%22/%3E%3Cpath d=%22M175 3 L182 3 Q180.6 6.6 178.4 12 Q176.3 6.0 175 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M176.8 4 Q177.1 5.4 177.9 8.6%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M186 3 L196 3 Q194.0 8.8 190.8 16 Q187.8 8.0 186 3Z%22 fill=%22url%28%23g%29%22 stroke=%22%235FAED6%22 stroke-width=%22.8%22/%3E%3Cpath d=%22M188.6 4 Q189.0 7.2 190.2 11.5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%221.2%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3Cpath d=%22M0 0H200V4Q195 7 190 5Q185 5 180 4.5Q175 7 170 5Q165 5 160 4.5Q155 7 150 5Q145 5 140 4.5Q135 7 130 5Q125 5 120 4.5Q115 7 110 5Q105 5 100 4.5Q95 7 90 5Q85 5 80 4.5Q75 7 70 5Q65 5 60 4.5Q55 7 50 5Q45 5 40 4.5Q35 7 30 5Q25 5 20 4.5Q15 7 10 5Q5 7 0 5Z%22 fill=%22%23EAF8FF%22 stroke=%22%237CC4E8%22 stroke-width=%22.8%22/%3E%3C/svg%3E") 0 0/200px 30px repeat-x;filter:drop-shadow(0 2px 2px rgba(40,110,160,.25))}
+.bank.frozen .body{padding-top:24px}
+/* 破冰：點凍住的卡片 → 裂痕放射 → 冰層碎成好幾片噴開掉落、冰柱掉下來 → 才進去。碎片放在 body 上的固定層，飛出卡片外也看得到 */
+.icebreak{position:fixed;z-index:40;pointer-events:none}
+.icebreak svg{position:absolute;inset:0;overflow:visible}
+.icebreak .sh{position:absolute;inset:0;filter:drop-shadow(0 0 .6px #3D8FBF) drop-shadow(0 2px 2px rgba(0,60,100,.25))}
+.icebreak .sh i{position:absolute;inset:0;background:linear-gradient(160deg,rgba(236,250,255,.95),rgba(170,222,248,.85) 60%,rgba(214,242,255,.95))}
+.icebreak .pt{position:absolute;width:5px;height:5px;background:#E8F8FF;border:1px solid #6DB8DF;transform:rotate(45deg)}
+.icebreak .fl{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,.7) 30%,transparent 70%)}
+.icefall{position:absolute;left:0;right:0;top:0;height:30px}
 .bank .ice{position:relative;z-index:3;margin:6px 0 2px;font-size:13px;font-weight:900;color:#17688F}
 .bank .ice::before{content:"❄ "}
 .bank.thaw::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(160deg,rgba(185,230,255,.55),rgba(220,245,255,.6));animation:iceMelt 1.1s ease-out forwards}
@@ -1489,7 +1498,7 @@ function home() {
   for (const id of list.filter(id => !db.subHome || subName(db.banks[id].subject) === db.subHome)) {
     const b = db.banks[id], w = (db.wrong[id] || []).length, best = db.best[id], eid = esc(id), x = subOf(b.subject);
     const frozen = (db.seen || {})[id] !== dayKey();
-    h += `<section class="panel bank${frozen ? ' frozen' : thawed.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
+    h += `<section class="panel bank${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
       <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
       <button class="icon more" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button>
       ${best ? `<div class="rankmark" aria-label="最佳評級">${esc(best)}</div>` : ''}
@@ -1508,7 +1517,7 @@ function home() {
     </section>`;
   }
   if (list.length) h += `<button class="btn wide hot" data-act="importView">＋ 匯入新題庫</button>`;
-  app.innerHTML = h; thawed.clear();
+  app.innerHTML = h; thawed.clear(); iceBroke.clear();
 }
 
 /* ===== 匯入 ===== */
@@ -3349,6 +3358,90 @@ window.addEventListener('scroll', () => {
   if (y > 90 && !c.contains('compact')) c.add('compact');
   else if (y < 8 && c.contains('compact')) c.remove('compact');
 }, { passive: true });
+
+/* ===== 破冰：今天第一次點結冰題庫卡上的按鈕，先播一段碎冰動畫再進去（減少動態時直接進去） ===== */
+const iceBroke = new Set();                                  // 剛剛被敲碎的題庫，回首頁時不再播融冰動畫
+const Ice = (() => {
+  const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ENTER = { quiz: 1, cards: 1, review: 1 };
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const NS = 'http://www.w3.org/2000/svg';
+  function sfx() {
+    noise(.07, 0, .22, 9000, 2500); tone(3400, .04, 'square', 0, .025);                    // 喀：裂開
+    noise(.4, .17, .12, 7000, 900);                                                        // 嘩啦：碎掉
+    [2637, 3520, 3136, 4186, 2794, 3729].forEach((f, i) => tone(f, rnd(.08, .2), 'sine', .2 + i * .05 + rnd(0, .02), .03));   // 冰塊叮叮
+  }
+  function crackPath(cx, cy, a, R) {                            // 從敲擊點往外的鋸齒裂痕
+    let d = `M${cx.toFixed(1)} ${cy.toFixed(1)}`, n = 5;
+    for (let k = 1; k <= n; k++) { const r = R * k / n, j = k < n ? rnd(-.09, .09) : 0; d += ` L${(cx + Math.cos(a + j) * r).toFixed(1)} ${(cy + Math.sin(a + j) * r).toFixed(1)}`; }
+    return d;
+  }
+  function run(card, x, y, done) {
+    const r = card.getBoundingClientRect(), W = r.width, H = r.height, cx = x - r.left, cy = y - r.top;
+    const R = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) * 1.15;
+    const lay = document.createElement('div'); lay.className = 'icebreak';
+    Object.assign(lay.style, { left: r.left + 'px', top: r.top + 'px', width: W + 'px', height: H + 'px' });
+    document.body.appendChild(lay);
+    // 1. 敲下去：閃一下、卡片抖、裂痕放射出去
+    const N = 9, A = [], off = rnd(0, Math.PI * 2);
+    for (let i = 0; i < N; i++) A.push(off + (i + rnd(-.3, .3)) * Math.PI * 2 / N);
+    const fl = document.createElement('div'); fl.className = 'fl'; fl.style.left = cx + 'px'; fl.style.top = cy + 'px'; lay.appendChild(fl);
+    fl.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 260, easing: 'ease-out', fill: 'forwards' });
+    const sv = document.createElementNS(NS, 'svg'); sv.setAttribute('viewBox', `0 0 ${W} ${H}`); lay.appendChild(sv);
+    A.forEach(a => ['#3A86B3', '#FFFFFF'].forEach((c, k) => {
+      const p = document.createElementNS(NS, 'path'); p.setAttribute('d', crackPath(cx, cy, a, R));
+      p.setAttribute('fill', 'none'); p.setAttribute('stroke', c); p.setAttribute('stroke-width', k ? 1.3 : 3); p.setAttribute('stroke-linejoin', 'round');
+      p.setAttribute('pathLength', 1); p.style.strokeDasharray = 1; sv.appendChild(p);
+      p.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 150, easing: 'ease-out', fill: 'forwards' });
+    }));
+    card.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(3px)' }, { transform: 'translateX(-2px)' }, { transform: 'translateX(0)' }], { duration: 160 });
+    sfx(); vibrate([12, 40, 28]);
+    // 2. 碎掉：冰層換成一片片碎冰往外噴、往下掉；冰柱整排掉下去
+    setTimeout(() => {
+      card.classList.remove('frozen'); card.classList.add('broken');
+      sv.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
+      const P = (a, rr) => [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr];
+      for (let i = 0; i < N; i++) {
+        const a1 = A[i], a2 = A[(i + 1) % N] + (i === N - 1 ? Math.PI * 2 : 0), am = (a1 + a2) / 2, r1 = R * rnd(.25, .45);
+        [[[cx, cy], P(a1, r1), P(am, r1 * 1.12), P(a2, r1)], [P(a1, r1), P(a1, R), P(am, R), P(a2, R), P(a2, r1), P(am, r1 * 1.12)]].forEach((pts, outer) => {
+          const sh = document.createElement('div'); sh.className = 'sh';
+          const i2 = document.createElement('i'); i2.style.clipPath = 'polygon(' + pts.map(q => `${q[0].toFixed(1)}px ${q[1].toFixed(1)}px`).join(',') + ')';
+          sh.appendChild(i2); lay.appendChild(sh);
+          const mx = Math.min(W, Math.max(0, pts.reduce((s, q) => s + q[0], 0) / pts.length)), my = Math.min(H, Math.max(0, pts.reduce((s, q) => s + q[1], 0) / pts.length));
+          sh.style.transformOrigin = `${mx}px ${my}px`;
+          const d = outer ? rnd(50, 110) : rnd(18, 45), dx = Math.cos(am) * d, dy = Math.sin(am) * d, rot = rnd(-50, 50);
+          sh.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 },
+            { offset: .3, transform: `translate(${dx * .6}px,${dy * .6 - 12}px) rotate(${rot * .4}deg)`, opacity: 1 },
+            { transform: `translate(${dx}px,${dy + rnd(110, 180)}px) rotate(${rot}deg)`, opacity: 0 }],
+            { duration: rnd(480, 640), easing: 'cubic-bezier(.25,.6,.5,1)', fill: 'forwards' });
+        });
+      }
+      for (let i = 0; i < 12; i++) {                         // 小冰屑
+        const pt = document.createElement('div'); pt.className = 'pt'; pt.style.left = cx + 'px'; pt.style.top = cy + 'px'; lay.appendChild(pt);
+        const a = rnd(0, Math.PI * 2), d = rnd(40, 120);
+        pt.animate([{ transform: 'translate(0,0) rotate(45deg) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d + 60}px) rotate(${rnd(90, 360)}deg) scale(.4)`, opacity: 0 }],
+          { duration: rnd(380, 560), easing: 'ease-out', fill: 'forwards' });
+      }
+      const ic = document.createElement('div'); ic.className = 'icefall'; card.appendChild(ic);
+      ic.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(46px)', opacity: 0 }], { duration: 380, easing: 'cubic-bezier(.5,0,.9,.6)', fill: 'forwards' });
+    }, 170);
+    setTimeout(done, 600);                                    // 碎片還在掉的時候就進去，看起來比較連貫
+    setTimeout(() => lay.remove(), 900);
+  }
+  // 捕捉階段先攔下來，播完動畫再真正點一次（那時卡片已經不是 frozen，就會照常進去）
+  app.addEventListener('click', e => {
+    if (REDUCE) return;
+    const el = e.target.closest('[data-act]'); if (!el || el.disabled || !ENTER[el.dataset.act]) return;
+    const card = el.closest('.bank.frozen'); if (!card) return;
+    e.stopPropagation(); e.preventDefault();
+    if (card.dataset.breaking) return;
+    card.dataset.breaking = '1';
+    if (el.dataset.id) iceBroke.add(el.dataset.id);
+    const rr = el.getBoundingClientRect();
+    run(card, e.clientX || rr.left + rr.width / 2, e.clientY || rr.top + rr.height / 2, () => el.click());
+  }, true);
+  return { run };
+})();
 
 /* ===== 小魔王：偶爾從螢幕邊走出來晃一下、講一句加油的話，過一陣子再走掉。不吃點擊（點到牠，底下的按鈕照樣會動）；
    答題畫面只在右下角一小段底邊走；草稿紙、升級、各種彈窗開著時先躲起來；系統設定「減少動態」時不走路、只站在右下角 ===== */
