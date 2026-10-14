@@ -10,6 +10,7 @@
 
 ```
 index.html                 播放器本體（約 2200 行）
+favicon.ico／icon-192.png／apple-touch-icon.png  網站 icon，用勇者貓 Lv1（`Hero.url(1)`）整數倍放大做的；favicon 只取頭部
 banks/*.json               題庫，一個單元一個檔，檔名＝id
 banks/img/*.jpg            附圖題的圖片，檔名 {題庫id}-{英文短名}.jpg
 banks/index.json           題庫清單，由 GitHub Actions 自動產生，不要手動建或提交
@@ -97,7 +98,7 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 - `cards`：刪去卡張數；`revives`：復活卡張數。升級時每級抽一次：30% 刪去卡、20% 復活卡、30% 金幣 +10、20% 沒有。
 - 復活卡：愛心歸零時可用，愛心補滿、繼續下一題，一場不限張數；最後一題倒下再復活算勝利。
 - `wd`：金幣提領紀錄 `[{ at, n }]`。點首頁／個人資料的金幣 → `withdrawOpen()` 彈窗 → `withdrawDo()` 金幣歸零並記錄；雲端合併時 `coins` 的增量可以是負的（提領），`wd` 兩邊聯集（`at|n` 去重）。
-- `seen[題庫id]`：這個題庫最後一次「進去」的日期（`dayKey()`）。`markSeen(refs)` 在 `startQuiz`／`review`／`cards` 呼叫，挑戰、錯題再戰、復仇戰（用實際抽到題目的題庫）、筆記、修練都算。首頁題庫卡 `seen` 不是今天就加 `.frozen`（結冰）；今天第一次進去後回首頁，該卡播一次 `.thaw` 融冰動畫（`thawed` Set）。冰柱是 CSS 裡內嵌的 SVG（200×30 一格橫向重複，`.bank.frozen::after`／`.icefall` 共用）。直接點結冰卡上的挑戰／錯題再戰／修練／筆記時，`Ice` 模組在捕捉階段攔下點擊，播破冰動畫（裂痕 → 碎冰噴開＋冰柱掉落，碎片放在 body 上的 `.icebreak` 固定層），約 600ms 後再 `el.click()` 真正進去；這種題庫記在 `iceBroke`，回首頁不再播融冰。減少動態時不攔，直接進去。只存這台裝置，**不進** `PROG`／雲端紀錄。
+- `seen[題庫id]`：這個題庫最後一次「進去」的日期（`dayKey()`）。`markSeen(題庫id)` 只在 `ACT.quiz`／`ACT.cards`／`ACT.review`（題庫卡片上的挑戰、錯題再戰、修練、筆記，透過 `enter(id, refs)`，有題目才算）呼叫；復仇戰、全部錯題筆記／修練這類跨題庫的入口**不算**，不然抽到哪個題庫的錯題就會被順便解冰。首頁題庫卡 `seen` 不是今天就加 `.frozen`（結冰）；今天第一次進去後回首頁，該卡播一次 `.thaw` 融冰動畫（`thawed` Set）。冰柱是 CSS 裡內嵌的 SVG（200×30 一格橫向重複，`.bank.frozen::after`／`.icefall` 共用）。直接點結冰卡上的挑戰／錯題再戰／修練／筆記時，`Ice` 模組在捕捉階段攔下點擊，播破冰動畫（裂痕 → 碎冰噴開＋冰柱掉落，碎片放在 body 上的 `.icebreak` 固定層），約 600ms 後再 `el.click()` 真正進去；這種題庫記在 `iceBroke`，回首頁不再播融冰。減少動態時不攔，直接進去。只存這台裝置，**不進** `PROG`／雲端紀錄。
 - `stats[題庫id]`：`{ n, sum, best, last, at, win, title, dd, dn }`，只記「挑戰 BOSS」整份打完的場次（`S.recordBid` 有值才記），輸贏都算，中途撤退不算。`dd`／`dn` 是「今日完成」：`dd` 日期（`dayKey()`）、`dn` 當天打贏次數（只算贏），換日歸零；首頁題庫卡顯示「今日完成 N 次」。雲端合併時同一天相加、不同天取日期新的（`dayKey` 沒補零，要轉數字比）。
 - 新增「進度」類欄位時，要一起加進雲端紀錄的 `PROG` 陣列，不然換裝置會不見。
 
