@@ -482,6 +482,7 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 .gh-info b{font-size:16px;line-height:1.4;font-weight:900}
 .gh-ok{font-size:14px;font-weight:900;white-space:nowrap;flex:none}
 .sync-in{width:100%;margin:10px 0;padding:10px 12px;border:var(--bd);background:var(--paper);color:var(--ink);font:16px/1.4 inherit}
+.sync-tip{display:block;width:100%;margin:-10px 0 20px;padding:10px 12px;border:2px dashed var(--ink);border-radius:6px;background:#FFF4CC;color:var(--ink);font:inherit;font-size:14px;font-weight:900;text-align:left;cursor:pointer}
 .gh-row.mine .gh-info b::after{content:'（這台）';font-size:13px;font-weight:700;color:var(--sub)}
 
 /* ===== 浮層 ===== */
@@ -1462,7 +1463,7 @@ function home() {
         <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
         <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
-    </section>`;
+    </section>${syncTip()}`;
   if (!list.length) {
     h += `<div class="empty">
       <p class="big">還沒有 BOSS 可以打！</p>
@@ -1667,6 +1668,8 @@ function profile() {
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw923EWK5I6juwYzz0tywW1McYuaD2WpKSueoR5RybEioYCo/exec';
 const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards', 'revives', 'stats', 'wd'];
 const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
+// 還沒設定過雲端紀錄（沒存過、也沒匯入過）時，首頁和戰果頁顯示的提醒，點了進 💾 頁
+const syncTip = () => SYNC_URL && !localStorage.getItem(SYNC_NAME) ? '<button class="sync-tip" data-act="syncView">☁️ 還沒設定雲端紀錄，換手機進度會不見 → 點這裡設定</button>' : '';
 let syncList = null;
 const netMsg = e => /fetch|network|load failed/i.test(e.message || '') ? '連不上 Google，請確認網路' : (e.message || '失敗');
 const progOf = () => {
@@ -1842,9 +1845,13 @@ async function syncCore(name, noBase) {
   return { changed };
 }
 // 每場戰鬥打完／開啟網頁時自動同步；沒設定過名字、沒網路都安靜略過
+let lastAuto = 0, autoTimer = 0;
 async function autoSync(refresh) {
   const name = localStorage.getItem(SYNC_NAME);
-  if (!name || syncing || S) return;
+  if (!name || S) return;
+  const wait = 30000 - (Date.now() - lastAuto);                    // 30 秒內同步過、或正在同步：等時間到再補一次，不會漏
+  if (syncing || wait > 0) { if (!autoTimer) autoTimer = setTimeout(() => { autoTimer = 0; autoSync(); }, Math.max(wait, 3000)); return; }
+  lastAuto = Date.now();
   syncing = true;
   try {
     const r = await syncCore(name);
@@ -3000,6 +3007,7 @@ function result() {
       ${rew ? `<div class="line">💰 本場 +${S.coins} 元${clear || dropCoins ? `（答題 +${S.coins - clear - dropCoins}${clear ? `、通關 +${clear}` : ''}${dropCoins ? `、降級 +${dropCoins}` : ''}）` : ''}　目前共 ${db.coins} 元</div>` : '<div class="line">🐾 練習模式：不計金幣與復仇戰（經驗照算）</div>'}
       ${dropLine}
     </section>
+    ${syncTip()}
     <div class="grid">
       ${wn ? `<button class="btn go span2" data-act="reviewLast">看作戰筆記（${wn} 題錯題）</button>
         <button class="btn" data-act="cardsLast">錯題修練卡</button>
@@ -3167,6 +3175,7 @@ function cnext() {
   const n = C.items.length, gain = Math.min(30, 5 + n * 2), up = gainExp(gain);   // 修練經驗：每個科目都給（不給金幣的科目也有）
   home(); toast(gain ? `修練完成！EXP +${gain}` : '修練完成！');
   if (up) setTimeout(() => showLevelUp(up), 400);
+  setTimeout(autoSync, up ? 2500 : 500);
 }
 function cprev() { if (C && C.i > 0) { C.i--; renderCard(); } }
 // 卡片超過 CARD_SEG 張時，上方顯示 1～20、21～40… 快選
@@ -3299,7 +3308,7 @@ const ACT = {
   allCards: () => cards(allWrongRefs()),
   pick: d => pick(+d.k),
   next,
-  quitQuiz: () => { if (!S || S.i === 0 || confirm('要撤退嗎？已作答的錯題會保留。')) { if (S) Music.shot('exit'); S = null; home(); } },
+  quitQuiz: () => { if (!S || S.i === 0 || confirm('要撤退嗎？已作答的錯題會保留。')) { if (S) Music.shot('exit'); S = null; home(); setTimeout(autoSync, 500); } },
   reviewLast: () => review(SET.last.refs, SET.last.title),
   cardsLast: () => cards(SET.last.refs),
   quizLast: () => startQuiz(SET.last.refs, { title: SET.last.title.replace(/・錯題$/, '') + '・錯題', boss: SET.last.boss, sub: SET.last.sub }),
@@ -3624,6 +3633,7 @@ load();
 home();
 Mini.start();
 autoSync(true);
+document.addEventListener('visibilitychange', () => autoSync(!document.hidden));   // 切到背景先上傳；切回來抓另一台的新進度
 const bankUrl = new URLSearchParams(location.search).get('bank');
 if (bankUrl) {
   fetch(bankUrl, { cache: 'no-cache' })

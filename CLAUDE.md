@@ -15,6 +15,7 @@ banks/img/*.jpg            附圖題的圖片，檔名 {題庫id}-{英文短名}
 banks/index.json           題庫清單，由 GitHub Actions 自動產生，不要手動建或提交
 audio/{base,enter,exit,levelup,lose(lost 也行),win,relife,revenge,result}.mp3／.m4a／.mid   自訂音樂／音效（選用，使用者自己放；都有時優先 mp3 → m4a → mid；沒放就用原本的合成音或安靜。base 每次回到基地從頭播一遍（播完就安靜，進戰鬥後重置），enter 開戰、exit 撤退、lose 敗北、win 擊倒 BOSS、levelup 升級、relife 使用復活卡、revenge 進復仇戰（有放就取代 enter）、result 結算畫面（進戰果頁播一遍，等 win／lose 播完才接，按任何按鈕就停）；midi 用內建電子音色合成播放）
 .github/workflows/pages.yml  產生 banks/index.json 後部署 Pages
+gas/beishu-sync.gs         雲端紀錄的 Google Apps Script 備份（網頁不讀；改完要貼到試算表的 Apps Script 並更新部署）
 backup/                    舊的日文假名題庫備份，不會被讀取
 jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 ```
@@ -105,6 +106,9 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 - 只存進度（`PROG` 列的欄位＋題庫 id 清單），不存題庫本身。匯入時缺的題庫會從 GitHub 的 banks/ 自動抓回來。
 - 試算表「紀錄」分頁一人一列：A 名字、B 時間、C 摘要、D 之後是資料（每格最多 45000 字、開頭加 `~` 避免被當公式）。同名覆蓋。
 - 匯入前會把目前進度備份到 localStorage `beishu.v1.bak`，可還原一次。
+- 「歷史」分頁：同名紀錄每次要被蓋掉前，Apps Script 先把舊的那列搬過去（A 名字、B 原本時間、C 搬入時間、D 摘要、E 之後資料），只留最近 10 天（`KEEP_DAYS`）。網頁不讀歷史，要還原時手動把那列複製回「紀錄」。
+- Apps Script 原始碼在 `gas/beishu-sync.gs`。改完要請使用者貼到試算表的 Apps Script，從「部署 → 管理部署作業 → 編輯 → 新版本」更新，`SYNC_URL` 才會維持不變（不要「新增部署作業」，那會換網址）。我們沒辦法登入 Google 實測，改 Apps Script 後用 Node 假 SpreadsheetApp 測邏輯。
+- 自動同步 `autoSync()`：開啟網頁、打完一場（`result()`）、修練完成（`cnext()`）、撤退（`quitQuiz`）、提領金幣後、切到背景／切回來（visibilitychange）都會觸發；戰鬥中不動；30 秒內最多一次，被擋掉的會排一個計時器等時間到再補。沒設定過名字（localStorage `beishu.syncName`）就完全不同步，首頁和戰果頁會顯示 `syncTip()` 提醒條，點了進 💾 頁。
 
 ## 測試
 
