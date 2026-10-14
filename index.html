@@ -627,7 +627,7 @@ const DEFAULT_SUB = { c: '#3A3A3A', ink: '#fff', boss: '米克斯修練喵', kin
 const subOf = s => SUBJECTS[(s || '').trim()] || DEFAULT_SUB;
 const subVars = s => { const x = subOf(s); return `--c:${x.c};--c-ink:${x.ink}`; };
 const subName = s => (s || '').trim() || '未分類';
-// 不給金幣的科目（日文等自由練習用）：經驗照常累積，但答題、通關都不給金幣，也不進復仇戰
+// 不給金幣的科目（日文等自由練習用）：經驗照常累積、錯題也進復仇戰，但這些題目在哪裡答對都不給金幣，復仇戰通關獎勵也不算它們
 const NO_COIN = new Set(['其它']);
 // 不給金幣的科目每場隨機出魔王：從有 BOSS 的正式科目抽一個（不含「錯題」和不給金幣的科目本身）
 const randomBossSub = () => pickOne(Object.keys(SUBJECTS).filter(k => k !== '錯題' && !NO_COIN.has(k)));
@@ -1415,7 +1415,7 @@ function refsOf(bid, which) {
   const w = wrongSet(bid);
   return b.questions.filter(q => which !== 'wrong' || w.has(q.id)).map(q => ({ b: bid, q: q.id }));
 }
-const allWrongRefs = () => db.order.filter(id => !bankNoCoin(id)).flatMap(id => refsOf(id, 'wrong'));   // 復仇戰不收不給金幣的題庫
+const allWrongRefs = () => db.order.flatMap(id => refsOf(id, 'wrong'));   // 復仇戰收所有題庫的錯題（不給金幣的科目也收，只是不算金幣）
 function resolve(refs) {
   return refs.map(r => {
     const b = db.banks[r.b], q = b && b.questions.find(x => x.id === r.q);
@@ -1475,7 +1475,8 @@ function home() {
   if (allW.length) {
     const nb = new Set(allW.map(r => r.b)).size;
     const sv = sevOf(allW.length), SV = SEV[sv], toDown = sv > 0 ? allW.length - (sv * 10 - 1) : 0, rn = revSize(), dayN = dayStat().cleared;
-    const sbtn = Math.min(rn, allW.length), bn = revBonus(sbtn);
+    const coinW = allW.filter(r => !bankNoCoin(r.b)).length, mixed = coinW < allW.length;   // 有日文等不給金幣的錯題：通關金幣只算其他題
+    const sbtn = Math.min(rn, allW.length), bn = revBonus(Math.min(sbtn, coinW)), most = mixed && bn ? '最多' : '';
     h += `<section class="panel bank revenge${revOpen ? ' open' : ''}" data-sev="${sv}" style="--sc:${SV.c}">
       <div class="band"><b>${SV.n}</b></div>
       <div class="body">
@@ -1484,10 +1485,10 @@ function home() {
         <div class="meta">今天已消滅 <b>${dayN}</b> 題${toDown ? `｜再清 ${toDown} 題降到「${SEV[sv - 1].n}」` : ''}</div>
         ${revOpen ? `<div class="sevtip">${SV.tip}</div>
         <div class="meta">來自 ${nb} 個題庫，答對就會消滅</div>
-        <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>打贏 💰+${revBonus(Math.min(n, allW.length))}</small></button>`).join('')}</div>
-        <div class="revnote">🎁 打贏通關：打幾題就 +幾元；錯題清到嚴重度降級，再送刪去卡！</div>` : ''}
+        <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>${revBonus(Math.min(n, allW.length, coinW)) ? `打贏 💰${mixed ? '最多' : ''}+${revBonus(Math.min(n, allW.length, coinW))}` : '不給金幣'}</small></button>`).join('')}</div>
+        <div class="revnote">🎁 打贏通關：打幾題就 +幾元${mixed ? '（日文等「其它」科目的題不算）' : ''}；錯題清到嚴重度降級，再送刪去卡！</div>` : ''}
         <div class="grid ${revOpen ? 'three' : 'one'}">
-          <button class="btn go${revOpen ? '' : ' wide'}" data-act="allQuiz">開戰<small>${sbtn} 題${bn ? `・打贏 💰+${bn}` : ''}</small></button>
+          <button class="btn go${revOpen ? '' : ' wide'}" data-act="allQuiz">開戰<small>${sbtn} 題${bn ? `・打贏 💰${most}+${bn}` : ''}</small></button>
           ${revOpen ? `<button class="btn" data-act="allReview">筆記</button>
           <button class="btn" data-act="allCards">修練</button>` : ''}
         </div>
@@ -2903,8 +2904,8 @@ function pick(k) {
     const why = it.q.why && it.q.why[it.order[j]];
     if (j !== right && why) bt.lastElementChild.insertAdjacentHTML('beforeend', `<small class="why">✘ ${fmt(why)}</small>`);
   });
-  const noCoin = bankNoCoin(it.bid);                                // 不給金幣的題庫：沒有金幣、不算復仇消滅數（經驗照給）
-  if (ok && !noCoin && wrongSet(it.bid).has(it.q.id)) dayStat().cleared++;     // 原本是錯題、這次答對＝消滅一題
+  const noCoin = bankNoCoin(it.bid);                                // 不給金幣的題庫：答對沒有金幣（經驗、復仇消滅數照算）
+  if (ok && wrongSet(it.bid).has(it.q.id)) dayStat().cleared++;                 // 原本是錯題、這次答對＝消滅一題（每個科目都算）
   markWrong(it.bid, it.q.id, !ok);
   let say, gain = -1;
   if (ok) {
@@ -2967,7 +2968,7 @@ function result() {
   const rew = S.items.some(it => !bankNoCoin(it.bid));               // 整場都是不給金幣的題庫 → 沒有通關金幣（通關經驗照給）
   let exp = S.exp;
   if (win) { exp += 30 + (rank === 'S' ? 30 : 0); db.kills++; }
-  const clear = win && rew ? (S.recordBid ? COIN_CLEAR : S.sub === '錯題' ? revBonus(S.n) : 0) : 0;   // 挑戰題庫通關 +5；復仇戰打幾題 +幾元（每題自己賺的另外算）
+  const clear = win && rew ? (S.recordBid ? COIN_CLEAR : S.sub === '錯題' ? revBonus(S.items.filter(it => !bankNoCoin(it.bid)).length) : 0) : 0;   // 挑戰題庫通關 +5；復仇戰打幾題 +幾元，只算給金幣的題（每題自己賺的另外算）
   if (clear) { db.coins += clear; S.coins += clear; save(); }
   if (S.recordBid) {
     const st = db.stats[S.recordBid] || (db.stats[S.recordBid] = { n: 0, sum: 0, best: 0, win: 0 });
@@ -3004,7 +3005,7 @@ function result() {
         <div><b>${S.maxCombo}</b><small>最大連擊</small></div>
         <div><b>+${exp}</b><small>EXP</small></div>
       </div>
-      ${rew ? `<div class="line">💰 本場 +${S.coins} 元${clear || dropCoins ? `（答題 +${S.coins - clear - dropCoins}${clear ? `、通關 +${clear}` : ''}${dropCoins ? `、降級 +${dropCoins}` : ''}）` : ''}　目前共 ${db.coins} 元</div>` : '<div class="line">🐾 練習模式：不計金幣與復仇戰（經驗照算）</div>'}
+      ${rew || S.coins ? `<div class="line">💰 本場 +${S.coins} 元${clear || dropCoins ? `（答題 +${S.coins - clear - dropCoins}${clear ? `、通關 +${clear}` : ''}${dropCoins ? `、降級 +${dropCoins}` : ''}）` : ''}　目前共 ${db.coins} 元</div>` : '<div class="line">🐾 練習模式：不計金幣（經驗照算）</div>'}
       ${dropLine}
     </section>
     ${syncTip()}
