@@ -1329,14 +1329,17 @@ function markWrong(bid, qid, isWrong) {
 }
 // 今天消滅了幾題、今天領過哪幾級的降級獎勵（跨日自動歸零）
 const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
-// 題庫「今天進去過」：挑戰、錯題再戰、修練、筆記都算；沒進去過的題庫在首頁會結冰。只記在這台裝置，不進雲端紀錄
+// 題庫「今天進去過」：只認從題庫卡片本身的按鈕進去（挑戰、錯題再戰、修練、筆記）；
+// 復仇區、全部錯題這類跨題庫的不算，不然抽到哪個題庫的錯題，那個題庫就會被順便解冰。
+// 沒進去過的題庫在首頁會結冰。只記在這台裝置，不進雲端紀錄
 const thawed = new Set();                                  // 剛剛融化的題庫（回首頁時播一次融冰動畫）
-function markSeen(refs) {
+function markSeen(id) {
   const k = dayKey(); if (!db.seen) db.seen = {};
-  let ch = false;
-  new Set((refs || []).map(r => r.b)).forEach(b => { if (b && db.seen[b] !== k) { db.seen[b] = k; thawed.add(b); ch = true; } });
-  if (ch) save();
+  if (!id || db.seen[id] === k) return;
+  db.seen[id] = k; thawed.add(id); save();
 }
+// 從題庫卡片進去：有題目才算來過
+const enter = (id, refs) => { if (refs.length) markSeen(id); return refs; };
 function dayStat() { if (!db.day || db.day.d !== dayKey()) db.day = { d: dayKey(), cleared: 0, rw: [] }; return db.day; }
 // 復仇戰一場抽 n 題：最久沒碰的優先（同時間的隨機）
 const pickRevenge = (refs, n) => shuffle(refs).sort((a, b) => ((db.wlast || {})[a.b + '|' + a.q] || 0) - ((db.wlast || {})[b.b + '|' + b.q] || 0)).slice(0, n);
@@ -2790,7 +2793,6 @@ function startQuiz(refs, opt) {
   const all = resolve(refs);
   if (!all.length) { toast('沒有可以挑戰的題目'); return; }
   const items = shuffle(all).slice(0, MAX_Q);
-  markSeen(toRefs(items));
   const n = items.length, maxHp = Math.min(8, Math.max(3, Math.ceil(n * .3)));
   S = {
     title: opt.title, boss: opt.boss, sub: opt.sub, recordBid: opt.recordBid || null, multi: isMulti(items), pool: refs,
@@ -3111,7 +3113,6 @@ function gallery() {
 function review(refs, title) {
   Boss3D.stop();
   const items = resolve(refs), multi = isMulti(items);
-  markSeen(toRefs(items));
   SET.rev = { title, refs: toRefs(items), sub: multi ? '' : (items[0] || {}).sub };
   setTheme(SET.rev.sub);
   let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>作戰筆記｜${esc(title)}</h1></header>`;
@@ -3139,7 +3140,6 @@ function cards(refs) {
   Boss3D.stop();
   const items = resolve(refs);
   if (!items.length) { toast('沒有卡片'); return; }
-  markSeen(toRefs(items));
   C = { items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) })), multi: isMulti(items), i: 0 };
   setTheme(isMulti(items) ? '' : items[0].sub);
   renderCard();
@@ -3309,10 +3309,10 @@ const ACT = {
     profile(); toast(db.mini ? '小魔王出來晃囉 🐾' : '小魔王去睡覺了 💤');
   },
   quiz: d => d.mode === 'wrong'
-    ? startQuiz(refsOf(d.id, 'wrong'), quizOpt(d.id, '・錯題'))
-    : startQuiz(refsOf(d.id), { ...quizOpt(d.id), recordBid: d.id }),
-  cards: d => cards(refsOf(d.id)),
-  review: d => review(refsOf(d.id, 'wrong'), bankOf(d.id).title),
+    ? startQuiz(enter(d.id, refsOf(d.id, 'wrong')), quizOpt(d.id, '・錯題'))
+    : startQuiz(enter(d.id, refsOf(d.id)), { ...quizOpt(d.id), recordBid: d.id }),
+  cards: d => cards(enter(d.id, refsOf(d.id))),
+  review: d => review(enter(d.id, refsOf(d.id, 'wrong')), bankOf(d.id).title),
   gallery: () => gallery(),
   withdraw: () => withdrawOpen(),
   toggleRev: () => { revOpen = !revOpen; const y = window.scrollY; home(); window.scrollTo(0, y); },
