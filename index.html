@@ -1500,6 +1500,7 @@ function home() {
   for (const id of list.filter(id => !db.subHome || subName(db.banks[id].subject) === db.subHome)) {
     const b = db.banks[id], w = (db.wrong[id] || []).length, best = db.best[id], eid = esc(id), x = subOf(b.subject);
     const frozen = (db.seen || {})[id] !== dayKey();
+    const st = db.stats[id], dn = st && st.dd === dayKey() ? st.dn || 0 : 0;   // 今日挑戰 BOSS 打贏次數
     h += `<section class="panel bank${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
       <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
       <button class="icon more" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button>
@@ -1508,6 +1509,7 @@ function home() {
         <div class="boss">BOSS：${x.boss}</div>
         <h2>${esc(b.title)}</h2>
         <div class="meta">HP ${Math.min(b.questions.length, MAX_Q)}${b.questions.length > MAX_Q ? `（題庫 ${b.questions.length} 題）` : ''}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>${best ? '' : '　尚未擊敗'}</div>
+        <div class="meta">今日完成 <b>${dn}</b> 次</div>
         ${frozen ? '<div class="ice">今天還沒來過，快進去把牠融化！</div>' : ''}
         <div class="grid">
           <button class="btn go span2" data-act="quiz" data-id="${eid}" data-mode="all">挑戰 BOSS</button>
@@ -1781,6 +1783,13 @@ function mergeProg(L, B, C) {
     const newer = (l.at || 0) >= (c.at || 0) ? l : c;
     out.stats[id] = Object.assign({}, c, newer, {
       n: add(l.n, b && b.n, c.n), sum: add(l.sum, b && b.sum, c.sum), win: add(l.win, b && b.win, c.win), best: Math.max(l.best || 0, c.best || 0) });
+    // 今日完成：同一天兩邊相加（扣掉共同的 base），不同天取日期新的那邊
+    const o = out.stats[id];
+    if (l.dd && l.dd === c.dd) { o.dd = l.dd; o.dn = add(l.dn, b && b.dd === l.dd ? b.dn : 0, c.dn); }
+    else if (l.dd || c.dd) {
+      const dk = s => s ? s.split('-').reduce((a, v) => a * 100 + +v, 0) : 0;   // dayKey 沒補零，轉數字才能比
+      const t = dk(l.dd) >= dk(c.dd) ? l : c; o.dd = t.dd; o.dn = t.dn || 0;
+    }
   });
   // 評級取較高、最近成績取較新；這台刻意重置／清除過（base 有、現在沒有）就照這台的
   out.best = {}; out.last = {};
@@ -2974,6 +2983,7 @@ function result() {
     const st = db.stats[S.recordBid] || (db.stats[S.recordBid] = { n: 0, sum: 0, best: 0, win: 0 });
     const sc = Math.round(pct * 100);
     st.n++; st.sum += sc; st.best = Math.max(st.best, sc); st.last = sc; st.at = Date.now(); if (win) st.win++;
+    if (win) { if (st.dd !== dayKey()) { st.dd = dayKey(); st.dn = 0; } st.dn++; }   // 今日完成：只算打贏，換日歸零
     st.title = db.banks[S.recordBid] ? db.banks[S.recordBid].title : st.title;
     save();
   }
