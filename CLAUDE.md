@@ -90,11 +90,12 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 
 ### db 欄位
 
-`banks, order, wrong, last, best, exp, kills, sound, coins, qwin, cards, revives, stats, wd`，另有 `subHome`、`subGh` 是篩選狀態。
+`banks, order, wrong, last, best, exp, kills, sound, coins, qwin, cards, revives, stats, wd, seen`，另有 `subHome`、`subGh` 是篩選狀態。
 
 - `cards`：刪去卡張數；`revives`：復活卡張數。升級時每級抽一次：30% 刪去卡、20% 復活卡、30% 金幣 +10、20% 沒有。
 - 復活卡：愛心歸零時可用，愛心補滿、繼續下一題，一場不限張數；最後一題倒下再復活算勝利。
 - `wd`：金幣提領紀錄 `[{ at, n }]`。點首頁／個人資料的金幣 → `withdrawOpen()` 彈窗 → `withdrawDo()` 金幣歸零並記錄；雲端合併時 `coins` 的增量可以是負的（提領），`wd` 兩邊聯集（`at|n` 去重）。
+- `seen[題庫id]`：這個題庫最後一次「進去」的日期（`dayKey()`）。`markSeen(refs)` 在 `startQuiz`／`review`／`cards` 呼叫，挑戰、錯題再戰、復仇戰（用實際抽到題目的題庫）、筆記、修練都算。首頁題庫卡 `seen` 不是今天就加 `.frozen`（結冰）；今天第一次進去後回首頁，該卡播一次 `.thaw` 融冰動畫（`thawed` Set）。只存這台裝置，**不進** `PROG`／雲端紀錄。
 - `stats[題庫id]`：`{ n, sum, best, last, at, win, title }`，只記「挑戰 BOSS」整份打完的場次（`S.recordBid` 有值才記），輸贏都算，中途撤退不算。
 - 新增「進度」類欄位時，要一起加進雲端紀錄的 `PROG` 陣列，不然換裝置會不見。
 
