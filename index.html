@@ -1518,6 +1518,7 @@ function home() {
         <div class="boss">BOSS：${x.boss}</div>
         <h2>${esc(b.title)}</h2>
         <div class="meta">HP ${Math.min(b.questions.length, MAX_Q)}${b.questions.length > MAX_Q ? `（題庫 ${b.questions.length} 題）` : ''}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>${best ? '' : '　尚未擊敗'}</div>
+        <div class="meta">平均分數 <b>${st && st.n ? Math.round(st.sum / st.n) : '—'}</b>${st && st.n ? `　（挑戰 ${st.n} 場）` : ''}</div>
         <div class="meta">今日完成 <b>${dn}</b> 次${dl ? `　💥 被打趴 <b class="ng">${dl}</b>` : ''}${dq ? `　🏳️ 撤退 <b class="ng">${dq}</b>` : ''}</div>
         ${lastBad(st) ? `<div class="lastbad">${lastBad(st)}</div>` : ''}
         ${frozen ? '<div class="ice">今天還沒來過，快進去把牠融化！</div>' : ''}
