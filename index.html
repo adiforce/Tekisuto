@@ -140,6 +140,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .st-games .g b{font-size:13px;white-space:nowrap}
 .st-games .g.l b,.st-games .g.q b{color:var(--hurt)}
 .st-games .g.w b{color:var(--ok)}
+.upd{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:9999;display:flex;gap:8px;align-items:center;padding:10px 12px;border:3px solid var(--ink);background:var(--hit);color:var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:900;font-size:14px}
+.upd span{flex:1}
+.upd button{font:inherit;font-weight:900;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 10px;cursor:pointer}
 .me .lv{font-family:var(--display);font-size:46px;line-height:.9;text-align:center;min-width:72px}
 .me .lv small{display:block;font-family:"Noto Sans TC";font-size:12px;font-weight:900}
 .me .hero{display:block;width:96px;height:96px;margin:-6px -4px 0;image-rendering:pixelated}
@@ -3728,6 +3731,42 @@ if (bankUrl) {
     .then(t => { const b = normalize(t); const existed = addBank(b); home(); toast((existed ? '已更新：' : '已載入：') + b.title); })
     .catch(() => toast('題庫載入失敗，請確認檔案路徑'));
 }
+/* ===== 自動更新：每分鐘（和切回來時）偷偷問伺服器 index.html 有沒有換版，換了就跳出提示條，按「立即更新」才換新網址重載；戰鬥中、草稿紙開著先不跳 ===== */
+(function () {
+  const KEY = 'beishu.ver', GAP = 30 * 1000, EVERY = 60 * 1000;
+  let last = 0, pending = null, dismissed = null, busy = false;
+  const idle = () => !S && !(document.getElementById('pad') || { classList: { contains: () => false } }).classList.contains('show');
+  function banner() {
+    let el = document.getElementById('upd');
+    if (!pending || pending === dismissed || !idle()) { if (el) el.remove(); return; }
+    if (el) return;
+    el = document.createElement('div'); el.id = 'upd'; el.className = 'upd'; el.setAttribute('role', 'alert');
+    el.innerHTML = '<span>🆕 有新版本了！</span><button data-u="go">立即更新</button><button data-u="later">稍後</button>';
+    el.onclick = e => {
+      const u = e.target.dataset && e.target.dataset.u; if (!u) return;
+      if (u === 'later') { dismissed = pending; el.remove(); return; }
+      try { localStorage.setItem(KEY, pending); } catch (x) {}
+      location.replace(location.pathname + '?v=' + encodeURIComponent(pending));
+    };
+    document.body.appendChild(el);
+  }
+  async function checkUpdate(force) {
+    if (busy || (!force && Date.now() - last < GAP)) return;
+    busy = true; last = Date.now();
+    try {
+      const r = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return;
+      const sig = r.headers.get('etag') || r.headers.get('last-modified') || String((await r.text()).length);
+      let old = null; try { old = localStorage.getItem(KEY); } catch (e) { return; }
+      if (old === null) { try { localStorage.setItem(KEY, sig); } catch (e) {} return; }   // 第一次只記下版本
+      pending = old === sig ? null : sig;                                                   // 沒換版就清掉提示
+    } catch (e) {} finally { busy = false; banner(); }
+  }
+  checkUpdate(true);
+  setInterval(() => { if (!document.hidden) checkUpdate(false); else banner(); }, EVERY);
+  setInterval(banner, 3000);                                                                // 戰鬥結束回基地後才跳出來
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
+})();
 })();
 // 手機禁止縮放（iOS Safari 會忽略 viewport 的 user-scalable，另外擋手勢）
 document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
@@ -3737,31 +3776,6 @@ document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preven
   const z = document.getElementById('zoom'), zi = z.querySelector('img');
   zi.addEventListener('click', () => zi.classList.toggle('big'));
   z.querySelector('.x').addEventListener('click', () => zi.classList.remove('big'));
-})();
-
-/* ===== 自動更新：開啟、或切回來時偷偷問伺服器 index.html 有沒有換版，換了就換新網址重新載入（不用手動清快取）===== */
-(function () {
-  const KEY = 'beishu.ver', GAP = 5 * 60 * 1000;
-  let last = 0;
-  async function checkUpdate(force) {
-    if (!force && Date.now() - last < GAP) return;
-    last = Date.now();
-    try {
-      const r = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) return;
-      const sig = r.headers.get('etag') || r.headers.get('last-modified') || String((await r.text()).length);
-      let old = null; try { old = localStorage.getItem(KEY); } catch (e) { return; }
-      if (old === sig) return;                                 // 沒換版
-      if (old === null) { try { localStorage.setItem(KEY, sig); } catch (e) {} return; }   // 第一次只記下版本
-      if (typeof S !== 'undefined' && S) return;               // 正在戰鬥不打斷（版本先不記，下次回基地切回來再更新）
-      const pad = document.getElementById('pad'); if (pad && pad.classList.contains('show')) return;
-      const t = +sessionStorage.getItem(KEY + '.t') || 0; if (Date.now() - t < 60000) return;   // 一分鐘內最多重載一次，避免迴圈
-      try { sessionStorage.setItem(KEY + '.t', String(Date.now())); localStorage.setItem(KEY, sig); } catch (e) {}
-      location.replace(location.pathname + '?v=' + encodeURIComponent(sig));
-    } catch (e) {}
-  }
-  checkUpdate(true);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
 })();
 </script>
 </body>
