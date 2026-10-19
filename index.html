@@ -141,6 +141,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .st-games .g.l b,.st-games .g.q b{color:var(--hurt)}
 .st-games .g.w b{color:var(--ok)}
 .upd{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:9999;display:flex;gap:8px;align-items:center;padding:10px 12px;border:3px solid var(--ink);background:var(--hit);color:var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:900;font-size:14px}
+.upd + .upd{top:calc(64px + env(safe-area-inset-top))}
 .upd span{flex:1}
 .upd button{font:inherit;font-weight:900;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 10px;cursor:pointer}
 .me .lv{font-family:var(--display);font-size:46px;line-height:.9;text-align:center;min-width:72px}
@@ -1600,16 +1601,16 @@ function ghStatus(b) {
   if (!l) return 'new';
   return bankSig(l) === bankSig(b) ? 'same' : 'update';
 }
-async function ghLoad(force) {
-  const box = document.getElementById('gh'); if (!box) return;
-  if (ghCache && !force) { renderGh(); return; }
-  box.innerHTML = '<p class="sub">讀取中…</p>';
-  try {
-    const r = await fetch(INDEX_URL + '?t=' + Date.now(), { cache: 'no-store' });
-    if (r.status === 404) throw new Error('找不到題庫清單（banks/index.json），請確認 GitHub Actions 已執行完成');
-    if (!r.ok) throw new Error('讀取題庫清單失敗（' + r.status + '）');
-    const idx = await r.json();
-    const files = (idx.files || []).filter(f => f.file);
+async function ghIndex() {
+  const r = await fetch(INDEX_URL + '?t=' + Date.now(), { cache: 'no-store' });
+  if (r.status === 404) throw new Error('找不到題庫清單（banks/index.json），請確認 GitHub Actions 已執行完成');
+  if (!r.ok) throw new Error('讀取題庫清單失敗（' + r.status + '）');
+  return r.json();
+}
+async function ghFetch(idx) {                                    // 抓整份線上題庫清單，結果放進 ghCache
+  idx = idx || await ghIndex();
+  const files = (idx.files || []).filter(f => f.file);
+  {
     ghCache = await Promise.all(files.map(async f => {
       if (f.error) return { name: f.file, err: f.error };
       try {
@@ -1622,6 +1623,14 @@ async function ghLoad(force) {
     }));
     const key = x => x.bank ? (x.bank.subject + '\u0000' + x.bank.title) : '￿' + x.name;
     ghCache.sort((a, b) => key(a).localeCompare(key(b), 'zh-Hant'));
+  }
+}
+async function ghLoad(force) {
+  const box = document.getElementById('gh'); if (!box) return;
+  if (ghCache && !force) { renderGh(); return; }
+  box.innerHTML = '<p class="sub">讀取中…</p>';
+  try {
+    await ghFetch();
     renderGh();
   } catch (e) {
     ghCache = null;
@@ -3762,10 +3771,38 @@ if (bankUrl) {
       pending = old === sig ? null : sig;                                                   // 沒換版就清掉提示
     } catch (e) {} finally { busy = false; banner(); }
   }
-  checkUpdate(true);
-  setInterval(() => { if (!document.hidden) checkUpdate(false); else banner(); }, EVERY);
-  setInterval(banner, 3000);                                                                // 戰鬥結束回基地後才跳出來
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(false); });
+  // 題庫：index.json 的 updated 變了就重抓整份線上題庫，有「新題庫」或「題庫有更新」就跳提示條（跟版本提示條分開；同一批內容按過「稍後」就不再跳）
+  let bIdx = null, bLast = 0, bBusy = false, bDismissed = null;
+  const bPend = () => (ghCache || []).filter(x => x.bank && ghStatus(x.bank) !== 'same');
+  const bKey = ps => hash(ps.map(x => x.bank.id + '|' + ghStatus(x.bank) + '|' + hash(bankSig(x.bank))).join(','));
+  function bBanner() {
+    let el = document.getElementById('updb');
+    const ps = bPend(), key = bKey(ps);
+    if (!ps.length || key === bDismissed || !idle() || !db.order.length) { if (el) el.remove(); return; }
+    const nn = ps.filter(x => ghStatus(x.bank) === 'new').length, nu = ps.length - nn;
+    const txt = '📚 ' + [nn ? `有 ${nn} 份新題庫` : '', nu ? `${nu} 份題庫有更新` : ''].filter(Boolean).join('、');
+    if (el) { el.firstChild.textContent = txt; return; }
+    el = document.createElement('div'); el.id = 'updb'; el.className = 'upd'; el.setAttribute('role', 'alert');
+    el.innerHTML = `<span>${txt}</span><button data-u="go">去看看</button><button data-u="later">稍後</button>`;
+    el.onclick = e => {
+      const u = e.target.dataset && e.target.dataset.u; if (!u) return;
+      bDismissed = bKey(bPend()); el.remove();
+      if (u === 'go') importView();
+    };
+    document.body.appendChild(el);
+  }
+  async function checkBanks(force) {
+    if (bBusy || (!force && Date.now() - bLast < GAP)) return;
+    bBusy = true; bLast = Date.now();
+    try {
+      const idx = await ghIndex();
+      if (!ghCache || bIdx !== idx.updated) { await ghFetch(idx); bIdx = idx.updated; if (document.getElementById('gh')) renderGh(); }   // 在匯入頁時順便重畫，免得按鈕對到舊的順序
+    } catch (e) {} finally { bBusy = false; bBanner(); }
+  }
+  checkUpdate(true); checkBanks(true);
+  setInterval(() => { if (!document.hidden) { checkUpdate(false); checkBanks(false); } else { banner(); bBanner(); } }, EVERY);
+  setInterval(() => { banner(); bBanner(); }, 3000);                                        // 戰鬥結束回基地後才跳出來；匯入完也會自動收起
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkUpdate(false); checkBanks(false); } });
 })();
 })();
 // 手機禁止縮放（iOS Safari 會忽略 viewport 的 user-scalable，另外擋手勢）
