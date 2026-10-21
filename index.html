@@ -280,6 +280,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .rv-x li{margin-top:4px}
 .rv-x b{color:var(--hurt)}
 .cutbtn{display:block;margin:0 0 10px auto}
+.qtools{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.qtools .cutbtn{margin:0}
+.hintbox{margin-top:10px;padding:8px 12px;border:2px dashed var(--ink);background:#FFF6BF;color:#000;font-size:15px;font-weight:700;line-height:1.6}
 .revbtn{margin-bottom:10px}
 .fb{margin:18px 0 14px;padding:14px 16px;position:relative}
 .fb .say{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block;margin-bottom:4px}
@@ -2899,7 +2902,7 @@ function renderQ() {
       <div class="qtext">${fmt(it.q.q)}</div>
       ${refTag(it.q)}
     </div>
-    ${db.cards ? `<button class="btn sm cutbtn" data-act="useCut">✂️ 刪去卡 ×${db.cards}</button>` : ''}
+    ${(db.cards || hintOf(it)) ? `<div class="qtools">${hintOf(it) ? `<button class="btn sm hintbtn" data-act="useHint">💡 查看提示</button>` : ''}${db.cards ? `<button class="btn sm cutbtn" data-act="useCut">✂️ 刪去卡 ×${db.cards}</button>` : ''}</div>` : ''}
     <div class="opts">${it.order.map((oi, k) =>
       `<button class="opt" data-act="pick" data-k="${k}"><span class="lt">${LETTER[k]}</span><span>${fmt(it.q.options[oi])}</span></button>`).join('')}
     </div>
@@ -2936,6 +2939,19 @@ function showFx(big, small, good) {
   clearTimeout(showFx.t); showFx.t = setTimeout(() => fx.classList.remove('show'), 750);
 }
 
+// 復仇戰才有「查看提示」：只給口訣（沒有口訣才給重點），看了答對照樣打 BOSS、算消滅，但 combo 從頭算、這題不給金幣
+function hintOf(it) {
+  if (!S || S.sub !== '錯題') return '';
+  return it.q.mnemonic || it.q.point || '';
+}
+function useHint(btn) {
+  if (!S || S.answered) return;
+  const it = S.items[S.i], h = hintOf(it); if (!h || it.hinted) return;
+  it.hinted = true;
+  const card = app.querySelector('.qcard .qtext');
+  if (card) card.insertAdjacentHTML('afterend', `<div class="hintbox">💡 ${fmt(h)}</div>`);
+  btn.disabled = true; btn.textContent = '💡 已看提示';
+}
 function useCut(btn) {
   if (!S || S.answered || !db.cards) return;
   const it = S.items[S.i]; if (it.cut != null) return;
@@ -2970,6 +2986,7 @@ function pick(k) {
   const it = S.items[S.i], ok = it.order[k] === it.q.answer;
   const right = it.order.indexOf(it.q.answer);
   const cb = app.querySelector('.cutbtn'); if (cb) cb.disabled = true;
+  const hb = app.querySelector('.hintbtn'); if (hb) hb.disabled = true;
   app.querySelectorAll('.opt').forEach((bt, j) => {
     bt.disabled = true;
     if (j === right) bt.classList.add('ok'); else if (j === k) bt.classList.add('ng'); else bt.classList.add('dim');
@@ -2981,7 +2998,8 @@ function pick(k) {
   markWrong(it.bid, it.q.id, !ok);
   let say, gain = -1;
   if (ok) {
-    if (!noCoin) { gain = earnQ(it.bid, it.q.id); S.coins += gain; }
+    if (it.hinted) { gain = noCoin ? -1 : -2; S.combo = 0; }                 // 看過提示：不給金幣、combo 從這題重新算
+    else if (!noCoin) { gain = earnQ(it.bid, it.q.id); S.coins += gain; }
     S.correct++; S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo); S.bossHp--;
     S.exp += 10 + Math.min(S.combo, 10) * 2;
     const lastQ = S.i === S.items.length - 1, final = S.bossHp <= 0 || lastQ, move = S.combo % 3 === 0 ? 'ult' : S.combo % 3 === 2 ? 'hit2' : 'hit1';
@@ -3016,7 +3034,7 @@ function pick(k) {
   const done = S.hp <= 0 || S.i === S.items.length - 1;
   const fb = document.getElementById('fb');
   fb.innerHTML = `<div class="panel fb ${ok ? 'ok' : 'ng'}">
-      <div class="say">${esc(say)}${gain > 0 ? `<span class="coin">💰 +${gain}</span>` : gain === 0 ? '<span class="coin none">💰 已領過</span>' : ''}</div>
+      <div class="say">${esc(say)}${gain > 0 ? `<span class="coin">💰 +${gain}</span>` : gain === 0 ? '<span class="coin none">💰 已領過</span>' : gain === -2 ? '<span class="coin none">💡 看了提示，不給金幣</span>' : ''}</div>
       ${it.q.explain ? `<p>${fmt(it.q.explain)}</p>` : ''}
     </div>
     ${S.hp <= 0 && db.revives ? `<button class="btn go wide revbtn" data-act="useRevive">💖 使用復活卡（剩 ${db.revives} 張）</button>` : ''}
@@ -3425,6 +3443,7 @@ const ACT = {
   padOpen: () => Pad.open(),
   ghRefresh: () => ghLoad(true),
   useCut: (d, el) => useCut(el),
+  useHint: (d, el) => useHint(el),
   useRevive,
   profile,
   syncView, syncList: () => loadSyncList(), syncSave: (d, el) => syncSave(el), syncLoad: d => syncLoad(+d.n), syncRestore,
