@@ -3759,37 +3759,10 @@ if (bankUrl) {
     .then(t => { const b = normalize(t); const existed = addBank(b); home(); toast((existed ? '已更新：' : '已載入：') + b.title); })
     .catch(() => toast('題庫載入失敗，請確認檔案路徑'));
 }
-/* ===== 自動更新：每分鐘（和切回來時）偷偷問伺服器 index.html 有沒有換版，換了就跳出提示條，按「立即更新」才換新網址重載；戰鬥中、草稿紙開著先不跳 ===== */
+/* ===== 自動更新：每分鐘（和切回來時）讀 banks/index.json，題庫有新增或更新就跳出提示條；戰鬥中、草稿紙開著先不跳。（index.html 換版提示已拿掉：常常沒換版也亂跳（疑似 GitHub Pages 各節點 ETag 不一致）） ===== */
 (function () {
-  const KEY = 'beishu.ver', GAP = 30 * 1000, EVERY = 60 * 1000;
-  let last = 0, pending = null, dismissed = null, busy = false;
+  const GAP = 30 * 1000, EVERY = 60 * 1000;
   const idle = () => !S && !(document.getElementById('pad') || { classList: { contains: () => false } }).classList.contains('show');
-  function banner() {
-    let el = document.getElementById('upd');
-    if (!pending || pending === dismissed || !idle()) { if (el) el.remove(); return; }
-    if (el) return;
-    el = document.createElement('div'); el.id = 'upd'; el.className = 'upd'; el.setAttribute('role', 'alert');
-    el.innerHTML = '<span>🆕 有新版本了！</span><button data-u="go">立即更新</button><button data-u="later">稍後</button>';
-    el.onclick = e => {
-      const u = e.target.dataset && e.target.dataset.u; if (!u) return;
-      if (u === 'later') { dismissed = pending; el.remove(); return; }
-      try { localStorage.setItem(KEY, pending); } catch (x) {}
-      location.replace(location.pathname + '?v=' + encodeURIComponent(pending));
-    };
-    document.body.appendChild(el);
-  }
-  async function checkUpdate(force) {
-    if (busy || (!force && Date.now() - last < GAP)) return;
-    busy = true; last = Date.now();
-    try {
-      const r = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) return;
-      const sig = r.headers.get('etag') || r.headers.get('last-modified') || String((await r.text()).length);
-      let old = null; try { old = localStorage.getItem(KEY); } catch (e) { return; }
-      if (old === null) { try { localStorage.setItem(KEY, sig); } catch (e) {} return; }   // 第一次只記下版本
-      pending = old === sig ? null : sig;                                                   // 沒換版就清掉提示
-    } catch (e) {} finally { busy = false; banner(); }
-  }
   // 題庫：index.json 的 updated 變了就重抓整份線上題庫，有「新題庫」或「題庫有更新」就跳提示條（跟版本提示條分開；同一批內容按過「稍後」就不再跳）
   let bIdx = null, bLast = 0, bBusy = false, bDismissed = null;
   const bPend = () => (ghCache || []).filter(x => x.bank && ghStatus(x.bank) !== 'same');
@@ -3818,10 +3791,10 @@ if (bankUrl) {
       if (!ghCache || bIdx !== idx.updated) { await ghFetch(idx); bIdx = idx.updated; if (document.getElementById('gh')) renderGh(); }   // 在匯入頁時順便重畫，免得按鈕對到舊的順序
     } catch (e) {} finally { bBusy = false; bBanner(); }
   }
-  checkUpdate(true); checkBanks(true);
-  setInterval(() => { if (!document.hidden) { checkUpdate(false); checkBanks(false); } else { banner(); bBanner(); } }, EVERY);
-  setInterval(() => { banner(); bBanner(); }, 3000);                                        // 戰鬥結束回基地後才跳出來；匯入完也會自動收起
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkUpdate(false); checkBanks(false); } });
+  checkBanks(true);
+  setInterval(() => { if (!document.hidden) checkBanks(false); else bBanner(); }, EVERY);
+  setInterval(bBanner, 3000);                                        // 戰鬥結束回基地後才跳出來；匯入完也會自動收起
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkBanks(false); });
 })();
 })();
 // 手機禁止縮放（iOS Safari 會忽略 viewport 的 user-scalable，另外擋手勢）
