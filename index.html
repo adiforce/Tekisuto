@@ -258,6 +258,12 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .qcard{padding:16px;margin-bottom:16px;position:relative}
 .qcard .src{display:inline-block;font-size:12px;font-weight:900;border:2px solid var(--ink);padding:0 8px;margin-bottom:8px}
 .qtext{font-size:19px;font-weight:900;line-height:1.6}
+/* 假名：漢字上面的小字，盡量小；關掉時整個藏起來 */
+ruby{ruby-position:over;ruby-align:center}
+rt{font-size:.4em;font-weight:500;line-height:1;opacity:.75;letter-spacing:0;user-select:none;-webkit-user-select:none}
+body.nofuri rt{display:none}
+.icon.furi{font-family:inherit}
+.icon.furi.off{opacity:.45;text-decoration:line-through}
 .qref{font-size:12px;font-weight:700;opacity:.6;margin-top:6px}     /* 題目出處（參考…）：小小的、不搶題目 */
 .rv .qref{margin:4px 0 0 38px}
 .opts{display:grid;gap:12px}
@@ -608,7 +614,8 @@ const PROMPT = `請根據我上傳的課本內容出題，只輸出一份 JSON�
 7. 需要附圖的題目可加 "image": "banks/img/檔名.jpg"
 8. subject 只能用上面清單裡的詞；日文、其他語言，或不屬於清單的科目，一律填「其它」
 9. why 的長度要和 options 一樣、順序對應：正解那格放空字串 ""，其他每格用一句話說明這個選項為什麼錯。選項會被打亂順序，所以不能寫「A 錯」「選項 B」，要直接講那個選項的內容
-10. 不要在題目文字裡寫題號或出處，出處放進 ref`;
+10. 不要在題目文字裡寫題號或出處，出處放進 ref
+11. 日文題目：q 和 options 裡的漢字都要標假名，寫成 {漢字|かな}，例如 {毎朝|まいあさ} {7時|しちじ}に {起|お}きます。送假名寫在大括號外面；會洩漏答案的讀音（例如考讀音的題目）不要標`;
 
 /* ===== 示範題庫 ===== */
 const SAMPLE = {
@@ -927,7 +934,12 @@ const Hero = (() => {
 /* ===== 工具 ===== */
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const fmt = s => esc(s).replace(/\n/g, '<br>');
+// 假名標記：題庫裡寫 {漢字|かな}，顯示成漢字上面的小字假名（<ruby>）；plain() 拿掉標記只留漢字
+const FURI = /\{([^{}|\n]+)\|([^{}|\n]+)\}/g;
+const plain = s => String(s ?? '').replace(FURI, '$1');
+const hasFuri = items => items.some(it => [it.q.q, ...it.q.options].some(t => /\{[^{}|\n]+\|[^{}|\n]+\}/.test(t)));
+const furiBtn = items => hasFuri(items) ? `<button class="icon furi${db.noFuri ? ' off' : ''}" data-act="toggleFuri" aria-label="假名開關">あ</button>` : '';
+const fmt = s => esc(s).replace(FURI, '<ruby>$1<rt>$2</rt></ruby>').replace(/\n/g, '<br>');
 const LETTER = 'ABCDEFGH';
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
@@ -1293,7 +1305,7 @@ function normalize(raw) {
       else a = opts.indexOf(t);
     }
     if (!Number.isInteger(a) || a < 0 || a >= opts.length) throw new Error(`第 ${i + 1} 題的 answer 不正確`);
-    let qid = q.id ? String(q.id) : 'h' + hash(String(text).replace(/\s+/g, ''));
+    let qid = q.id ? String(q.id) : 'h' + hash(plain(text).replace(/\s+/g, ''));
     while (seen.has(qid)) qid += '_';
     seen.add(qid);
     return {
@@ -1368,7 +1380,7 @@ const pickRevenge = (refs, n) => shuffle(refs).sort((a, b) => ((db.wlast || {})[
 function idAliases(b) {
   const map = {};
   b.questions.forEach(q => {
-    const h = 'h' + hash(String(q.q).replace(/\s+/g, ''));
+    const h = 'h' + hash(plain(q.q).replace(/\s+/g, ''));
     [...(q.aka || []), h].forEach(a => { if (a !== q.id) map[a] = q.id; });
   });
   return map;
@@ -1457,7 +1469,7 @@ const imgTag = q => q.image
   ? `<button class="qimg" data-act="zoom" data-src="${esc(q.image)}"><img src="${esc(q.image)}" alt="題目附圖" loading="lazy" onerror="this.parentNode.classList.add('broken')"></button>`
   : '';
 // 題目本身要搭配選項才看得懂（下列何者…、配對、哪一張圖）時，修練卡也顯示選項
-const needOpts = q => /下列|何者|配對|哪一張/.test(q.q) || (q.lock && q.options.some(o => o.length > 2));
+const needOpts = q => /下列|何者|配對|哪一張/.test(q.q) || (q.lock && q.options.some(o => plain(o).length > 2));
 const optList = (q, order) => `<ul class="copts">${order.map((oi, k) =>
   `<li><b>${LETTER[k]}</b><span>${fmt(q.options[oi])}</span></li>`).join('')}</ul>`;
 
@@ -2870,7 +2882,7 @@ function startQuiz(refs, opt) {
   if (look !== opt.sub) S.boss = x.boss;
   stage.className = 'panel stage';
   stage.innerHTML = `${Scene.html(x.kind)}<div class="cv"></div><div class="load">BOSS 登場中…</div>
-    <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><button class="icon" data-act="padOpen" aria-label="草稿紙">✏️</button><div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
+    <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><button class="icon" data-act="padOpen" aria-label="草稿紙">✏️</button>${furiBtn(S.items)}<div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
     <div class="hud" id="hud"></div>`;
   if (window.ResizeObserver) new ResizeObserver(() => Boss3D.resize()).observe(stage);
   S.stageEl = stage; S.ult = x.ult; S.kind = x.kind; S.kc = x.c;      // 小魔王（畫面上晃的小貓）跟著這場的魔王換貓種
@@ -3248,7 +3260,7 @@ function cards(refs) {
 }
 function renderCard() {
   const it = C.items[C.i], q = it.q, n = C.items.length;
-  app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="離開">✕</button>
+  app.innerHTML = `<header class="top"><button class="icon" data-act="home" aria-label="離開">✕</button>${furiBtn(C.items)}
       <h1>修練中　${C.i + 1} / ${n}</h1></header>
     <div class="bar"><i style="width:${(C.i + 1) / n * 100}%"></i></div>
     ${n > CARD_SEG ? `<div class="chips mini">${Array.from({ length: Math.ceil(n / CARD_SEG) }, (_, k) => {
@@ -3441,6 +3453,7 @@ const ACT = {
     const z = document.getElementById('zoom'); z.querySelector('img').src = d.src; z.classList.add('show');
   },
   padOpen: () => Pad.open(),
+  toggleFuri: (d, el) => { db.noFuri = !db.noFuri; save(); document.body.classList.toggle('nofuri', db.noFuri); el.classList.toggle('off', db.noFuri); },
   ghRefresh: () => ghLoad(true),
   useCut: (d, el) => useCut(el),
   useHint: (d, el) => useHint(el),
@@ -3748,6 +3761,7 @@ const Mini = (() => {
 
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
+document.body.classList.toggle('nofuri', !!db.noFuri);
 home();
 Mini.start();
 autoSync(true);
