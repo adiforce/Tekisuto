@@ -2866,7 +2866,7 @@ function startQuiz(refs, opt) {
   const all = resolve(refs);
   if (!all.length) { toast('沒有可以挑戰的題目'); return; }
   const items = shuffle(all).slice(0, MAX_Q);
-  const n = items.length, maxHp = Math.min(8, Math.max(3, Math.ceil(n * .3)));
+  const n = items.length, maxHp = Math.min(10, Math.max(5, Math.ceil(n * .6)));   // 10 題＝6 顆愛心（原本 3 顆太容易倒下）
   S = {
     title: opt.title, boss: opt.boss, sub: opt.sub, recordBid: opt.recordBid || null, multi: isMulti(items), pool: refs,
     i: 0, correct: 0, wrong: [], answered: false, combo: 0, maxCombo: 0, exp: 0, coins: 0,
@@ -3019,7 +3019,9 @@ function pick(k) {
     const w = move === 'hit2' ? ['DOUBLE!', '二連擊！'] : cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
     const tier = myTier(), ultName = S.ult + ULT_SUFFIX[tier];
     if (move === 'ult') {
-      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…');
+      const heal = !final && S.hp < S.maxHp;                  // 連續答對 3 題放大招，順便回 1 顆愛心
+      if (heal) S.hp++;
+      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…') + (heal ? '　💖 回復 1 顆愛心' : '');
       showCutin(ultName); SFX.ult(); vibrate([80, 40, 160]);
     } else {
       say = `${TIER_HIT[tier]}！${w[1]}`; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
