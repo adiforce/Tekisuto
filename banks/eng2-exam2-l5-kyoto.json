@@ -1,0 +1,687 @@
+{
+  "id": "eng2-exam2-l5-kyoto",
+  "title": "高二英文 段考二｜Lesson 5 Kyoto: The Heart of Japan",
+  "subject": "英文",
+  "questions": [
+    {
+      "id": "en5-001",
+      "q": "Star fruit trees _____ only in summer, while most other fruit trees do so in spring.",
+      "ref": "L5 Kyoto｜單字 blossom",
+      "options": [
+        "rustle",
+        "boast",
+        "blossom",
+        "stun"
+      ],
+      "answer": 2,
+      "explain": "blossom 可當名詞（花朵）或不及物動詞（開花）。課文：a sea of pink cherry blossoms。",
+      "why": [
+        "rustle 是「沙沙作響」，不是開花。",
+        "boast 是「以……為傲；擁有」，不是開花。",
+        "",
+        "stun 是「使驚訝」，不是開花。"
+      ],
+      "point": "blossom：n. 花朵；vi. 開花。"
+    },
+    {
+      "id": "en5-002",
+      "q": "Alison works as a receptionist now, but _____ she was a flight attendant.",
+      "ref": "L5 Kyoto｜單字 previously",
+      "options": [
+        "previously",
+        "previous",
+        "historic",
+        "leisurely"
+      ],
+      "answer": 0,
+      "explain": "previously（adv.）先前地；形容詞 previous。課文：Having previously been the capital of Japan for over a thousand years。",
+      "why": [
+        "",
+        "previous 是形容詞「先前的」，要修飾名詞，這裡需要副詞。",
+        "historic 是「歷史悠久的」，不是「先前」。",
+        "leisurely 是「悠閒的」，語意不符。"
+      ],
+      "point": "previous（adj.）→ previously（adv.）。"
+    },
+    {
+      "id": "en5-003",
+      "q": "Establishing a company requires not only a great idea for a product but also some start-up _____.",
+      "ref": "L5 Kyoto｜單字 capital",
+      "options": [
+        "landscape",
+        "literature",
+        "appearance",
+        "capital"
+      ],
+      "answer": 3,
+      "explain": "capital 有兩個意思：n.[C] 首都；n.[U] 資本、資金。課文用的是「首都」：the capital of Japan。",
+      "why": [
+        "landscape 是「景色」，不合語意。",
+        "literature 是「文學」，不合語意。",
+        "appearance 是「外表」，不合語意。",
+        ""
+      ],
+      "point": "capital：首都／資本。"
+    },
+    {
+      "id": "en5-004",
+      "q": "Our new community sports center _____ six indoor basketball courts, an Olympic-size swimming pool, and four tennis courts.",
+      "ref": "L5 Kyoto｜單字 boast",
+      "options": [
+        "rustles",
+        "boasts",
+        "blossoms",
+        "stuns"
+      ],
+      "answer": 1,
+      "explain": "boast（vt.）以……為傲；擁有。課文：the city boasts a large number of historic shrines and temples。",
+      "why": [
+        "rustle 是「沙沙作響」，句意不通。",
+        "",
+        "blossom 是「開花」，句意不通。",
+        "stun 是「使驚訝」，後面接設施清單語意不合。"
+      ],
+      "point": "boast ＝ 擁有（值得驕傲的東西）。"
+    },
+    {
+      "id": "en5-005",
+      "q": "On April 12, 1961, Yuri Gagarin became the first person to fly into space. It was a _____ day for humankind.",
+      "ref": "L5 Kyoto｜單字 historic",
+      "options": [
+        "historical",
+        "historian",
+        "historic",
+        "history"
+      ],
+      "answer": 2,
+      "explain": "historic ＝ 歷史悠久的；歷史上著名的；historical ＝ 歷史的。課文：historic shrines and temples。",
+      "why": [
+        "historical 是「歷史的；與歷史有關的」，不是「具歷史意義的」。",
+        "historian 是「歷史學家」，是名詞。",
+        "",
+        "history 是名詞，不能表示「歷史性的」。"
+      ],
+      "point": "historic（有歷史意義）vs historical（與歷史有關）。"
+    },
+    {
+      "id": "en5-006",
+      "q": "Sophia’s favorite movies are _____ ones because she can learn something about the past while being entertained.",
+      "ref": "L5 Kyoto｜單字 historical",
+      "options": [
+        "historical",
+        "historic",
+        "historian",
+        "history"
+      ],
+      "answer": 0,
+      "explain": "historical（adj.）歷史的、與歷史有關的，例如 historical movies / novels。",
+      "why": [
+        "",
+        "historic 是「歷史上著名的」，不是「與歷史有關的」。",
+        "historian 是「歷史學家」，是名詞。",
+        "history 是名詞，修飾 ones 要用形容詞。"
+      ],
+      "point": "historical movies ＝ 歷史電影。"
+    },
+    {
+      "id": "en5-007",
+      "q": "下列哪個字的意思是：relaxed or without rushing？",
+      "ref": "L5 Kyoto｜單字 leisurely",
+      "options": [
+        "breathtaking",
+        "delicate",
+        "elegant",
+        "leisurely"
+      ],
+      "answer": 3,
+      "explain": "leisurely（adj.）悠閒的；名詞 leisure（閒暇）。課文：Visitors can take a leisurely walk through the surrounding gardens。",
+      "why": [
+        "breathtaking 是「驚人的；極為美麗的」。",
+        "delicate 是「精美的」。",
+        "elegant 是「雅致的；舉止優雅的」。",
+        ""
+      ],
+      "point": "leisure（閒暇）→ leisurely（悠閒的）。"
+    },
+    {
+      "id": "en5-008",
+      "q": "The visitors were _____ when they saw several huge beasts escaping from the zoo.",
+      "ref": "L5 Kyoto｜單字 stun",
+      "options": [
+        "stunning",
+        "stunned",
+        "stun",
+        "stuns"
+      ],
+      "answer": 1,
+      "explain": "stun（vt.）使驚訝；stunned（人感到驚訝）／stunning（事物令人驚豔）。課文：many stunning views。",
+      "why": [
+        "stunning 是「令人驚訝的」，形容事物；此處主詞是人，要用 stunned。",
+        "",
+        "stun 是原形，不能直接接在 were 後面。",
+        "stuns 是第三人稱單數動詞，不符句型。"
+      ],
+      "point": "人 stunned；物 stunning。"
+    },
+    {
+      "id": "en5-009",
+      "q": "This high-end grocery store sells foreign _____, such as cheese from France and soy sauce from Japan.",
+      "ref": "L5 Kyoto｜單字 delicacy",
+      "options": [
+        "delicate",
+        "delicacy",
+        "delicacies",
+        "delicately"
+      ],
+      "answer": 2,
+      "explain": "delicate（adj.）精美的；delicacy（n.[U]）纖細、精美；（n.[C]）佳餚、美食。課文：delicate kimonos。",
+      "why": [
+        "delicate 是形容詞「精美的」，這裡要名詞。",
+        "delicacy 是單數，但句中列了好幾種食品，要用複數 delicacies。",
+        "",
+        "delicately 是副詞，不能當名詞用。"
+      ],
+      "point": "delicacy：[U] 纖細；[C] 佳餚。"
+    },
+    {
+      "id": "en5-010",
+      "q": "下列哪個字的意思是：easy to recognize, identify, or notice（獨特的）？",
+      "ref": "L5 Kyoto｜單字 distinctive",
+      "options": [
+        "distinctive",
+        "delicate",
+        "elegant",
+        "magnificent"
+      ],
+      "answer": 0,
+      "explain": "distinctive（adj.）獨特的、易辨認的；名詞 distinction（差別）；distinct（adj.）顯著的、明顯的。課文：Their distinctive white makeup, bright red lipstick ... make them easy to recognize。",
+      "why": [
+        "",
+        "delicate 是「精美的」。",
+        "elegant 是「雅致的」。",
+        "magnificent 是「壯麗的；雄偉的」。"
+      ],
+      "point": "distinctive 獨特；distinct 明顯；distinction 差別。"
+    },
+    {
+      "id": "en5-011",
+      "q": "Few people in the world would disagree that Shakespeare was one of the greatest _____ masters of all time.",
+      "ref": "L5 Kyoto｜單字 literary",
+      "options": [
+        "literature",
+        "literal",
+        "literally",
+        "literary"
+      ],
+      "answer": 3,
+      "explain": "literature（n.[U]）文學作品 → literary（adj.）文學的。課文：mastering different musical instruments, songs, and literature。",
+      "why": [
+        "literature 是名詞「文學」，修飾 masters 要用形容詞 literary。",
+        "literal 是「字面的」，不是「文學的」。",
+        "literally 是副詞「字面上」，不能修飾名詞。",
+        ""
+      ],
+      "point": "literature → literary。"
+    },
+    {
+      "id": "en5-012",
+      "q": "Brian’s hurtful words had not been _____. He didn’t realize that you were sensitive about this topic.",
+      "ref": "L5 Kyoto｜單字 deliberate",
+      "options": [
+        "elegant",
+        "deliberate",
+        "leisurely",
+        "breathtaking"
+      ],
+      "answer": 1,
+      "explain": "deliberate（adj.）有兩個意思：小心翼翼的（slow, precise, and careful）；有意的、故意的。課文用前者：very deliberate movements（京舞）。",
+      "why": [
+        "elegant 是「雅致的」，不是「故意的」。",
+        "",
+        "leisurely 是「悠閒的」，不合語意。",
+        "breathtaking 是「驚人的」，不合語意。"
+      ],
+      "point": "deliberate：小心翼翼的／故意的。"
+    },
+    {
+      "id": "en5-013",
+      "q": "A bite from a strange spider _____ Peter Parker into Spider-Man.",
+      "ref": "L5 Kyoto｜片語",
+      "options": [
+        "stood",
+        "fell",
+        "turned",
+        "feasted"
+      ],
+      "answer": 2,
+      "explain": "turn A into B ＝ 把 A 變為 B。課文：white snow turns the whole city into a magic, silver kingdom。",
+      "why": [
+        "stand out 是「顯眼」，不與 into 搭配。",
+        "fall in love with 是「愛上」，不與 into 搭配成此意。",
+        "",
+        "feast 要用 feast on / feast one’s eyes on，不接 into。"
+      ],
+      "point": "turn A into B。"
+    },
+    {
+      "id": "en5-014",
+      "q": "Emma took a leisurely walk through the flower market and _____ all the splendid, colorful blossoms.",
+      "ref": "L5 Kyoto｜片語",
+      "options": [
+        "feasted her eyes on",
+        "fell in love on",
+        "stood out on",
+        "turned into"
+      ],
+      "answer": 0,
+      "explain": "feast one’s eyes on ＝ 使人目不暇給、盡情欣賞。課文：Kyoto has so much more to feast one’s eyes on。",
+      "why": [
+        "",
+        "fall in love 後面要接 with，不是 on。",
+        "stand out 是「顯眼」，語意不合，也不接 on。",
+        "turn into 是「變成」，不合語意。"
+      ],
+      "point": "feast one’s eyes on ＝ 盡情欣賞。"
+    },
+    {
+      "id": "en5-015",
+      "q": "Ronnie was stunned when he came _____ with his ex-girlfriend in the elevator. There was no escape!",
+      "ref": "L5 Kyoto｜片語",
+      "options": [
+        "stand out",
+        "fall in love",
+        "feast one’s eyes",
+        "face to face"
+      ],
+      "answer": 3,
+      "explain": "come face to face with ＝ 與……面對面碰上。課文：coming face to face with one of the old capital’s very special “persons of art,” or geishas。",
+      "why": [
+        "stand out 是「顯眼」，不合語意。",
+        "fall in love 是「愛上」，不合語意。",
+        "feast one’s eyes on 是「飽覽」，不合語意。",
+        ""
+      ],
+      "point": "come face to face with。"
+    },
+    {
+      "id": "en5-016",
+      "q": "When Mimi first read Jane Austen’s novels and Shakespeare’s plays, she _____ Western literature.",
+      "ref": "L5 Kyoto｜片語",
+      "options": [
+        "turned into",
+        "fell in love with",
+        "stood out from",
+        "came face to face with"
+      ],
+      "answer": 1,
+      "explain": "fall in love with ＝ 愛上（尤指突然發生）。課文最後：Those who visit are likely to end up falling in love with the heart of Japan。",
+      "why": [
+        "turn into 是「變成」，不合語意。",
+        "",
+        "stand out from 是「從……中顯眼」，不合語意。",
+        "come face to face with 是實際碰面，不是「愛上」。"
+      ],
+      "point": "fall in love with。"
+    },
+    {
+      "id": "en5-017",
+      "q": "crystal-clear 的中文意思是？",
+      "ref": "L5 Kyoto｜單字 crystal-clear",
+      "options": [
+        "古銅色的",
+        "閃閃發光的",
+        "清澈的",
+        "必須參觀的"
+      ],
+      "answer": 2,
+      "explain": "crystal-clear（adj.）清澈的。課文：Rising up behind a crystal-clear pond ...",
+      "why": [
+        "那是 bronze。",
+        "那是 shimmering。",
+        "",
+        "那是 must-see。"
+      ],
+      "point": "crystal（水晶）＋ clear ＝ 清澈見底。"
+    },
+    {
+      "id": "en5-018",
+      "q": "kyomai 指的是什麼？",
+      "ref": "L5 Kyoto｜單字 kyomai",
+      "options": [
+        "京舞（京都的傳統舞蹈）",
+        "和服",
+        "口紅",
+        "藝妓"
+      ],
+      "answer": 0,
+      "explain": "kyomai（n.）京舞。課文：no “person of art” could be a true geisha without being able to perform the traditional kyomai dance。",
+      "why": [
+        "",
+        "那是 kimono。",
+        "那是 lipstick。",
+        "那是 geisha。"
+      ],
+      "point": "kyomai ＝ 京舞。"
+    },
+    {
+      "id": "en5-019",
+      "q": "Ann was seen to steal the Hello Kitty doll from the shop. 與 Ann was seen stealing the Hello Kitty doll from the shop. 的差別是？",
+      "ref": "L5 Kyoto｜句型 be seen to / V-ing",
+      "options": [
+        "to steal 表示偷竊的當下被人撞見；stealing 表示整個過程都被看到",
+        "兩者完全相同，沒有任何差別",
+        "to steal 表示未來將要偷竊；stealing 表示過去曾經偷竊",
+        "to steal 表示偷竊的整個過程都被看到；stealing 表示偷竊的當下被人撞見"
+      ],
+      "answer": 3,
+      "explain": "感官動詞被動 be seen/heard + to VR：完整過程；be seen/heard + V-ing：當下正在做。",
+      "why": [
+        "兩者說明顛倒了。",
+        "be seen 後接不定詞與現在分詞，意思有差別。",
+        "兩者差別不在時態，而是整個過程與當下的差別。",
+        ""
+      ],
+      "point": "to VR ＝ 全程；V-ing ＝ 當下。"
+    },
+    {
+      "id": "en5-020",
+      "q": "Several dogs were heard _____ outside.",
+      "ref": "L5 Kyoto｜句型 be heard + V-ing",
+      "options": [
+        "bark",
+        "barking",
+        "barked",
+        "to be barking"
+      ],
+      "answer": 1,
+      "explain": "be seen/heard + V-ing 表示做某事的當下被看到或聽到。",
+      "why": [
+        "主動語態的感官動詞可接原形，但被動語態 be heard 後要接 V-ing 或 to VR。",
+        "",
+        "barked 是過去式，不能接在 were heard 後面。",
+        "to be barking 不是此句型的常見用法，原句用 V-ing 表示正在叫。"
+      ],
+      "point": "be heard barking。"
+    },
+    {
+      "id": "en5-021",
+      "q": "In summer, green leaves can be heard rustling in the wind and seen sparkling in the sunshine. 這句話想表達的是？",
+      "ref": "L5 Kyoto｜句型 課文應用",
+      "options": [
+        "綠葉整個生長過程都被聽到與看見",
+        "有人聽到並看見葉子將要掉下來",
+        "綠葉在風中沙沙作響、在陽光下閃耀的當下，被人聽到與看見",
+        "葉子被人故意搖動而發出聲音"
+      ],
+      "answer": 2,
+      "explain": "課文第一段用 can be heard rustling ... and seen sparkling ... 描寫夏天的景象。",
+      "why": [
+        "那是 be seen/heard + to VR 的意思。",
+        "現在分詞表示進行中的狀態，不是將要發生。",
+        "",
+        "句中沒有說有人搖動葉子。"
+      ],
+      "point": "be heard rustling / seen sparkling。"
+    },
+    {
+      "id": "en5-022",
+      "q": "James is a photography lover. He never goes out without his camera. 這句話的意思是？",
+      "ref": "L5 Kyoto｜句型 never ... without",
+      "options": [
+        "他出門一定會帶相機",
+        "他從不出門",
+        "他出門時從不拍照",
+        "他有時才會帶相機出門"
+      ],
+      "answer": 0,
+      "explain": "no / never / not ... without ... 用兩個否定詞加強語氣，表示肯定。",
+      "why": [
+        "",
+        "never ... without 是雙重否定，意思是「一定」，不是「從不出門」。",
+        "without his camera 是「沒帶相機」，不是「不拍照」。",
+        "never ... without 表示「總是帶」，不是「有時」。"
+      ],
+      "point": "never ... without ＝ 一定要。"
+    },
+    {
+      "id": "en5-023",
+      "q": "No visit to Kyoto would be complete without seeing one of the most photographed landmarks. 這句話想強調什麼？",
+      "ref": "L5 Kyoto｜句型 no ... without",
+      "options": [
+        "去京都可以完全不看地標",
+        "京都沒有值得拍照的地標",
+        "所有旅行都不完整",
+        "去京都一定要看到最常被拍照的地標之一，否則旅程不完整"
+      ],
+      "answer": 3,
+      "explain": "課文：No visit to Kyoto would be complete without seeing ... the Kinkaku-ji。",
+      "why": [
+        "雙重否定表示「一定要」，不是「可以不要」。",
+        "句子正是在強調地標很重要。",
+        "主詞是 a visit to Kyoto，不是所有旅行。",
+        ""
+      ],
+      "point": "No ... without ... ＝ 一定要。"
+    },
+    {
+      "id": "en5-024",
+      "q": "There is no rule without exceptions. 這句話的意思最接近？",
+      "ref": "L5 Kyoto｜句型 no ... without",
+      "options": [
+        "所有規則都沒有例外",
+        "凡事都有例外",
+        "沒有人遵守規則",
+        "規則不可以被改變"
+      ],
+      "answer": 1,
+      "explain": "no ... without ...：沒有……是沒有……的 ＝ 每個……都有……。",
+      "why": [
+        "兩個否定相加後是肯定：每條規則都有例外。",
+        "",
+        "句意不是在談遵守。",
+        "句意不是在談規則能否改變。"
+      ],
+      "point": "no rule without exceptions ＝ 凡事皆有例外。"
+    },
+    {
+      "id": "en5-025",
+      "q": "Each of the sentences above has two _____. They are used together to reinforce a statement.",
+      "ref": "L5 Kyoto｜句型 Explore & Discover",
+      "options": [
+        "opposite words",
+        "rhyming words",
+        "negative words",
+        "repeated words"
+      ],
+      "answer": 2,
+      "explain": "每個句子都有兩個否定詞（如 never ... without、no ... without），一起使用可加強語氣。",
+      "why": [
+        "句子的重點是 no / never / not 與 without 這兩個否定詞，不是反義字。",
+        "句中沒有押韻的字。",
+        "",
+        "句中沒有重複同一個字。"
+      ],
+      "point": "兩個否定詞一起用 ＝ 加強肯定。"
+    },
+    {
+      "id": "en5-026",
+      "q": "第一段用什麼方式支持「京都一年四季都讓遊客愉快」這個想法？",
+      "ref": "L5 Kyoto｜課文 第一段",
+      "options": [
+        "依序描寫春、夏、秋、冬四季的景色",
+        "列出京都一年中的重要節慶日期",
+        "比較京都與其他日本城市的氣候",
+        "說明京都每個月的觀光人數"
+      ],
+      "answer": 0,
+      "explain": "In spring ... In summer ... Maple leaves in autumn ... Then, when winter comes ...：用季節關鍵詞展開段落。",
+      "why": [
+        "",
+        "段落中沒有列節慶日期。",
+        "段落沒有做城市比較。",
+        "段落沒有提供統計數字。"
+      ],
+      "point": "春：櫻花；夏：綠葉；秋：楓葉；冬：白雪。"
+    },
+    {
+      "id": "en5-027",
+      "q": "為什麼京都有這麼多歷史悠久的神社與寺廟？",
+      "ref": "L5 Kyoto｜課文 Note the Details",
+      "options": [
+        "因為京都是日本最大的城市",
+        "因為每年有大量觀光客捐款興建",
+        "因為京都從未發生過戰爭",
+        "因為京都曾是日本首都超過一千年"
+      ],
+      "answer": 3,
+      "explain": "Having previously been the capital of Japan for over a thousand years, the city boasts a large number of historic shrines and temples。",
+      "why": [
+        "課文沒有這樣說。",
+        "課文沒有這樣說。",
+        "課文沒有這樣說。",
+        ""
+      ],
+      "point": "曾是首都千年 → 神社寺廟多。"
+    },
+    {
+      "id": "en5-028",
+      "q": "根據課文，下列何者「不是」金閣寺（Kinkaku-ji）的特色？",
+      "ref": "L5 Kyoto｜課文 金閣寺",
+      "options": [
+        "三層樓的閣樓，覆蓋著金箔",
+        "位於高山山頂，遊客必須搭纜車前往",
+        "屋頂上有一隻巨大的古銅色鳳凰",
+        "倒映在如鏡的清澈池塘中"
+      ],
+      "answer": 1,
+      "explain": "課文描述金閣寺：magnificent three-story pavilion、gold leaf、bronze phoenix、crystal-clear pond。",
+      "why": [
+        "課文有提到 three-story pavilion covered in sparkling gold leaf。",
+        "",
+        "課文有提到 crowned with a large bronze phoenix。",
+        "課文有提到 the reflection of the pavilion on the glassy surface of the pond。"
+      ],
+      "point": "金閣寺：金箔、鳳凰、水池倒影。"
+    },
+    {
+      "id": "en5-029",
+      "q": "課文提到藝妓讓人容易辨認的外表特徵，下列何者「沒有」被提到？",
+      "ref": "L5 Kyoto｜課文 藝妓外表",
+      "options": [
+        "白色妝容",
+        "鮮紅色口紅",
+        "金色的面具",
+        "優雅的髮簪"
+      ],
+      "answer": 2,
+      "explain": "Their distinctive white makeup, bright red lipstick, and elegant hairpins also make them easy to recognize。",
+      "why": [
+        "課文有提到 white makeup。",
+        "課文有提到 bright red lipstick。",
+        "",
+        "課文有提到 elegant hairpins。"
+      ],
+      "point": "藝妓：白妝、紅唇、髮簪。"
+    },
+    {
+      "id": "en5-030",
+      "q": "課文說藝妓花多年時間精通什麼？",
+      "ref": "L5 Kyoto｜課文 藝妓才藝",
+      "options": [
+        "不同的樂器、歌曲和文學，並且必須會跳傳統的京舞",
+        "只學習茶道與花道",
+        "外語與商業管理",
+        "劍術與武術"
+      ],
+      "answer": 0,
+      "explain": "These highly skilled entertainers spend years mastering different musical instruments, songs, and literature. ... perform the traditional kyomai dance。",
+      "why": [
+        "",
+        "課文提到的是樂器、歌曲、文學與京舞。",
+        "課文沒有提到。",
+        "課文沒有提到。"
+      ],
+      "point": "藝妓＝高度專業的表演者。"
+    },
+    {
+      "id": "en5-031",
+      "q": "根據 Maiko 與 Geisha 的比較圖，下列何者正確？",
+      "ref": "L5 Kyoto｜課文 Maiko vs Geisha",
+      "options": [
+        "Maiko 是專業藝妓，雙唇皆紅；Geisha 是見習生",
+        "Maiko 年齡超過 20 歲，Geisha 約 15 到 20 歲",
+        "兩者都穿相同的和服與鞋子",
+        "Maiko 是見習生，只有下唇塗紅；Geisha 是專業藝妓，雙唇皆紅"
+      ],
+      "answer": 3,
+      "explain": "圖表：Maiko — apprentice、only the bottom lip is red、15~20 years old；Geisha — professional、both lips are red、older than 20。",
+      "why": [
+        "兩者顛倒了。",
+        "年齡顛倒了：Maiko 約 15 到 20 歲，Geisha 超過 20 歲。",
+        "圖中兩者的和服顏色、袖長與鞋底高度都不同。",
+        ""
+      ],
+      "point": "Maiko 見習；Geisha 專業。"
+    },
+    {
+      "id": "en5-032",
+      "q": "Julia 想為課文加上圖示。根據課文內容，下列哪一組最適合？",
+      "ref": "L5 Kyoto｜課文 Reading Comprehension",
+      "options": [
+        "櫻花、楓葉、富士山、新幹線、藝妓、髮簪",
+        "櫻花、楓葉、金閣寺、藝妓、髮簪、京舞舞者",
+        "櫻花、金閣寺、鳥居、藝妓、鯉魚旗、舞者",
+        "楓葉、金閣寺、招財貓、藝妓、髮簪、達摩"
+      ],
+      "answer": 1,
+      "explain": "課文提到的元素：cherry blossoms、maple leaves、Kinkaku-ji、geishas、hairpins、kyomai dance。",
+      "why": [
+        "富士山與新幹線課文沒有提到。",
+        "",
+        "鳥居與鯉魚旗課文沒有提到。",
+        "招財貓與達摩課文沒有提到。"
+      ],
+      "point": "圖示要對應課文實際提到的內容。"
+    },
+    {
+      "id": "en5-033",
+      "q": "根據 Reading Strategy 的短文（嚴島神社大鳥居），下列何者可以被推論出？",
+      "ref": "L5 Kyoto｜Reading Strategy 鳥居",
+      "options": [
+        "日本人相信每座鳥居裡都住著一位神",
+        "遊客在漲潮時才有比較好的體驗",
+        "鳥居被廣泛視為日本文化的象徵",
+        "嚴島神社的大鳥居建在山頂上"
+      ],
+      "answer": 2,
+      "explain": "短文：Torii are one of the most recognizable symbols of Japanese culture ... separate the human world from the space of the gods。",
+      "why": [
+        "短文說鳥居分隔人間與眾神所在的空間，不是說裡面住著神。",
+        "短文說漲潮與退潮各有不同的體驗，並沒有比較好壞。",
+        "",
+        "短文說它矗立在離海岸約兩百公尺的海水中。"
+      ],
+      "point": "鳥居 ＝ 日本文化最容易辨識的象徵之一。"
+    },
+    {
+      "id": "en5-034",
+      "q": "最後一句 Those who visit are likely to end up falling in love with the heart of Japan. 的作用是？",
+      "ref": "L5 Kyoto｜課文 結尾",
+      "options": [
+        "總結全文，表示遊客很可能會愛上京都這個「日本的心臟」",
+        "警告遊客京都已經過於擁擠",
+        "說明京都不適合外國旅客",
+        "比較京都與東京的優缺點"
+      ],
+      "answer": 0,
+      "explain": "In Kyoto, culture and natural beauty flow together like the graceful motions of kyomai ... a must-see destination for tourists seeking an authentic local experience。",
+      "why": [
+        "",
+        "課文沒有這個意思。",
+        "課文說京都是想體驗在地文化遊客的必訪之地。",
+        "課文沒有提到東京。"
+      ],
+      "point": "結論：京都 ＝ must-see destination。"
+    }
+  ]
+}

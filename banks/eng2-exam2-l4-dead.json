@@ -1,0 +1,747 @@
+{
+  "id": "eng2-exam2-l4-dead",
+  "title": "高二英文 段考二｜Lesson 4 Day of the Dead",
+  "subject": "英文",
+  "questions": [
+    {
+      "id": "en4-001",
+      "q": "Hannah celebrated her daughter’s birth with friends and family; it was a _____ event.",
+      "ref": "L4 Day of the Dead｜單字 joyous",
+      "options": [
+        "sorrowful",
+        "mournful",
+        "joyous",
+        "inevitable"
+      ],
+      "answer": 2,
+      "explain": "joyous（adj.）令人愉快的；課文開頭說亡靈節是 joyous occasion，大家以歡樂和幽默來慶祝死亡。",
+      "why": [
+        "sorrowful 是「悲傷的」，與慶祝女兒出生的語氣相反。",
+        "mournful 是「悲慟的」，慶祝新生兒不會用這個字。",
+        "",
+        "inevitable 是「不可避免的」，語意不符。"
+      ],
+      "point": "joyous ＝ 令人愉快的；反義：mournful / sorrowful。"
+    },
+    {
+      "id": "en4-002",
+      "q": "Leon still _____ for his best friend, who passed away in an accident two months ago.",
+      "ref": "L4 Day of the Dead｜單字 mourn",
+      "options": [
+        "mourns",
+        "anticipates",
+        "transforms",
+        "decorates"
+      ],
+      "answer": 0,
+      "explain": "mourn（vt./vi.）哀悼；形容詞 mournful。課文：celebrate death with joy and humor rather than mourn it with sorrow。",
+      "why": [
+        "",
+        "anticipate 是「期盼」，朋友過世不會用期盼。",
+        "transform 是「使改變形態」，與哀悼無關。",
+        "decorate 是「裝飾」，句意不通。"
+      ],
+      "point": "mourn 哀悼；sorrow 悲傷（名詞）。"
+    },
+    {
+      "id": "en4-003",
+      "q": "Uncle Rupert doesn’t usually drink, but he’ll have an _____ glass of red wine at Christmas or birthday parties.",
+      "ref": "L4 Day of the Dead｜單字 occasional",
+      "options": [
+        "annual",
+        "inevitable",
+        "mournful",
+        "occasional"
+      ],
+      "answer": 3,
+      "explain": "occasion（n.）場合 → occasional（adj.）偶爾的。",
+      "why": [
+        "annual 是「每年一次的」，但句中提到聖誕節與生日派對，並非固定一年一次。",
+        "inevitable 是「不可避免的」，不是「偶爾的」。",
+        "mournful 是「悲傷的」，與喝酒的語境無關。",
+        ""
+      ],
+      "point": "occasion 場合 → occasional 偶爾的。"
+    },
+    {
+      "id": "en4-004",
+      "q": "下列哪個字的意思是：a special occasion for a family, class, etc. to get together after being apart for a while？",
+      "ref": "L4 Day of the Dead｜單字 reunion",
+      "options": [
+        "reception",
+        "reunion",
+        "venue",
+        "preference"
+      ],
+      "answer": 1,
+      "explain": "reunion（n.）重逢；團聚，動詞為 reunite（常用被動：be reunited with）。課文：family members gather for a reunion in honor of those who have moved on to the afterlife。",
+      "why": [
+        "reception 是「歡迎；接待」，不是久別重聚的場合。",
+        "",
+        "venue 是「舉行地點」，指場地而不是聚會本身。",
+        "preference 是「偏愛」，與聚會無關。"
+      ],
+      "point": "re（再）＋ union（結合）＝再次聚在一起。"
+    },
+    {
+      "id": "en4-005",
+      "q": "Months before the birth of their child, the couple started to _____ holding the little baby in their arms.",
+      "ref": "L4 Day of the Dead｜單字 anticipate",
+      "options": [
+        "mock",
+        "resemble",
+        "anticipate",
+        "escape"
+      ],
+      "answer": 2,
+      "explain": "anticipate（vt.）期盼；名詞 anticipation。課文：Mexicans anticipate their arrival and prepare for it。",
+      "why": [
+        "mock 是「嘲弄」，期待抱寶寶不會用這個字。",
+        "resemble 是「看起來像」，句意不通。",
+        "",
+        "escape 是「避免；逃離」，與期待的語意相反。"
+      ],
+      "point": "anticipate ＝ look forward to。"
+    },
+    {
+      "id": "en4-006",
+      "q": "Minutes after the president’s arrival in North Korea for the first time, he was treated to a very warm and friendly _____.",
+      "ref": "L4 Day of the Dead｜單字 reception",
+      "options": [
+        "reception",
+        "cycle",
+        "concept",
+        "dawn"
+      ],
+      "answer": 0,
+      "explain": "reception（n. sing.）歡迎；接待，a way in which someone or something is received。課文：After this warm reception for the souls at home...",
+      "why": [
+        "",
+        "cycle 是「循環」，不能搭配 warm and friendly。",
+        "concept 是「概念」，句意不通。",
+        "dawn 是「黎明」，與 be treated to 的語意不合。"
+      ],
+      "point": "reception ＝ 歡迎、接待；receptionist ＝ 接待員。"
+    },
+    {
+      "id": "en4-007",
+      "q": "The old ship has been _____ into a seafood restaurant where customers can feast on fresh fish and crab every day.",
+      "ref": "L4 Day of the Dead｜單字 transform",
+      "options": [
+        "resembled",
+        "recognized",
+        "participated",
+        "transformed"
+      ],
+      "answer": 3,
+      "explain": "transform A into B ＝ 把 A 改造成 B。課文：transforming the normally horrifying graveyard into a venue of joy。",
+      "why": [
+        "resemble 是及物動詞「像」，後面不能接 into。",
+        "recognize 是「認出；承認」，不接 into。",
+        "participate 要搭配 in，不是 into。",
+        ""
+      ],
+      "point": "transform A into B。"
+    },
+    {
+      "id": "en4-008",
+      "q": "Although the brothers do _____ each other in terms of looks, their personalities couldn’t be more different.",
+      "ref": "L4 Day of the Dead｜單字 resemble",
+      "options": [
+        "accompany",
+        "resemble",
+        "mock",
+        "anticipate"
+      ],
+      "answer": 1,
+      "explain": "resemble（vt.）看起來像，是及物動詞，後面直接接受詞，不加 with / to；名詞 resemblance。",
+      "why": [
+        "accompany 是「陪伴」，不是「長得像」。",
+        "",
+        "mock 是「嘲弄」，與長相相似不符。",
+        "anticipate 是「期盼」，句意不通。"
+      ],
+      "point": "resemble 直接接受詞（不加介系詞）。"
+    },
+    {
+      "id": "en4-009",
+      "q": "下列哪個字的意思是：to make fun of or treat someone or something with very little respect by copying？",
+      "ref": "L4 Day of the Dead｜單字 mock",
+      "options": [
+        "mourn",
+        "recognize",
+        "mock",
+        "await"
+      ],
+      "answer": 2,
+      "explain": "mock（vt.）嘲弄；課文：Mexicans aren’t mocking death. Instead, they are recognizing it as an inevitable part of the natural cycle。",
+      "why": [
+        "mourn 是「哀悼」。",
+        "recognize 是「認出；承認」。",
+        "",
+        "await 是「等待」。"
+      ],
+      "point": "mock ＝ 嘲弄、不尊重。"
+    },
+    {
+      "id": "en4-010",
+      "q": "下列哪個字的意思是：impossible to avoid; sure to happen？",
+      "ref": "L4 Day of the Dead｜單字 inevitable",
+      "options": [
+        "inevitable",
+        "annual",
+        "essential",
+        "occasional"
+      ],
+      "answer": 0,
+      "explain": "inevitable（adj.）不可避免的；課文用 inevitable part of the natural cycle 說明死亡是自然循環的一部分。",
+      "why": [
+        "",
+        "annual 是「每年的」，指一年發生一次。",
+        "essential 是「基本的；必要的」，不是無法避免。",
+        "occasional 是「偶爾的」，並非「必然發生」。"
+      ],
+      "point": "inevitable ＝ 無法避免的。"
+    },
+    {
+      "id": "en4-011",
+      "q": "The Frankfurt Book Fair is an _____ event that takes place every October.",
+      "ref": "L4 Day of the Dead｜單字 annual",
+      "options": [
+        "occasional",
+        "inevitable",
+        "deceased",
+        "annual"
+      ],
+      "answer": 3,
+      "explain": "annual（adj.）每年的，happening once per year。課文：an annual national event。",
+      "why": [
+        "occasional 是「偶爾的」，但句中說每年十月都舉行。",
+        "inevitable 是「不可避免的」，不是「每年的」。",
+        "deceased 是「已故的」，不能修飾 event。",
+        ""
+      ],
+      "point": "annual ＝ 每年一次的。"
+    },
+    {
+      "id": "en4-012",
+      "q": "下列哪個片語的意思是「把……嚇得要命」（to seriously terrify one）？",
+      "ref": "L4 Day of the Dead｜片語",
+      "options": [
+        "die out",
+        "scare ... to death",
+        "in honor of",
+        "in advance of"
+      ],
+      "answer": 1,
+      "explain": "scare ... to death ＝ 把……嚇得要命。課文：The idea may scare you to death or at least make your hair stand on end。",
+      "why": [
+        "die out 是「逐漸消失」。",
+        "",
+        "in honor of 是「紀念；向……致敬」。",
+        "in advance of 是「在……之前」。"
+      ],
+      "point": "scare sb. to death。"
+    },
+    {
+      "id": "en4-013",
+      "q": "Just then, Walter saw a figure dressed in white come out of the dark. It made his hair stand on end! 這句話表示 Walter 的感受是？",
+      "ref": "L4 Day of the Dead｜片語",
+      "options": [
+        "興奮期待，很想上前打招呼",
+        "感到無聊，頭髮很癢",
+        "毛骨悚然，非常害怕",
+        "生氣，想要罵人"
+      ],
+      "answer": 2,
+      "explain": "make one’s hair stand on end ＝ 使人毛骨悚然，to make one feel extremely scared, horrified, or shocked。",
+      "why": [
+        "make one’s hair stand on end 形容恐懼或震驚，不是興奮。",
+        "這是慣用語，不是字面上的頭髮問題。",
+        "",
+        "這個慣用語表達害怕或震驚，不是生氣。"
+      ],
+      "point": "hair stand on end ＝ 毛骨悚然。"
+    },
+    {
+      "id": "en4-014",
+      "q": "Every spring, a large feast is held _____ the earth goddess.",
+      "ref": "L4 Day of the Dead｜片語",
+      "options": [
+        "in honor of",
+        "in advance of",
+        "in spite of",
+        "in return for"
+      ],
+      "answer": 0,
+      "explain": "in honor of ＝ 紀念；向……致敬。課文：family members gather for a reunion in honor of those who have moved on to the afterlife。",
+      "why": [
+        "",
+        "in advance of 是「在……之前」，語意不通。",
+        "in spite of 是「儘管」，不合語意。",
+        "in return for 是「作為……的回報」，不合語意。"
+      ],
+      "point": "in honor of ＝ 為了紀念／向……致敬。"
+    },
+    {
+      "id": "en4-015",
+      "q": "Because Jason was about to go traveling for several weeks, he paid his landlord the next month’s rent _____.",
+      "ref": "L4 Day of the Dead｜片語",
+      "options": [
+        "in honor",
+        "to death",
+        "on end",
+        "in advance"
+      ],
+      "answer": 3,
+      "explain": "in advance (of ...) ＝ 提前；事先。課文：purchasing necessary items in local markets in advance。",
+      "why": [
+        "in honor 單獨使用不通，片語為 in honor of。",
+        "to death 常接在 scare 之後，這裡語意不通。",
+        "on end 出現在 stand on end，不表示「事先」。",
+        ""
+      ],
+      "point": "in advance ＝ 事先、提前。"
+    },
+    {
+      "id": "en4-016",
+      "q": "afterlife 的意思是？",
+      "ref": "L4 Day of the Dead｜單字 afterlife",
+      "options": [
+        "墳墓；墓穴",
+        "死後的世界；死後（靈魂的）生活",
+        "祭壇；聖壇",
+        "墓地；公墓"
+      ],
+      "answer": 1,
+      "explain": "afterlife（n. sing.）死後的世界。課文開頭：those who have moved on to the afterlife。",
+      "why": [
+        "那是 grave。",
+        "",
+        "那是 altar。",
+        "那是 cemetery。"
+      ],
+      "point": "after（之後）＋ life ＝ 死後的生活。"
+    },
+    {
+      "id": "en4-017",
+      "q": "skull 的中文意思是？",
+      "ref": "L4 Day of the Dead｜單字 skull",
+      "options": [
+        "骨骼；骨架",
+        "萬壽菊；金盞花",
+        "頭骨；顱骨",
+        "已故的"
+      ],
+      "answer": 2,
+      "explain": "skull ＝ 頭骨；skeleton ＝ 骨骼、骨架。課文提到 skeleton and skull cookies, candies, flags, and toys。",
+      "why": [
+        "那是 skeleton，指全身骨架。",
+        "那是 marigold。",
+        "",
+        "那是 deceased。"
+      ],
+      "point": "skull 頭骨 vs skeleton 全身骨架。"
+    },
+    {
+      "id": "en4-018",
+      "q": "altar 的中文意思是？",
+      "ref": "L4 Day of the Dead｜單字 altar",
+      "options": [
+        "祭壇；聖壇",
+        "舉行地點；活動場地",
+        "快樂的；愉快的",
+        "阿茲提克人"
+      ],
+      "answer": 0,
+      "explain": "altar（n.）祭壇。課文：families assemble colorful altars in their homes to welcome returning spirits。",
+      "why": [
+        "",
+        "那是 venue。",
+        "那是 merry。",
+        "那是 Aztec。"
+      ],
+      "point": "altar ＝ 祭壇。"
+    },
+    {
+      "id": "en4-019",
+      "q": "A high-sugar diet is generally believed _____ harmful to our health.",
+      "ref": "L4 Day of the Dead｜句型 be thought to",
+      "options": [
+        "to have been",
+        "being",
+        "be",
+        "to be"
+      ],
+      "answer": 3,
+      "explain": "S + be + thought/said/believed + to VR（與被認為的時間同時）／to have + p.p.（發生時間更早）。",
+      "why": [
+        "to have been 表示「有害」發生在「被相信」之前，但此句是現在普遍認為有害，時間相同。",
+        "being 不是此句型使用的形式。",
+        "be 前面要加 to，句型為 be believed to VR。",
+        ""
+      ],
+      "point": "同時：to VR；更早：to have p.p.。"
+    },
+    {
+      "id": "en4-020",
+      "q": "The spire of the cathedral is said _____ before the fire was put out.",
+      "ref": "L4 Day of the Dead｜句型 be said to have p.p.",
+      "options": [
+        "to collapse",
+        "to have collapsed",
+        "collapsing",
+        "to be collapsing"
+      ],
+      "answer": 1,
+      "explain": "所述之事發生時間早於前述動作（said），要用 to have + p.p.。",
+      "why": [
+        "to collapse 表示與「據說」同時，但尖塔倒塌發生在火被撲滅之前，時間更早。",
+        "",
+        "collapsing 不是此句型使用的形式。",
+        "進行式不符合「在火撲滅前已經倒塌」這個完成的事件。"
+      ],
+      "point": "更早發生 → to have + p.p.。"
+    },
+    {
+      "id": "en4-021",
+      "q": "The Day of the Dead _____ centuries ago with the Aztecs.",
+      "ref": "L4 Day of the Dead｜句型 課文應用",
+      "options": [
+        "is thought to originate",
+        "thinks to have originated",
+        "is thought to have originated",
+        "is thought originating"
+      ],
+      "answer": 2,
+      "explain": "課文原句：The Day of the Dead is thought to have originated centuries ago with the Aztecs。",
+      "why": [
+        "to originate 表示與「被認為」同時，但亡靈節在數百年前就起源，時間更早，要用 to have + p.p.。",
+        "think 在此句型中要用被動語態 be thought。",
+        "",
+        "thought 後面要接 to VR 或 to have + p.p.，不是 V-ing。"
+      ],
+      "point": "is thought to have originated。"
+    },
+    {
+      "id": "en4-022",
+      "q": "S + be + thought/said/believed + to VR/have + p.p. 這個句型主要用來表達什麼？",
+      "ref": "L4 Day of the Dead｜句型 意義",
+      "options": [
+        "被眾人普遍認定、轉述或相信的事情",
+        "強調某件事情直到某個時間才發生",
+        "表達寧願做某事而不做另一件事",
+        "表達看到某人正在做某事"
+      ],
+      "answer": 0,
+      "explain": "此句型用於表達被大眾認定、轉述或相信的事，常見動詞有 think、say、believe。",
+      "why": [
+        "",
+        "那是 It wasn’t until ... that 的用法。",
+        "那是 would rather ... than 的用法。",
+        "那是 be seen + V-ing 的用法。"
+      ],
+      "point": "think / say / believe 的被動句型。"
+    },
+    {
+      "id": "en4-023",
+      "q": "Peter would rather stay in Taiwan for advanced studies _____ go abroad alone.",
+      "ref": "L4 Day of the Dead｜句型 would rather",
+      "options": [
+        "to",
+        "then",
+        "but",
+        "than"
+      ],
+      "answer": 3,
+      "explain": "would rather V1 than V2 ＝ 寧願 V1 也不願 V2。",
+      "why": [
+        "would rather 比較兩件事時要接 than，不是 to。",
+        "then 是「然後」，拼字不同，不是比較用字。",
+        "but 表示轉折，不能與 would rather 組成比較。",
+        ""
+      ],
+      "point": "would rather ... than ...。"
+    },
+    {
+      "id": "en4-024",
+      "q": "Joy would go to Tainan by high-speed rail _____ drive for three hours to get there.",
+      "ref": "L4 Day of the Dead｜句型 would ... rather than",
+      "options": [
+        "than rather",
+        "rather than",
+        "rather to",
+        "more than"
+      ],
+      "answer": 1,
+      "explain": "would V1 rather than V2 與 would rather V1 than V2 意思相同，課文：would rather embrace it than ignore it。",
+      "why": [
+        "順序顛倒，正確為 rather than。",
+        "",
+        "rather 後面要接 than，不是 to。",
+        "more than 是「多於」，不是「而不是」。"
+      ],
+      "point": "would V rather than V ＝ would rather V than V。"
+    },
+    {
+      "id": "en4-025",
+      "q": "I would rather lose everything than live my life without you. 這句話的意思是？",
+      "ref": "L4 Day of the Dead｜句型 would rather",
+      "options": [
+        "我失去了一切，所以沒有你無法生活",
+        "比起失去一切，我更討厭你",
+        "寧願失去一切，也不要沒有你的生活",
+        "我寧願你失去一切也不要離開我"
+      ],
+      "answer": 2,
+      "explain": "would rather ... than ... 表示偏好（preferences），不是情緒或抱怨。",
+      "why": [
+        "would rather ... than 表示偏好，不是描述已發生的損失。",
+        "句意與原句相反，原句是深情表白。",
+        "",
+        "主詞是 I，失去一切的人是說話者自己。"
+      ],
+      "point": "would rather A than B ＝ 寧可 A 也不 B。"
+    },
+    {
+      "id": "en4-026",
+      "q": "根據課文，墨西哥亡靈節（Day of the Dead）在何時慶祝？",
+      "ref": "L4 Day of the Dead｜課文 節日日期",
+      "options": [
+        "11 月 1 日與 2 日",
+        "10 月 31 日與 11 月 1 日",
+        "只有 11 月 2 日一天",
+        "12 月 24 日與 25 日"
+      ],
+      "answer": 0,
+      "explain": "課文第二段：Nowadays, it is celebrated passionately throughout Mexico on November 1 and 2。",
+      "why": [
+        "",
+        "10 月 31 日是萬聖夜，課文說的是 11 月 1 日與 2 日。",
+        "課文說連續兩天：11 月 1 日與 2 日。",
+        "那是聖誕節，不是亡靈節。"
+      ],
+      "point": "亡靈節：11/1 與 11/2。"
+    },
+    {
+      "id": "en4-027",
+      "q": "按傳統，亡靈節的 11 月 1 日主要紀念的是誰？",
+      "ref": "L4 Day of the Dead｜課文 兩天",
+      "options": [
+        "已故的成人（departed adults）",
+        "阿茲提克的國王",
+        "西班牙征服者",
+        "已故的孩子（deceased children）"
+      ],
+      "answer": 3,
+      "explain": "Traditionally, deceased children are honored on Nov. 1, while Nov. 2 is the day when departed adults are the main focus。",
+      "why": [
+        "成人是 11 月 2 日的主要對象。",
+        "課文沒有這樣說。",
+        "課文沒有提到。",
+        ""
+      ],
+      "point": "11/1 孩子；11/2 成人。"
+    },
+    {
+      "id": "en4-028",
+      "q": "課文說亡靈節被認為起源於哪個族群？",
+      "ref": "L4 Day of the Dead｜課文 起源",
+      "options": [
+        "西班牙人",
+        "阿茲提克人（Aztecs）",
+        "天主教會",
+        "聯合國教科文組織"
+      ],
+      "answer": 1,
+      "explain": "The Day of the Dead is thought to have originated centuries ago with the Aztecs。圖表：Aztecs 在 14 世紀初定居墨西哥中部，用頭骨紀念亡者，因為他們相信死亡是生命中隨時存在的一部分。",
+      "why": [
+        "西班牙人 1519 年才抵達並征服阿茲提克帝國。",
+        "",
+        "天主教會是後來把慶祝活動移到萬聖節與萬靈節。",
+        "UNESCO 是 2008 年才將其列入名錄。"
+      ],
+      "point": "起源：Aztecs。"
+    },
+    {
+      "id": "en4-029",
+      "q": "西班牙人抵達並征服阿茲提克帝國後，天主教會對亡者的慶祝做了什麼？",
+      "ref": "L4 Day of the Dead｜課文 歷史圖表",
+      "options": [
+        "完全禁止，讓慶祝活動消失",
+        "把日期改到 12 月，與聖誕節合併",
+        "把阿茲提克人原本紀念亡者的慶祝，移到天主教的萬聖節（11/1）與萬靈節（11/2）",
+        "改成只紀念西班牙國王"
+      ],
+      "answer": 2,
+      "explain": "圖表：After the Spanish arrived in 1519 and conquered the Aztec Empire two years later, the Catholic Church moved the Aztec celebrations ... to All Saints’ Day (Nov. 1) and All Souls’ Day (Nov. 2)。",
+      "why": [
+        "圖表說的是「移到」天主教節日，不是禁止。",
+        "日期是移到 11 月 1 日與 2 日。",
+        "",
+        "圖表沒有這種說法。"
+      ],
+      "point": "1519 西班牙抵達 → 教會移到 11/1、11/2。"
+    },
+    {
+      "id": "en4-030",
+      "q": "關於亡靈節的近代發展，下列何者正確？",
+      "ref": "L4 Day of the Dead｜課文 近代發展",
+      "options": [
+        "2008 年 UNESCO 將其列入人類無形文化遺產名錄；墨西哥城 2016 年起舉辦官方遊行，靈感來自 2015 年一部詹姆士龐德電影",
+        "2016 年 UNESCO 將其列入名錄；墨西哥城 2008 年起舉辦遊行",
+        "墨西哥城的官方遊行是受一部 2015 年的迪士尼電影啟發",
+        "UNESCO 在 14 世紀就把它列入名錄"
+      ],
+      "answer": 0,
+      "explain": "圖表 21st century：UNESCO ... in 2008；the government of Mexico City then began holding an official parade ... in 2016 after being inspired by a 2015 James Bond movie。",
+      "why": [
+        "",
+        "年份顛倒了。",
+        "遊行是受 2015 年一部詹姆士龐德電影啟發，不是迪士尼。",
+        "UNESCO 認可是 21 世紀的事。"
+      ],
+      "point": "2008 UNESCO；2016 官方遊行（龐德電影）。"
+    },
+    {
+      "id": "en4-031",
+      "q": "課文提到墨西哥人會提前在當地市場購買許多物品。下列何者「沒有」被提到？",
+      "ref": "L4 Day of the Dead｜課文 購買物品",
+      "options": [
+        "萬壽菊（marigolds）",
+        "蠟燭",
+        "印有已故家人名字的糖頭骨",
+        "煙火（fireworks）"
+      ],
+      "answer": 3,
+      "explain": "課文：These include marigolds, candles, decorated sugar skulls bearing the names of departed family members, and “bread of the dead.”",
+      "why": [
+        "課文有提到 marigolds。",
+        "課文有提到 candles。",
+        "課文有提到 decorated sugar skulls bearing the names of departed family members。",
+        ""
+      ],
+      "point": "marigolds、candles、sugar skulls、bread of the dead。"
+    },
+    {
+      "id": "en4-032",
+      "q": "課文說家人在祭壇上會擺放什麼？",
+      "ref": "L4 Day of the Dead｜課文 祭壇",
+      "options": [
+        "西班牙國王的畫像與金幣",
+        "已故親人的照片，以及他們生前喜愛的飲料和菜餚",
+        "活人的願望清單和蠟燭",
+        "只有萬壽菊，不放任何食物"
+      ],
+      "answer": 1,
+      "explain": "On the altars, they place photographs of their deceased loved ones as well as beverages and dishes that those family members had a preference for while alive。",
+      "why": [
+        "課文沒有提到。",
+        "",
+        "課文說的是已故親人的照片與他們生前愛的飲食。",
+        "課文有提到飲料與菜餚。"
+      ],
+      "point": "祭壇：照片＋亡者生前愛的飲食。"
+    },
+    {
+      "id": "en4-033",
+      "q": "課文中，在家迎接靈魂之後，家人晚上會做什麼？",
+      "ref": "L4 Day of the Dead｜課文 墓園之夜",
+      "options": [
+        "留在家中安靜睡覺，等隔天再出門",
+        "離開墨西哥前往天主教堂",
+        "前往墓園裝飾墳墓、為每位亡者點一根蠟燭，並與亡魂共享盛宴、祈禱到天亮",
+        "在墓園哀悼哭泣到天亮"
+      ],
+      "answer": 2,
+      "explain": "decorate the graves ... light one candle for each dead person. Cheerful and merry, they feast with the honored souls and pray till dawn, transforming the normally horrifying graveyard into a venue of joy。",
+      "why": [
+        "課文說他們傍晚後前往墓園。",
+        "課文沒有這樣說。",
+        "",
+        "課文說他們 cheerful and merry，是歡樂地慶祝，不是哭泣。"
+      ],
+      "point": "墓園：歡樂、盛宴、祈禱到天亮。"
+    },
+    {
+      "id": "en4-034",
+      "q": "課文說墨西哥人穿骷髏服裝、畫骷髏臉，並不是在 mock death，而是？",
+      "ref": "L4 Day of the Dead｜課文 態度",
+      "options": [
+        "把死亡視為自然循環中不可避免的一部分，寧願擁抱它也不忽視它",
+        "害怕死亡，所以用面具隱藏自己",
+        "為了吸引觀光客而表演",
+        "嘲笑已故的家人"
+      ],
+      "answer": 0,
+      "explain": "Mexicans aren’t mocking death. Instead, they are recognizing it as an inevitable part of the natural cycle and would rather embrace it than ignore it。",
+      "why": [
+        "",
+        "課文說他們並不害怕死亡。",
+        "課文沒有提到商業目的。",
+        "正好與 aren’t mocking death 相反。"
+      ],
+      "point": "不是嘲弄死亡，而是接受與擁抱。"
+    },
+    {
+      "id": "en4-035",
+      "q": "第四段在一個否定句（aren’t mocking death）之後，用哪個轉折詞來澄清剛才說的話？",
+      "ref": "L4 Day of the Dead｜課文 Language Highlight",
+      "options": [
+        "Moreover",
+        "Therefore",
+        "Throughout",
+        "Instead"
+      ],
+      "answer": 3,
+      "explain": "Mexicans aren’t mocking death. Instead, they are recognizing it ...：Instead 接在否定句後，用來說明實際情況。",
+      "why": [
+        "Moreover 是「此外」，表示補充，不是澄清。",
+        "Therefore 是「因此」，表示結果。",
+        "Throughout 是「遍及」，不是轉折詞。",
+        ""
+      ],
+      "point": "否定句後 + Instead ＝ 澄清真正的情況。"
+    },
+    {
+      "id": "en4-036",
+      "q": "The Day of the Dead reveals how Mexicans view death. 根據課文，下列何者最可能是在談論墨西哥人？",
+      "ref": "L4 Day of the Dead｜課文 閱讀理解",
+      "options": [
+        "談論死亡是禁忌，怕說錯話讓人不自在，所以很少公開談",
+        "他們對死亡感到自在，會拿死亡開玩笑甚至慶祝，認為死亡不需要被害怕或忽視",
+        "死後有天堂或來世只是童話，只是安慰怕死的人",
+        "人死後會被帶到來世，由守護者協助通過幾項考驗"
+      ],
+      "answer": 1,
+      "explain": "課文第一段：people celebrate death with joy and humor rather than mourn it with sorrow；結尾：If we cannot escape death, why not celebrate it?",
+      "why": [
+        "與課文中歡慶死亡的態度相反。",
+        "",
+        "課文沒有否定來世，而是說亡者的靈魂會回來。",
+        "課文沒有提到來世的考驗。"
+      ],
+      "point": "墨西哥人：與死亡共處、歡慶死亡。"
+    },
+    {
+      "id": "en4-037",
+      "q": "文末 Hopefully, this tradition will never die out 顯示作者的態度是？",
+      "ref": "L4 Day of the Dead｜課文 作者態度",
+      "options": [
+        "批評這個傳統太過嚴肅",
+        "擔心這個傳統會讓人更害怕死亡",
+        "肯定並希望這個傳統延續，因為它幫助人們接受無法避免的死亡",
+        "不在意傳統是否消失"
+      ],
+      "answer": 2,
+      "explain": "Hopefully, this tradition will never die out, since it helps people accept a fact of life that awaits us all。",
+      "why": [
+        "作者是正面看待這個傳統。",
+        "作者認為傳統幫助人接受死亡。",
+        "",
+        "hopefully 表示希望它延續。"
+      ],
+      "point": "作者：正面支持，希望傳統不要 die out。"
+    }
+  ]
+}

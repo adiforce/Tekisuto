@@ -1,0 +1,727 @@
+{
+  "id": "eng2-exam2-l6-blind",
+  "title": "高二英文 段考二｜Lesson 6 The Country of the Blind",
+  "subject": "英文",
+  "questions": [
+    {
+      "id": "en6-001",
+      "q": "下列哪個字的意思是：to fall down quickly and suddenly, especially with a rolling movement？",
+      "ref": "L6 The Country of the Blind｜單字 tumble",
+      "options": [
+        "cling",
+        "flee",
+        "tumble",
+        "gaze"
+      ],
+      "answer": 2,
+      "explain": "tumble（vi.）滾落。課文：He slid down a snowy slope and fell over a cliff edge, tumbling a great distance。",
+      "why": [
+        "cling 是「緊握；抓緊」。",
+        "flee 是「逃離」。",
+        "",
+        "gaze 是「凝視」。"
+      ],
+      "point": "tumble ＝ 滾落。"
+    },
+    {
+      "id": "en6-002",
+      "q": "Lucy’s manager is her _____ at work. She must report everything to him.",
+      "ref": "L6 The Country of the Blind｜單字 superior",
+      "options": [
+        "superior",
+        "outsider",
+        "opposition",
+        "dilemma"
+      ],
+      "answer": 0,
+      "explain": "superior 有兩個詞性：adj. 優於、更好的；n.[C] 上司、上級。課文：Feeling superior to these sightless people ...；名詞 superiority ＝ 優越感。",
+      "why": [
+        "",
+        "outsider 是「外人」，不是上司。",
+        "opposition 是「反對」，不合語意。",
+        "dilemma 是「進退兩難的困境」，不合語意。"
+      ],
+      "point": "superior：adj. 優於；n. 上司。"
+    },
+    {
+      "id": "en6-003",
+      "q": "After living there for twenty years, Mrs. White knew the neighborhood _____, from its quiet streets to its busy markets.",
+      "ref": "L6 The Country of the Blind｜單字 intimately",
+      "options": [
+        "intimate",
+        "intimacy",
+        "skillful",
+        "intimately"
+      ],
+      "answer": 3,
+      "explain": "intimately（adv.）了如指掌地、密切地；intimate（adj.）親密的；intimacy（n.）親密。課文：they knew their mountain kingdom intimately。",
+      "why": [
+        "intimate 是形容詞「親密的」，這裡要修飾動詞 knew，需要副詞。",
+        "intimacy 是名詞「親密」，不能修飾動詞。",
+        "skillful 是形容詞「熟練的」，不能修飾動詞 knew。",
+        ""
+      ],
+      "point": "intimate → intimately / intimacy。"
+    },
+    {
+      "id": "en6-004",
+      "q": "下列哪個字的意思是：a person who does not belong to a society, group, organization, etc.？",
+      "ref": "L6 The Country of the Blind｜單字 outsider",
+      "options": [
+        "superior",
+        "outsider",
+        "mountaineer",
+        "opposition"
+      ],
+      "answer": 1,
+      "explain": "outsider（n.[C]）外人、外來者。課文：Yacob put the outsider to work and began teaching him their ways。",
+      "why": [
+        "superior 是「優於」或「上司」。",
+        "",
+        "mountaineer 是「登山家」。",
+        "opposition 是「反對」。"
+      ],
+      "point": "out（外）＋ sider ＝ 外人。"
+    },
+    {
+      "id": "en6-005",
+      "q": "The film was _____ from a best-selling novel and became a box-office hit after its release.",
+      "ref": "L6 The Country of the Blind｜單字 adapt",
+      "options": [
+        "adopted",
+        "navigated",
+        "adapted",
+        "confronted"
+      ],
+      "answer": 2,
+      "explain": "adapt 有兩個意思：vi./vt. 適應；vt. 改編、改寫。名詞 adaptation：[U] 適應，[C] 改編。課文用的是「適應」：Nuñez adapted to their way of life。",
+      "why": [
+        "adopt 是「採用；收養」，形似但意思不同。",
+        "navigate 是「航行；確認方向」，不合語意。",
+        "",
+        "confront 是「面臨」，不合語意。"
+      ],
+      "point": "adapt：適應／改編。"
+    },
+    {
+      "id": "en6-006",
+      "q": "The boy _____ tightly to his mother’s hand as they crossed the busy street.",
+      "ref": "L6 The Country of the Blind｜單字 cling",
+      "options": [
+        "clung",
+        "clinged",
+        "cling",
+        "clinging"
+      ],
+      "answer": 0,
+      "explain": "cling（vi.）抓緊、緊握（cling–clung–clung–clinging）。課文：he clung to the reality of sight。",
+      "why": [
+        "",
+        "cling 是不規則動詞（cling–clung–clung），沒有 clinged 這種形式。",
+        "cling 是原形，句子是過去式。",
+        "clinging 是現在分詞，不能單獨當過去式動詞。"
+      ],
+      "point": "cling–clung–clung。"
+    },
+    {
+      "id": "en6-007",
+      "q": "Everyone took _____ on Nora when her parents suddenly passed away. They felt very sorry for her.",
+      "ref": "L6 The Country of the Blind｜單字 pity",
+      "options": [
+        "awe",
+        "sorrow",
+        "opposition",
+        "pity"
+      ],
+      "answer": 3,
+      "explain": "pity：vt. 憐憫；n.[U] 憐憫、同情，常用 take pity on sb.。課文：the more the villagers pitied him。",
+      "why": [
+        "awe 是「敬畏」，不合語意。",
+        "sorrow 是「悲傷」，但 take ... on 的固定搭配是 take pity on。",
+        "opposition 是「反對」，不合語意。",
+        ""
+      ],
+      "point": "take pity on sb.。"
+    },
+    {
+      "id": "en6-008",
+      "q": "The tourists looked up at the pyramids with _____, amazed by their great size and ancient history.",
+      "ref": "L6 The Country of the Blind｜單字 awe",
+      "options": [
+        "pity",
+        "awe",
+        "opposition",
+        "smoothness"
+      ],
+      "answer": 1,
+      "explain": "awe（n.[U]）敬畏，feelings of respect and slight fear。課文：Nuñez felt frustrated at the villagers’ lack of awe for his precious gift of sight。",
+      "why": [
+        "pity 是「憐憫」，不合語意。",
+        "",
+        "opposition 是「反對」，不合語意。",
+        "smoothness 是「平滑」，不合語意。"
+      ],
+      "point": "awe ＝ 敬畏。"
+    },
+    {
+      "id": "en6-009",
+      "q": "The town is known for its _____ traditions, such as hosting an annual wife-carrying championship.",
+      "ref": "L6 The Country of the Blind｜單字 peculiar",
+      "options": [
+        "smooth",
+        "sightless",
+        "peculiar",
+        "well-defined"
+      ],
+      "answer": 2,
+      "explain": "peculiar（adj.）奇怪的、不尋常的，strange or unusual。課文：remove the peculiar orbs on either side of his nose。",
+      "why": [
+        "smooth 是「平滑的」，不合語意。",
+        "sightless 是「看不見的」，不合語意。",
+        "",
+        "well-defined 是「輪廓分明的」，不合語意。"
+      ],
+      "point": "peculiar ＝ 奇特的。"
+    },
+    {
+      "id": "en6-010",
+      "q": "Rather than just ignore the problem, Ben decided to _____ his fear of public speaking and do something about it.",
+      "ref": "L6 The Country of the Blind｜單字 confront",
+      "options": [
+        "confront",
+        "flee",
+        "cling",
+        "envision"
+      ],
+      "answer": 0,
+      "explain": "confront 有兩個意思：vt. 面臨、面對（常用被動 be confronted with）；vt. 克服、解決。名詞 confrontation：衝突、對抗。課文：Nuñez was confronted with a dilemma。",
+      "why": [
+        "",
+        "flee 是「逃離」，與 rather than ignore 的語氣相反。",
+        "cling 是「緊握；堅持」，不合語意。",
+        "envision 是「想像」，與「克服恐懼」的語意不合。"
+      ],
+      "point": "be confronted with ＝ 面臨；confront ＝ 克服。"
+    },
+    {
+      "id": "en6-011",
+      "q": "Ray is hard-working and careful; _____, he sometimes makes mistakes.",
+      "ref": "L6 The Country of the Blind｜單字 nevertheless",
+      "options": [
+        "therefore",
+        "moreover",
+        "instead",
+        "nevertheless"
+      ],
+      "answer": 3,
+      "explain": "nevertheless（adv.）儘管如此、然而，in spite of what has just been said。課文：Nevertheless, it wasn’t until the day of his surgery that he realized ...",
+      "why": [
+        "therefore 是「因此」，前後是轉折關係，不是因果。",
+        "moreover 是「此外」，是補充而非轉折。",
+        "instead 是「反而」，不是「儘管如此」。",
+        ""
+      ],
+      "point": "nevertheless ＝ 儘管如此（轉折）。"
+    },
+    {
+      "id": "en6-012",
+      "q": "The villagers _____ their homes when the floodwaters rose. They ran to higher ground for safety.",
+      "ref": "L6 The Country of the Blind｜單字 flee",
+      "options": [
+        "flee",
+        "fled",
+        "flied",
+        "flown"
+      ],
+      "answer": 1,
+      "explain": "flee（vt.）逃離，三態 flee–fled–fled。課文：he fled the country of the blind。",
+      "why": [
+        "flee 是原形，句子是過去式。",
+        "",
+        "flee 是不規則動詞（flee–fled–fled），沒有 flied。",
+        "flown 是 fly 的過去分詞，不是 flee 的變化。"
+      ],
+      "point": "flee–fled–fled。"
+    },
+    {
+      "id": "en6-013",
+      "q": "Despite the early hour, the travelers _____ for the airport to catch their flight.",
+      "ref": "L6 The Country of the Blind｜片語",
+      "options": [
+        "came upon",
+        "cared for",
+        "set off",
+        "clung to"
+      ],
+      "answer": 2,
+      "explain": "set off ＝ 出發、啟程。課文：Nuñez struggled to his feet and set off to explore。",
+      "why": [
+        "come upon 是「偶然遇到」，不合語意。",
+        "care for 是「照顧」，不合語意。",
+        "",
+        "cling to 是「堅持；堅信」，不合語意。"
+      ],
+      "point": "set off ＝ 出發。"
+    },
+    {
+      "id": "en6-014",
+      "q": "I _____ an old friend at the market, and we spent hours catching up on each other’s lives.",
+      "ref": "L6 The Country of the Blind｜片語",
+      "options": [
+        "came upon",
+        "set off",
+        "cared for",
+        "clung to"
+      ],
+      "answer": 0,
+      "explain": "come upon ＝ 偶然遇到、偶然發現。課文：he came upon an unusual village。",
+      "why": [
+        "",
+        "set off 是「出發」，不合語意。",
+        "care for 是「照顧」，不合語意。",
+        "cling to 是「堅持」，不合語意。"
+      ],
+      "point": "come upon ＝ 偶然遇到。"
+    },
+    {
+      "id": "en6-015",
+      "q": "Jane helped Lucas with his project, and _____, he offered to buy her lunch.",
+      "ref": "L6 The Country of the Blind｜片語",
+      "options": [
+        "worst of all",
+        "for her sake",
+        "in advance",
+        "in return"
+      ],
+      "answer": 3,
+      "explain": "in return (for) ＝ 作為（對……的）回報。課文：In return for Nuñez’s great sacrifice, she agreed to marry him。",
+      "why": [
+        "worst of all 是「最糟的是」，語意不合。",
+        "for her sake 是「為了她」，不合語意。",
+        "in advance 是「事先」，不合語意。",
+        ""
+      ],
+      "point": "in return (for) ＝ 作為回報。"
+    },
+    {
+      "id": "en6-016",
+      "q": "Kevin worked extra hours _____ his family, hoping to give them a better life.",
+      "ref": "L6 The Country of the Blind｜片語",
+      "options": [
+        "in return for",
+        "for the sake of",
+        "in advance of",
+        "worst of all"
+      ],
+      "answer": 1,
+      "explain": "for sb.’s sake / for the sake of sb. ＝ 為了某人；for the sake of sth. ＝ 為了某事物。課文：he agreed to give up his eyes for Medina’s sake。",
+      "why": [
+        "in return for 是「作為……的回報」，語意不合。",
+        "",
+        "in advance of 是「在……之前」，不合語意。",
+        "worst of all 是「最糟的是」，不能這樣接 his family。"
+      ],
+      "point": "for sb.’s sake ＝ 為了某人。"
+    },
+    {
+      "id": "en6-017",
+      "q": "delusion 的中文意思是？",
+      "ref": "L6 The Country of the Blind｜單字 delusion",
+      "options": [
+        "懸崖",
+        "暈眩的",
+        "妄想；幻覺",
+        "眼盲的"
+      ],
+      "answer": 2,
+      "explain": "delusion（n.[C]）妄想、幻覺。課文：the villagers, who viewed Nuñez’s “sight” as a dangerous delusion that needed to be “cured.”",
+      "why": [
+        "那是 cliff。",
+        "那是 dazed。",
+        "",
+        "那是 sightless。"
+      ],
+      "point": "delusion ＝ 妄想。"
+    },
+    {
+      "id": "en6-018",
+      "q": "lose one’s footing 的意思是？",
+      "ref": "L6 The Country of the Blind｜單字 lose one’s footing",
+      "options": [
+        "失足；跌倒",
+        "做白日夢",
+        "注視；看著",
+        "在……旁邊"
+      ],
+      "answer": 0,
+      "explain": "lose one’s footing ＝ 失足、跌倒。課文：Nuñez ... was climbing up one of Ecuador’s highest mountains when he lost his footing。",
+      "why": [
+        "",
+        "那是 daydream。",
+        "那是 behold。",
+        "那是 alongside。"
+      ],
+      "point": "lose one’s footing ＝ 失足。"
+    },
+    {
+      "id": "en6-019",
+      "q": "It wasn’t until he first laid eyes on Yacob’s daughter, Medina-saroté, that he began to feel better. 這句話想強調什麼？",
+      "ref": "L6 The Country of the Blind｜句型 It wasn’t until ... that",
+      "options": [
+        "他一看到 Medina 就立刻離開村莊",
+        "他從未感覺好過",
+        "Medina 是在他感覺好之後才出現",
+        "直到看見 Medina-saroté 的那一刻，他才開始感覺好一些"
+      ],
+      "answer": 3,
+      "explain": "It isn’t/wasn’t until ... + that + S + V ... ＝ 直到……才……，用來強調某個時間點或事件發生時，另一件事才發生。",
+      "why": [
+        "句型強調時間點與事情發生的關係，不是離開。",
+        "句型是「直到……才」，不是「從未」。",
+        "時間先後顛倒了。",
+        ""
+      ],
+      "point": "It wasn’t until A that B ＝ 直到 A 才 B。"
+    },
+    {
+      "id": "en6-020",
+      "q": "It is not until people fall ill _____ they understand the value of health.",
+      "ref": "L6 The Country of the Blind｜句型 It is not until ... that",
+      "options": [
+        "when",
+        "that",
+        "which",
+        "because"
+      ],
+      "answer": 1,
+      "explain": "It isn’t/wasn’t until ... + that + S + V，that 引導被強調之事。",
+      "why": [
+        "此句型固定為 It is not until ... that ...，不是 when。",
+        "",
+        "which 是關係代名詞，不能用於此強調句型。",
+        "because 表示原因，不是此句型。"
+      ],
+      "point": "not until ... that ...。"
+    },
+    {
+      "id": "en6-021",
+      "q": "It was not until 1945 that World War II came to an end. 的意思是？",
+      "ref": "L6 The Country of the Blind｜句型 It was not until ... that",
+      "options": [
+        "第二次世界大戰在 1945 年之前就結束了",
+        "第二次世界大戰從 1945 年開始",
+        "直到 1945 年第二次世界大戰才結束",
+        "第二次世界大戰到 1940 年就結束了"
+      ],
+      "answer": 2,
+      "explain": "課文情境：學生答錯年份，老師用 It was not until 1945 that ... 強調正確的時間點。",
+      "why": [
+        "not until 表示直到該時間點才發生。",
+        "句中說的是結束的時間，不是開始。",
+        "",
+        "1940 年是對話中學生猜錯的答案。"
+      ],
+      "point": "直到 1945 才結束。"
+    },
+    {
+      "id": "en6-022",
+      "q": "Nevertheless, it wasn’t until the day of his surgery that he realized he was making a huge mistake. 這句話表達？",
+      "ref": "L6 The Country of the Blind｜句型 課文應用",
+      "options": [
+        "直到手術當天，他才意識到自己犯了大錯",
+        "他在手術前很久就知道自己犯了錯",
+        "手術在他意識到錯誤之前就已完成",
+        "他毫不後悔"
+      ],
+      "answer": 0,
+      "explain": "課文第七段（line 51）：it wasn’t until the day of his surgery that he realized ...",
+      "why": [
+        "",
+        "not until 表示直到手術當天才意識到。",
+        "他是在手術當天早晨意識到，手術還沒進行。",
+        "句中說他意識到自己犯了大錯。"
+      ],
+      "point": "手術當天才醒悟。"
+    },
+    {
+      "id": "en6-023",
+      "q": "_____ my father or my mother will come to my graduation ceremony. I don’t know which one of them it will be.",
+      "ref": "L6 The Country of the Blind｜句型 either ... or",
+      "options": [
+        "Neither",
+        "Both",
+        "Not only",
+        "Either"
+      ],
+      "answer": 3,
+      "explain": "either A or B ＝ A 或 B（二選一）；neither A nor B ＝ A 和 B 都不。",
+      "why": [
+        "neither 要搭配 nor，且是否定意思，與「兩者之一會來」不合。",
+        "both 要搭配 and，表示兩者都來。",
+        "not only 要搭配 but also，語意不合。",
+        ""
+      ],
+      "point": "either ... or ...：二選一。"
+    },
+    {
+      "id": "en6-024",
+      "q": "Neither your father nor your mother will attend your graduation ceremony. 的意思是？",
+      "ref": "L6 The Country of the Blind｜句型 neither ... nor",
+      "options": [
+        "你的父親或母親其中一位會參加",
+        "你的父母都不會參加你的畢業典禮",
+        "你的父母都會參加",
+        "你的父母不知道你要畢業"
+      ],
+      "answer": 1,
+      "explain": "neither A nor B ＝ A 和 B 都不。課文開頭的講稿：Neither obstacles nor failures should stop us from moving forward。",
+      "why": [
+        "那是 either ... or 的意思。",
+        "",
+        "neither ... nor 是兩者都不。",
+        "句意是不參加，不是不知道。"
+      ],
+      "point": "neither ... nor ...：兩者都不。"
+    },
+    {
+      "id": "en6-025",
+      "q": "Nuñez 為什麼會來到一個與世隔絕的地方？",
+      "ref": "L6 The Country of the Blind｜課文 第一段",
+      "options": [
+        "他被派去調查一個神祕村莊",
+        "他搭飛機迫降在山谷中",
+        "他爬山時失足，滑下積雪的山坡並跌落懸崖",
+        "他被村民邀請到村裡作客"
+      ],
+      "answer": 2,
+      "explain": "Nuñez, an experienced mountaineer, was climbing ... when he lost his footing. He slid down a snowy slope and fell over a cliff edge ...",
+      "why": [
+        "課文說他是失足跌落的。",
+        "課文沒有提到飛機。",
+        "",
+        "他是意外跌入山谷，並非受邀。"
+      ],
+      "point": "失足 → 滑下雪坡 → 跌落懸崖。"
+    },
+    {
+      "id": "en6-026",
+      "q": "為什麼村裡所有通往房屋的道路兩旁都有矮牆？",
+      "ref": "L6 The Country of the Blind｜課文 Note the Details",
+      "options": [
+        "為了幫助盲人村民安全地辨認方向、行走",
+        "為了防止外人闖入村子",
+        "為了防止野生動物靠近",
+        "為了裝飾，因為村民喜歡鮮豔的顏色"
+      ],
+      "answer": 0,
+      "explain": "The paths, lined with low walls, had been specially built to help them navigate safely。",
+      "why": [
+        "",
+        "課文說是為了幫助村民 navigate safely。",
+        "課文沒有提到野生動物。",
+        "課文說矮牆是特別建造來幫助導航的。"
+      ],
+      "point": "矮牆 ＝ 幫助盲人導航。"
+    },
+    {
+      "id": "en6-027",
+      "q": "“In the country of the blind, the one-eyed man is king.” 這句話反映 Nuñez 當時的想法是？",
+      "ref": "L6 The Country of the Blind｜課文 優越感",
+      "options": [
+        "他覺得村民比他聰明",
+        "他想成為村裡的國王，所以努力討好村民",
+        "他害怕被村民選為國王",
+        "他覺得自己有視力，所以優於看不見的村民"
+      ],
+      "answer": 3,
+      "explain": "Feeling superior to these sightless people, he thought to himself, “In the country of the blind, the one-eyed man is king.”",
+      "why": [
+        "課文說他 feeling superior，覺得自己比較優越。",
+        "這句話反映的是優越感，不是討好。",
+        "句子表現的是自信與優越，不是害怕。",
+        ""
+      ],
+      "point": "Nuñez 一開始：優越感。"
+    },
+    {
+      "id": "en6-028",
+      "q": "為什麼村民不欣賞 Medina-saroté 的美？",
+      "ref": "L6 The Country of the Blind｜課文 Medina",
+      "options": [
+        "因為她年紀太大",
+        "她的五官輪廓分明，缺少村民重視的平滑細緻，而且聲音微弱，不夠有力也不夠悅耳",
+        "因為她是外來者",
+        "因為她對 Nuñez 態度冷淡"
+      ],
+      "answer": 1,
+      "explain": "she had well-defined features that lacked the smoothness the villagers valued. Furthermore, her weak voice was neither powerful nor pleasing enough to meet their standards。",
+      "why": [
+        "課文沒有這樣說。",
+        "",
+        "她是 Yacob 的女兒，是村裡的人。",
+        "課文沒有這樣說。"
+      ],
+      "point": "Medina：輪廓分明、聲音微弱 → 不合村民標準。"
+    },
+    {
+      "id": "en6-029",
+      "q": "為什麼村民強烈反對 Nuñez 與 Medina 結婚？",
+      "ref": "L6 The Country of the Blind｜課文 反對",
+      "options": [
+        "他們認為 Nuñez 太窮",
+        "他們不喜歡外來者吃他們的食物",
+        "他們認為 Nuñez 的「視力」是危險的妄想，需要被「治癒」",
+        "他們怕 Medina 會因此失明"
+      ],
+      "answer": 2,
+      "explain": "their desire to marry faced fierce opposition from the other villagers, who viewed Nuñez’s “sight” as a dangerous delusion that needed to be “cured.”",
+      "why": [
+        "課文沒有提到。",
+        "課文沒有這樣說。",
+        "",
+        "課文說他們把視力視為需要治療的妄想。"
+      ],
+      "point": "村民眼中：視力 ＝ 危險的妄想。"
+    },
+    {
+      "id": "en6-030",
+      "q": "Medina 願意嫁給 Nuñez 的條件是什麼？",
+      "ref": "L6 The Country of the Blind｜課文 Note the Details",
+      "options": [
+        "他必須摘除眼睛，這樣他才能停止做白日夢，真正成為他們的一員",
+        "他必須永遠留在山上",
+        "他必須付一大筆聘金",
+        "他必須教會所有村民看見"
+      ],
+      "answer": 0,
+      "explain": "She persuaded Nuñez to remove the peculiar orbs on either side of his nose. That way, he could stop daydreaming and truly become one of them. In return for Nuñez’s great sacrifice, she agreed to marry him。",
+      "why": [
+        "",
+        "課文沒有這樣說。",
+        "課文沒有這樣說。",
+        "課文說他無法讓村民理解視力。"
+      ],
+      "point": "條件：Nuñez 要摘除眼睛。"
+    },
+    {
+      "id": "en6-031",
+      "q": "Nuñez 面臨的 dilemma 是什麼？",
+      "ref": "L6 The Country of the Blind｜課文 dilemma",
+      "options": [
+        "要麼留在村裡，要麼回到家鄉",
+        "要麼教村民看見，要麼讓他們失明",
+        "要麼娶 Medina，要麼當國王",
+        "要麼失去雙眼，要麼結束與 Medina 的感情"
+      ],
+      "answer": 3,
+      "explain": "Nuñez was confronted with a dilemma: he had to choose either to lose his eyes or to end their relationship。",
+      "why": [
+        "課文說的是失去眼睛或結束感情。",
+        "課文沒有這樣說。",
+        "課文沒有這樣說。",
+        ""
+      ],
+      "point": "dilemma ＝ 兩難：眼睛 vs 愛情。"
+    },
+    {
+      "id": "en6-032",
+      "q": "Nuñez 最後為什麼逃離盲人之國？",
+      "ref": "L6 The Country of the Blind｜課文 結局",
+      "options": [
+        "村民發現他說謊，把他趕出村子",
+        "手術當天早晨，他再次看見日出的壯麗，意識到自己犯了大錯，想保住視力",
+        "Medina 拒絕了他的求婚",
+        "他想回去繼續當登山家，爭取獎牌"
+      ],
+      "answer": 1,
+      "explain": "That morning, he once again beheld the splendor of the sunrise. ... Driven by the desire to save his sight, he fled the country of the blind。",
+      "why": [
+        "課文沒有這樣說。",
+        "",
+        "課文說他是自己決定逃離。",
+        "課文說他是為了保住視力。"
+      ],
+      "point": "日出 → 醒悟 → 逃離。"
+    },
+    {
+      "id": "en6-033",
+      "q": "Nuñez is a(n) _____ person because he _____ and _____. 根據課文，最適合的答案是？",
+      "ref": "L6 The Country of the Blind｜課文 Reading Comprehension",
+      "options": [
+        "selfless；shared his food with starving villagers；taught all villagers to read and write",
+        "generous；accepted the villagers’ ways of life；escaped from the village at sunrise",
+        "arrogant；felt superior to the blind villagers；believed his gift of sight should make him a “king” in their society",
+        "humorous；felt superior to the blind villagers；shared his food with starving villagers"
+      ],
+      "answer": 2,
+      "explain": "課文開頭：Feeling superior to these sightless people ...「獨眼者為王」，顯示他傲慢、自以為是。",
+      "why": [
+        "課文沒有這些情節，Nuñez 一開始也不是無私的。",
+        "generous 與一開始的優越感不符；他雖然逐漸適應，但仍緊抓著視力的現實。",
+        "",
+        "課文沒有描述他幽默，也沒有分享食物的情節。"
+      ],
+      "point": "Nuñez 一開始：arrogant。"
+    },
+    {
+      "id": "en6-034",
+      "q": "從「How the Country of the Blind Came to Be」的說明，村民的失明是怎麼形成的？",
+      "ref": "L6 The Country of the Blind｜課文 背景",
+      "options": [
+        "最初定居者看得見，但一種怪病使孩子生來失明；經過十五代（約 300 年）後，全村都看不見",
+        "一場火山爆發讓全體村民失明",
+        "村民長期居住在黑暗的洞穴中",
+        "外來者帶來的毒藥"
+      ],
+      "answer": 0,
+      "explain": "Originally, the settlers who came to the valley could see. However, a strange disease affected their children, causing them to be born blind。After fifteen generations (about 300 years), no one in the community could see。",
+      "why": [
+        "",
+        "文中沒有提到火山。",
+        "文中說是一種怪病影響孩子。",
+        "文中說是 a strange disease。"
+      ],
+      "point": "怪病 → 世代失明（約 300 年）。"
+    },
+    {
+      "id": "en6-035",
+      "q": "Reading Strategy 中，句子 “Thousands of persons ... against the raids.” 作為文章開頭的 writing hook，屬於哪一種類型？",
+      "ref": "L6 The Country of the Blind｜Reading Strategy 寫作 hook",
+      "options": [
+        "問句（a question）",
+        "統計數字（statistics）",
+        "定義（a definition）",
+        "引言（a quote）"
+      ],
+      "answer": 3,
+      "explain": "短文開頭：A newspaper article from October 31, 1938, reads, “Thousands of persons called the police ... seeking advice on protective measures against the raids.” 作者用引用的方式吸引讀者。",
+      "why": [
+        "它不是疑問句。",
+        "雖有 thousands，但它是引用報紙文章的原句，屬於引言。",
+        "它沒有在定義名詞。",
+        ""
+      ],
+      "point": "hook 類型：question / anecdote / event / definition / statistics / quote / misconception。"
+    },
+    {
+      "id": "en6-036",
+      "q": "根據 War of the Worlds 短文，為什麼說 1938 年報紙報導的恐慌被「誇大」（overstated）？",
+      "ref": "L6 The Country of the Blind｜Reading Strategy 廣播事件",
+      "options": [
+        "因為節目一開始就清楚說明這是虛構的，沒有人被誤導",
+        "實際上只有少數聽眾真的感到困惑，報紙卻報導成大規模恐慌",
+        "因為廣播根本沒有播出",
+        "因為 H. G. Wells 本人出面澄清"
+      ],
+      "answer": 1,
+      "explain": "However, the panic reported by newspapers was overstated, as only a small number of listeners were genuinely confused。短文結論：這是媒體如何塑造大眾信念的早期例子。",
+      "why": [
+        "短文說許多聽眾錯過了節目開頭的虛構聲明。",
+        "",
+        "短文說廣播確實在 1938 年 10 月 30 日播出。",
+        "短文沒有這樣說。"
+      ],
+      "point": "panic overstated：只有少數人真的困惑。"
+    }
+  ]
+}
