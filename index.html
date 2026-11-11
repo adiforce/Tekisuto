@@ -1438,7 +1438,7 @@ function gainExp(n) {
 }
 
 /* ===== 金幣：每題第 1 次答對 +2、第 2 次 +1、之後 0；整關通關每次 +5 ===== */
-const COIN_Q = [2, 1], COIN_CLEAR = 5;
+const COIN_Q = [2, 1], COIN_CLEAR = 5, COMBO_COIN = 3;   // COMBO_COIN：每連對 3 題 +3 元
 // 一場最多幾題（錯題不夠就全打）
 const revSize = () => [10, 20, 30].includes(db.revN) ? db.revN : 10;
 const revBonus = n => n;                                       // 復仇戰打贏的通關獎勵：打幾題就 +幾元
@@ -3020,7 +3020,9 @@ function pick(k) {
     if (move === 'ult') {
       const bonus = Math.min(S.combo / 3, 5) * 10;            // 連對獎勵：每 3 連擊放大招，額外 EXP（3 連 +10、6 連 +20…最多 +50）
       S.exp += bonus;
-      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…') + `　🔥 連對獎勵 EXP +${bonus}`;
+      const cb = noCoin ? 0 : COMBO_COIN;                     // 連對 3 題 +3 元，再從 1 開始算（不給金幣的題庫沒有）
+      if (cb) { db.coins += cb; S.coins += cb; save(); }
+      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…') + `　🔥 連對獎勵 EXP +${bonus}` + (cb ? `、💰 +${cb} 元` : '');
       showCutin(ultName); SFX.ult(); vibrate([80, 40, 160]);
     } else {
       say = `${TIER_HIT[tier]}！${w[1]}`; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
