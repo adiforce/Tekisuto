@@ -14,7 +14,7 @@ favicon.ico／icon-192.png／apple-touch-icon.png  網站 icon，用勇者貓 Lv
 banks/*.json               題庫，一個單元一個檔，檔名＝id
 banks/img/*.jpg            附圖題的圖片，檔名 {題庫id}-{英文短名}.jpg
 banks/index.json           題庫清單，由 GitHub Actions 自動產生，不要手動建或提交
-audio/{base,enter,exit,levelup,lose(lost 也行),win,relife,revenge,result}.mp3／.m4a／.mid   自訂音樂／音效（選用，使用者自己放；都有時優先 mp3 → m4a → mid；沒放就用原本的合成音或安靜。base 每次回到基地從頭播一遍（播完就安靜，進戰鬥後重置），enter 開戰、exit 撤退、lose 敗北、win 擊倒 BOSS、levelup 升級、relife 使用復活卡、revenge 進復仇戰（有放就取代 enter）、result 結算畫面（進戰果頁播一遍，等 win／lose 播完才接，按任何按鈕就停）；midi 用內建電子音色合成播放）
+audio/{base,enter,exit,levelup,lose(lost 也行),win,revenge,result}.mp3／.m4a／.mid   自訂音樂／音效（選用，使用者自己放；都有時優先 mp3 → m4a → mid；沒放就用原本的合成音或安靜。base 每次回到基地從頭播一遍（播完就安靜，進戰鬥後重置），enter 開戰、exit 撤退、lose 敗北、win 擊倒 BOSS、levelup 升級、revenge 進復仇戰（有放就取代 enter）、result 結算畫面（進戰果頁播一遍，等 win／lose 播完才接，按任何按鈕就停）；midi 用內建電子音色合成播放）
 .github/workflows/pages.yml  產生 banks/index.json 後部署 Pages
 gas/beishu-sync.gs         雲端紀錄的 Google Apps Script 備份（網頁不讀；改完要貼到試算表的 Apps Script 並更新部署）
 backup/                    舊的日文假名題庫備份，不會被讀取
@@ -97,9 +97,8 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 
 `banks, order, wrong, last, best, exp, kills, sound, coins, qwin, cards, revives, stats, wd, seen`，另有 `subHome`、`subGh` 是篩選狀態。
 
-- `cards`：刪去卡張數；`revives`：復活卡張數。升級時每級抽一次：30% 刪去卡、20% 復活卡、30% 金幣 +10、20% 沒有。
-- 不會倒下：答錯只斷連擊、不扣命（`S.hp` 固定 1，愛心 UI 已拿掉）；每 3 連擊放大招額外給 EXP（3 連 +10、6 連 +20…最多 +50，`Math.min(combo/3,5)*10`），同時每連對 3 題 +3 元（`COMBO_COIN`，不給金幣的題庫、看過提示的題不算，之後從 1 重新數）。打完一律算過關（敗北不再發生，`復活卡` 暫時用不到）。戰果頁最下面直接接「錯題詳解」（`rvItems()`，和作戰筆記共用）。
-- 復活卡：愛心歸零時可用，愛心補滿、繼續下一題，一場不限張數；最後一題倒下再復活算勝利。
+- `cards`：刪去卡張數；`revives`：已停用，欄位保留只為了舊雲端紀錄相容（不顯示、不再發放）。升級時每級抽一次：30% 刪去卡、30% 金幣 +10、40% 沒有（復活卡已移除）。
+- 不會倒下：答錯只斷連擊、不扣命（`S.hp` 固定 1，愛心 UI 已拿掉）；每 3 連擊放大招額外給 EXP（3 連 +10、6 連 +20…最多 +50，`Math.min(combo/3,5)*10`），同時每連對 3 題 +3 元（`COMBO_COIN`，不給金幣的題庫、看過提示的題不算，之後從 1 重新數）。打完一律算過關（敗北不再發生）。戰果頁最下面直接接「錯題詳解」（`rvItems()`，和作戰筆記共用）。
 - `wd`：金幣提領紀錄 `[{ at, n }]`。點首頁／個人資料的金幣 → `withdrawOpen()` 彈窗 → `withdrawDo()` 金幣歸零並記錄；雲端合併時 `coins` 的增量可以是負的（提領），`wd` 兩邊聯集（`at|n` 去重）。
 - `seen[題庫id]`：這個題庫最後一次「進去」的日期（`dayKey()`）。`markSeen(題庫id)` 只在 `ACT.quiz`／`ACT.cards`／`ACT.review`（題庫卡片上的挑戰、錯題再戰、修練、筆記，透過 `enter(id, refs)`，有題目才算）呼叫；復仇戰、全部錯題筆記／修練這類跨題庫的入口**不算**，不然抽到哪個題庫的錯題就會被順便解冰。首頁題庫卡 `seen` 不是今天就加 `.frozen`（結冰）；今天第一次進去後回首頁，該卡播一次 `.thaw` 融冰動畫（`thawed` Set）。冰柱是 CSS 裡內嵌的 SVG（200×30 一格橫向重複，`.bank.frozen::after`／`.icefall` 共用）。直接點結冰卡上的挑戰／錯題再戰／修練／筆記時，`Ice` 模組在捕捉階段攔下點擊，播破冰動畫（裂痕 → 碎冰噴開＋冰柱掉落，碎片放在 body 上的 `.icebreak` 固定層），約 600ms 後再 `el.click()` 真正進去；這種題庫記在 `iceBroke`，回首頁不再播融冰。減少動態時不攔，直接進去。只存這台裝置，**不進** `PROG`／雲端紀錄。
 - `stats[題庫id]`：`{ n, sum, best, last, at, win, title, dd, dn, h }`，`h` 是逐場紀錄（最近 30 場，`stPush()`）：`{ at, c 答對, n 總題數, r: 'w'贏／'l'被打趴／'q'撤退, a 撤退時已答題數 }`，個人資料頁點題庫名稱展開成明細（`stToggle`、`stOpen`）；雲端合併時兩邊聯集（`at|r` 去重）、留最近 30 場。只記「挑戰 BOSS」整份打完的場次（`S.recordBid` 有值才記），輸贏都算，中途撤退不算。`dd`／`dn` 是「今日完成」：`dd` 日期（`dayKey()`）、`dn` 當天打贏次數（只算贏），換日歸零；首頁題庫卡顯示「今日完成 N 次」。雲端合併時同一天相加、不同天取日期新的（`dayKey` 沒補零，要轉數字比）。

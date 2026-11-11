@@ -289,7 +289,6 @@ body.nofuri rt{display:none}
 .qtools{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin:0 0 10px}
 .qtools .cutbtn{margin:0}
 .hintbox{margin-top:10px;padding:8px 12px;border:2px dashed var(--ink);background:#FFF6BF;color:#000;font-size:15px;font-weight:700;line-height:1.6}
-.revbtn{margin-bottom:10px}
 .fb{margin:18px 0 14px;padding:14px 16px;position:relative}
 .fb .say{font-size:20px;font-weight:900;transform:skew(-6deg);display:inline-block;margin-bottom:4px}
 .fb.ok{background:#FFF6BF}
@@ -1167,7 +1166,6 @@ const MUSIC_SLOTS = {                                        // vol 音量、max
   levelup: { vol: .9, max: 12 },                             // 升級
   lose: { vol: .9, max: 12 },                                // 敗北
   revenge: { vol: .9, max: 12 },                             // 進復仇戰（有放就取代進入關卡的音）
-  relife: { vol: .9, max: 12 },                              // 使用復活卡
   win: { vol: .9, max: 12 },                                 // 勝利（擊倒 BOSS）
   result: { once: true, vol: .6, max: 90 }                   // 結算畫面：進戰果頁播一遍（等勝利／敗北音效播完才接），離開戰果頁就停
 };
@@ -1419,7 +1417,7 @@ function addBank(b) {
   return existed;
 }
 // 加經驗值；有升級就回傳升級前的等級，沒升級回傳 0
-// 每升一級抽一次：30% 刪去卡、20% 復活卡、30% 金幣 +10、20% 沒有
+// 每升一級抽一次：30% 刪去卡、30% 金幣 +10、40% 沒有
 let lvRewards = [];
 function gainExp(n) {
   const before = levelOf(db.exp).lv;
@@ -1429,8 +1427,7 @@ function gainExp(n) {
   for (let lv = before + 1; lv <= after; lv++) {
     const r = Math.random();
     if (r < .3) { db.cards = (db.cards || 0) + 1; lvRewards.push('✂️ 刪去卡 ×1'); }
-    else if (r < .5) { db.revives = (db.revives || 0) + 1; lvRewards.push('💖 復活卡 ×1'); }
-    else if (r < .8) { db.coins = (db.coins || 0) + 10; lvRewards.push('💰 金幣 +10'); }
+    else if (r < .6) { db.coins = (db.coins || 0) + 10; lvRewards.push('💰 金幣 +10'); }
     else lvRewards.push('這次什麼都沒有…');
   }
   save();
@@ -1499,7 +1496,7 @@ function home() {
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
-        <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
+        <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}
         <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
     </section>${syncTip()}`;
@@ -1710,7 +1707,7 @@ function profile() {
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　總經驗 ${db.exp}</div>
-        <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}${db.revives ? `<div class="cards">💖 復活卡 ×${db.revives}</div>` : ''}
+        <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}
       </div>
     </section>
     <button class="btn wide gal-btn" data-act="gallery">📖 稱號與造型圖鑑</button>
@@ -2974,23 +2971,6 @@ function useCut(btn) {
   btn.disabled = true; btn.textContent = '✂️ 已刪去一個選項';
   SFX.hit && SFX.hit(1);
 }
-// 倒下時用復活卡：愛心補滿、繼續下一題；最後一題倒下又復活就算撐到最後＝勝利
-function useRevive() {
-  if (!S || S.hp > 0 || !db.revives) return;
-  db.revives--; save();
-  S.hp = S.maxHp; S.revived = (S.revived || 0) + 1;
-  const last = S.i === S.items.length - 1;
-  showFx('REVIVE!', '復活！愛心補滿！', true); if (!Music.shot('relife') && SFX.lvup) SFX.lvup(); vibrate([40, 30, 80]);
-  if (last) {
-    S.bossHp = 0;
-    setTimeout(() => { Boss3D.hit1(true); showFx('K.O.!', '復活逆轉，BOSS 倒下了！', true); SFX.win(); }, 900);
-  }
-  updateHud();
-  const rb = app.querySelector('.revbtn'); if (rb) rb.remove();
-  const nb = app.querySelector('.nextbtn');
-  if (nb) { nb.classList.add('go'); nb.textContent = last ? '看戰果' : '繼續攻擊！'; }
-  const say = app.querySelector('#fb .say'); if (say) say.insertAdjacentHTML('beforeend', '<span class="coin">💖 復活</span>');
-}
 function pick(k) {
   if (!S || S.answered) return;
   S.answered = true;
@@ -3465,7 +3445,6 @@ const ACT = {
   ghRefresh: () => ghLoad(true),
   useCut: (d, el) => useCut(el),
   useHint: (d, el) => useHint(el),
-  useRevive,
   profile,
   syncView, syncList: () => loadSyncList(), syncSave: (d, el) => syncSave(el), syncLoad: d => syncLoad(+d.n), syncRestore,
   subHome: d => { db.subHome = d.s; save(); home(); },
