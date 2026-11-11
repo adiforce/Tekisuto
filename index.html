@@ -2062,8 +2062,12 @@ const Sky = (() => {
     }).catch(() => { });
   }
   // 魔王的服裝：下雨撐傘；冬天（或下雪）圍巾＋耳罩；秋天圍巾；夏天墨鏡；春天頭上別花
-  const outfit = () => { const w = cur(); return { se: w && w.k === 'snow' ? 'wi' : season(), rain: !!w && (w.k === 'rain' || w.k === 'storm') }; };
-  const outfitKey = () => { const o = outfit(); return o.se + (o.rain ? 'r' : ''); };
+  const outfit = () => {
+    const w = cur(), se = w && w.k === 'snow' ? 'wi' : season();
+    return { se, rain: !!w && (w.k === 'rain' || w.k === 'storm'),
+      sunny: !!w && w.k === 'clear' && !isNight() && (se === 'su' || (w.t != null && w.t >= 28)) };       // 大太陽：晴天白天，夏天或氣溫 28°C 以上 → 墨鏡戴到眼睛上
+  };
+  const outfitKey = () => { const o = outfit(); return o.se + (o.rain ? 'r' : '') + (o.sunny ? 's' : ''); };
   return { html, chipHtml, load, outfit, outfitKey };
 })();
 
@@ -2312,12 +2316,18 @@ const Boss3D = (() => {
   }
 
   /* --- 季節／天氣服裝：畫在臉之後（座標同 64x64 設計座標）；倒下（ko）不穿 --- */
-  function outfit(out, S, o, dy, L) {
+  function outfit(out, S, o, dy, L, f) {
     if (o.se === 'sp') over(out, L(b => {                 // 右耳旁別一朵花
       [[0, -2.3], [2.2, -.7], [1.4, 1.9], [-1.4, 1.9], [-2.2, -.7]].forEach(p => ell(b, 48 + p[0], 14 + dy + p[1], 2, 2, '#FF8FB8', '#E0608F'));
       ell(b, 48, 14 + dy, 1.5, 1.5, '#FFE066');
     }));
-    if (o.se === 'su') over(out, L(b => {                 // 墨鏡推到額頭上
+    const mad = f.pose === 'puff' || f.hiss;                // 生氣的時候把墨鏡推上去（不然看不到表情）
+    if (o.sunny && !mad) over(out, L(b => {               // 大太陽：墨鏡戴在眼睛上
+      ell(b, 22, 27 + dy, 7.6, 6.2, '#1B1B26', '#000000', '#4E5068'); ell(b, 42, 27 + dy, 7.6, 6.2, '#1B1B26', '#000000', '#4E5068');
+      rect(b, 29, 25 + dy, 6, 1.5, '#1B1B26'); rect(b, 13, 25 + dy, 3, 1, '#1B1B26'); rect(b, 48, 25 + dy, 3, 1, '#1B1B26');
+      rect(b, 18, 24 + dy, 3, 1, '#7E86B0'); rect(b, 38, 24 + dy, 3, 1, '#7E86B0');
+    }));
+    else if ((o.se === 'su' || o.sunny) && !o.rain) over(out, L(b => {   // 沒大太陽（陰天、生氣）：墨鏡推到額頭上；下雨不戴
       ell(b, 24, 17 + dy, 6, 3.6, '#1B1B26', '#000000', '#4E5068'); ell(b, 40, 17 + dy, 6, 3.6, '#1B1B26', '#000000', '#4E5068'); rect(b, 29, 16 + dy, 6, 1.5, '#1B1B26');
     }));
     if (o.se === 'au') over(out, L(b => {                 // 橘格圍巾
@@ -2394,7 +2404,7 @@ const Boss3D = (() => {
     }
     if (S.acc) over(out, L(b => S.acc(b, dy)));
     face(out, S, f, dy);
-    if (!ko) outfit(out, S, Sky.outfit(), dy, L);
+    if (!ko) outfit(out, S, Sky.outfit(), dy, L, f);
     return out;
   }
 
