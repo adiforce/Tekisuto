@@ -169,6 +169,24 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .bank .meta b.ng{color:var(--hurt)}
 .bank .more{position:absolute;top:10px;right:10px;width:36px;height:36px;font-size:16px}
 .bank .grid{gap:10px}
+/* 首頁精簡：手機一個畫面要看得到更多題庫（個人資料縮小、題庫卡合併資訊列、按鈕縮成兩排） */
+.me.cmp{gap:10px;padding:8px 12px;margin-bottom:14px}
+.me.cmp .hero{width:56px;height:56px;margin:-2px 0 0}
+.me.cmp .lv{min-width:56px}.me.cmp .lv .n{font-size:18px}
+.me.cmp .ttl{font-size:17px}.me.cmp .go-prof{top:5px;right:8px;font-size:12px}
+.me.cmp .coins,.me.cmp .cards{font-size:14px;padding:0 8px;margin:3px 6px 0 0}
+.bank.cp{margin-bottom:14px}
+.bank.cp .band{width:40px}.bank.cp .band b{font-size:19px;letter-spacing:.1em}
+.bank.cp .body{padding:8px 12px 10px 52px}
+.bank.cp h2{font-size:16px;margin:0 36px 2px 0;line-height:1.35}
+.bank.cp .meta{font-size:13px;line-height:1.5}
+.bank.cp .more{top:4px;right:4px;width:30px;height:30px;font-size:14px}
+.bank.cp .rankmark{top:34px;right:8px;font-size:26px}
+.bank.cp .grid{gap:8px;margin-top:8px}
+.bank.cp .btn{min-height:42px;padding:6px 8px;font-size:15px;box-shadow:3px 3px 0 var(--ink)}
+.bank.cp .btn small{font-size:12px}
+.bank.cp .ice,.bank.cp .lastbad{margin:2px 0}
+.bank.frozen.cp .body{padding-top:20px}
 /* 結冰：今天沒進去過的題庫。整片蓋在卡片上但不吃點擊，按鈕照常能按；進去過一次就融化 */
 .bank.frozen{border-color:#2C6C8E;box-shadow:3px 3px 0 #2C6C8E,0 0 16px 3px rgba(150,220,255,.8)}
 .bank.frozen .band{filter:saturate(.5) hue-rotate(150deg) brightness(.95)}
@@ -541,7 +559,7 @@ textarea{width:100%;min-height:180px;margin-top:12px;padding:12px;border:var(--b
 .gh-info b{font-size:16px;line-height:1.4;font-weight:900}
 .gh-ok{font-size:14px;font-weight:900;white-space:nowrap;flex:none}
 .sync-in{width:100%;margin:10px 0;padding:10px 12px;border:var(--bd);background:var(--paper);color:var(--ink);font:16px/1.4 inherit}
-.sync-tip{display:block;width:100%;margin:-10px 0 20px;padding:10px 12px;border:2px dashed var(--ink);border-radius:6px;background:#FFF4CC;color:var(--ink);font:inherit;font-size:14px;font-weight:900;text-align:left;cursor:pointer}
+.sync-tip{display:block;width:100%;margin:-4px 0 12px;padding:6px 10px;border:2px dashed var(--ink);border-radius:6px;background:#FFF4CC;color:var(--ink);font:inherit;font-size:14px;font-weight:900;text-align:left;cursor:pointer}
 .gh-row.mine .gh-info b::after{content:'（這台）';font-size:13px;font-weight:700;color:var(--sub)}
 
 /* ===== 浮層 ===== */
@@ -1521,14 +1539,13 @@ function home() {
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音量">${!db.sound ? '🔇' : db.vol === 's' ? '🔈' : db.vol === 'm' ? '🔉' : '🔊'}</button></div>
     ${Sky.chipHtml()}${Sky.html('home')}
-    <section class="panel me" data-act="profile"${frAttr(L.lv)}><span class="go-prof">個人資料 ›</span>
+    <section class="panel me cmp" data-act="profile"${frAttr(L.lv)}><span class="go-prof">個人資料 ›</span>
       <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
         <div class="ttl">${titleOf(L.lv)}</div>
         <div class="exp"><i style="width:${L.cur / L.need * 100}%"></i></div>
         <div class="nums">EXP ${L.cur} / ${L.need}　擊敗 BOSS ${db.kills} 次</div>
         <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}
-        <div class="nums">招式：${TIER_HIT[tierOf(L.lv)]}　大招：${TIER_ULT[tierOf(L.lv)]}</div>
       </div>
     </section>${syncTip()}`;
   if (!list.length) {
@@ -1569,23 +1586,22 @@ function home() {
     const frozen = (db.seen || {})[id] !== dayKey();
     const st = db.stats[id], td = st && st.dd === dayKey();
     const dn = td ? st.dn || 0 : 0, dl = td ? st.dl || 0 : 0, dq = td ? st.dq || 0 : 0;   // 今日挑戰 BOSS：打贏、被打趴、撤退次數
-    h += `<section class="panel bank${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
+    h += `<section class="panel bank cp${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
       <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
       <button class="icon more" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button>
       ${best ? `<div class="rankmark" aria-label="最佳評級">${esc(best)}</div>` : ''}
       <div class="body">
-        <div class="boss">BOSS：${x.boss}</div>
         <h2>${esc(b.title)}</h2>
-        <div class="meta">HP ${Math.min(b.questions.length, MAX_Q)}${b.questions.length > MAX_Q ? `（題庫 ${b.questions.length} 題）` : ''}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>${best ? '' : '　尚未擊敗'}</div>
-        <div class="meta">平均分數 <b>${st && st.n ? Math.round(st.sum / st.n) : '—'}</b>${st && st.n ? `　（挑戰 ${st.n} 場）` : ''}</div>
-        <div class="meta">今日完成 <b>${dn}</b> 次${dl ? `　💥 被打趴 <b class="ng">${dl}</b>` : ''}${dq ? `　🏳️ 撤退 <b class="ng">${dq}</b>` : ''}</div>
+        <div class="meta">HP ${Math.min(b.questions.length, MAX_Q)}${b.questions.length > MAX_Q ? `（共 ${b.questions.length} 題）` : ''}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>　平均 <b>${st && st.n ? Math.round(st.sum / st.n) : '—'}</b>　今日 <b>${dn}</b> 次${dl ? `　💥 <b class="ng">${dl}</b>` : ''}${dq ? `　🏳️ <b class="ng">${dq}</b>` : ''}</div>
         ${lastBad(st) ? `<div class="lastbad">${lastBad(st)}</div>` : ''}
         ${frozen ? '<div class="ice">今天還沒來過，快進去把牠融化！</div>' : ''}
         <div class="grid">
-          <button class="btn go span2" data-act="quiz" data-id="${eid}" data-mode="all">挑戰 BOSS</button>
+          <button class="btn go span2" data-act="quiz" data-id="${eid}" data-mode="all">挑戰 BOSS（${x.boss}）</button>
+        </div>
+        <div class="grid three">
           <button class="btn" data-act="quiz" data-id="${eid}" data-mode="wrong" ${w ? '' : 'disabled'}>錯題再戰</button>
-          <button class="btn" data-act="cards" data-id="${eid}">修練卡</button>
-          <button class="btn span2" data-act="review" data-id="${eid}" ${w ? '' : 'disabled'}>作戰筆記（錯題重點）</button>
+          <button class="btn" data-act="cards" data-id="${eid}">修練</button>
+          <button class="btn" data-act="review" data-id="${eid}" ${w ? '' : 'disabled'}>筆記</button>
         </div>
       </div>
     </section>`;
@@ -1774,7 +1790,7 @@ const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw9
 const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards', 'revives', 'stats', 'wd'];
 const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
 // 還沒設定過雲端紀錄（沒存過、也沒匯入過）時，首頁和戰果頁顯示的提醒，點了進 💾 頁
-const syncTip = () => SYNC_URL && !localStorage.getItem(SYNC_NAME) ? '<button class="sync-tip" data-act="syncView">☁️ 還沒設定雲端紀錄，換手機進度會不見 → 點這裡設定</button>' : '';
+const syncTip = () => SYNC_URL && !localStorage.getItem(SYNC_NAME) ? '<button class="sync-tip" data-act="syncView">☁️ 還沒設定雲端紀錄 → 點這裡設定</button>' : '';
 let syncList = null;
 const netMsg = e => /fetch|network|load failed/i.test(e.message || '') ? '連不上 Google，請確認網路' : (e.message || '失敗');
 const progOf = () => {
