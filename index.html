@@ -1208,6 +1208,7 @@ function loopMidi(m, ctx, dest, maxLen, once) {
 }
 
 /* ===== 自訂音樂／音效：把檔案放進 audio/，mp3 或 mid 都可以（兩個都有就用 mp3）；沒放的位置就用原本的合成音或安靜 ===== */
+const MUSIC_OFF = new Set(['base', 'result', 'revenge']);        // 長的背景音樂先關掉（不載入、不播；audio/ 的檔案留著，要開回來就把名字從這裡拿掉）
 const MUSIC_SLOTS = {                                        // vol 音量、max 最長秒數
   base: { once: true, vol: .45, max: 90 },                   // 基地音樂：每次回到基地從頭播一遍，播完就安靜
   enter: { vol: .9, max: 8 },                                // 進入關卡
@@ -1235,7 +1236,7 @@ const Music = (() => {
   function load() {
     if (loaded) return; loaded = true;
     try { ctxOk(); } catch (e) { return; }
-    Object.keys(MUSIC_SLOTS).forEach(name => loadOne(name).then(() => { if (name === 'base' && want) base(true); }));
+    Object.keys(MUSIC_SLOTS).filter(n => !MUSIC_OFF.has(n)).forEach(name => loadOne(name).then(() => { if (name === 'base' && want) base(true); }));
   }
   const secs = name => { const sl = slots[name]; return sl ? Math.min(sl.buf ? sl.buf.duration : sl.midi.dur, MUSIC_SLOTS[name].max) : 0; };
   function play(name, onEnd) {
