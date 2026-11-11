@@ -239,6 +239,34 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .empty{text-align:center;padding:40px 8px}
 .empty .big{font-size:24px;font-weight:900;transform:skew(-6deg)}
 
+
+/* ===== 季節與天氣：疊在首頁（整個畫面）和魔王背景（舞台內）上的色調＋飄落特效，不吃點擊 ===== */
+.sky{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.sky.fixed{position:fixed;z-index:4}
+.sky>b{position:absolute;inset:0;display:block}
+.sky .t-sp{background:rgba(255,170,205,.14)}.sky .t-su{background:rgba(255,214,90,.12)}
+.sky .t-au{background:rgba(255,128,32,.16)}.sky .t-wi{background:rgba(120,170,255,.16)}
+.sky .dim{background:rgba(50,60,80,.2)}.sky .dim.hv{background:rgba(35,42,66,.32)}
+.sky .night{background:rgba(8,16,60,.3)}
+.sky.fixed .dim{background:rgba(50,60,80,.1)}.sky.fixed .dim.hv{background:rgba(35,42,66,.18)}.sky.fixed .night{background:rgba(8,16,60,.16)}
+.sky .fog{background:linear-gradient(rgba(255,255,255,.3),rgba(255,255,255,.1) 60%,rgba(255,255,255,.32));animation:skypulse 7s ease-in-out infinite}
+.sky .fl{background:#fff;opacity:0;animation:skyflash 7s infinite}
+.sky .sun{inset:auto;right:-10%;top:-22%;width:75%;height:75%;background:radial-gradient(circle,rgba(255,240,170,.55),transparent 65%);animation:skypulse 6s ease-in-out infinite}
+.sky i{position:absolute;top:-10%;display:block;animation-delay:var(--dl),var(--dl);animation-duration:var(--d),calc(var(--d)/3);animation-iteration-count:infinite;animation-timing-function:linear,ease-in-out}
+.sky i.pt{width:7px;height:5px;border-radius:70% 0 70% 0;background:#FFB7D5;animation-name:skyfall,skysway}
+.sky i.lf{width:7px;height:6px;border-radius:2px 80% 2px 80%;background:var(--lc);animation-name:skyfall,skysway}
+.sky i.sn{width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 3px #fff;animation-name:skyfall,skydrift}
+.sky i.rn{width:1.5px;height:14px;background:linear-gradient(transparent,rgba(190,225,255,.85));transform:rotate(14deg);animation-name:skyfall}
+.sky i.cd{top:var(--y);left:-40%;width:38%;height:14%;background:rgba(255,255,255,.38);border-radius:50px;filter:blur(3px);animation-name:skycloud;animation-duration:var(--d);animation-timing-function:linear}
+@keyframes skyfall{from{top:-10%}to{top:105%}}
+@keyframes skysway{0%,100%{transform:translateX(-12px) rotate(-20deg)}50%{transform:translateX(12px) rotate(160deg)}}
+@keyframes skydrift{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+@keyframes skycloud{to{transform:translateX(380%)}}
+@keyframes skypulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes skyflash{0%,93%,100%{opacity:0}94%{opacity:.3}95%{opacity:.05}96%{opacity:.25}98%{opacity:0}}
+.wxchip{font-size:13px;font-weight:700;margin:-8px 0 12px;opacity:.85}
+@media (prefers-reduced-motion:reduce){.sky i,.sky .fl{display:none}.sky .fog,.sky .sun{animation:none}}
+
 /* ===== 戰鬥（測驗） ===== */
 .hud{padding:10px 12px;margin-bottom:16px}
 .hud .row{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px}
@@ -1490,6 +1518,7 @@ function home() {
   const L = levelOf(db.exp);
   let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音量">${!db.sound ? '🔇' : db.vol === 's' ? '🔈' : db.vol === 'm' ? '🔉' : '🔊'}</button></div>
+    ${Sky.chipHtml()}${Sky.html('home')}
     <section class="panel me" data-act="profile"${frAttr(L.lv)}><span class="go-prof">個人資料 ›</span>
       <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
@@ -1982,6 +2011,60 @@ function syncRestore() {
   catch (e) { toast('備份讀取失敗'); }
 }
 
+/* ===== 季節與天氣：依月份分四季（3–5 春、6–8 夏、9–11 秋、12–2 冬），天氣向 Open-Meteo（免金鑰）抓台北目前天氣，快取 30 分鐘；
+   抓不到就只有季節。預覽：網址加 ?season=sp|su|au|wi、?wx=clear|cloud|rain|storm|snow|fog、?night=1 ===== */
+const Sky = (() => {
+  const Q = new URLSearchParams(location.search), KEY = 'beishu.wx';
+  const WX_URL = 'https://api.open-meteo.com/v1/forecast?latitude=25.04&longitude=121.56&current=temperature_2m,weather_code,is_day&timezone=Asia%2FTaipei';
+  const SEA = { sp: ['春天', '🌸'], su: ['夏天', '☀️'], au: ['秋天', '🍂'], wi: ['冬天', '❄️'] };
+  const WX = { clear: ['晴', '☀️'], cloud: ['多雲', '⛅'], rain: ['下雨', '🌧️'], storm: ['雷雨', '⛈️'], snow: ['下雪', '🌨️'], fog: ['起霧', '🌫️'] };
+  let wx = null;                                              // { k 天氣, t 溫度, day 白天？ }
+  const season = () => { const f = Q.get('season'); if (SEA[f]) return f; const m = new Date().getMonth() + 1; return m >= 3 && m <= 5 ? 'sp' : m >= 6 && m <= 8 ? 'su' : m >= 9 && m <= 11 ? 'au' : 'wi'; };
+  const kindOf = c => c === 0 || c === 1 ? 'clear' : c === 2 || c === 3 ? 'cloud' : c === 45 || c === 48 ? 'fog' : c >= 95 ? 'storm'
+    : (c >= 71 && c <= 77) || c === 85 || c === 86 ? 'snow' : c >= 51 ? 'rain' : 'clear';
+  const cur = () => { const f = Q.get('wx'); return WX[f] ? { k: f, t: wx && wx.t, day: wx ? wx.day : null } : wx; };
+  const isNight = () => { if (Q.get('night')) return true; const w = cur(); if (w && w.day != null) return !w.day; const h = new Date().getHours(); return h >= 19 || h < 5; };
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const parts = (cls, n, d0, d1, extra) => Array.from({ length: n }, () => `<i class="${cls}" style="left:${rnd(0, 100).toFixed(1)}%;--d:${rnd(d0, d1).toFixed(1)}s;--dl:-${rnd(0, d1).toFixed(1)}s${extra ? ';' + extra() : ''}"></i>`).join('');
+  function html(mode) {
+    const se = season(), w = cur(), k = w ? w.k : 'clear', home = mode === 'home', n = home ? 1 : .8;
+    let h = `<b class="t-${se}"></b>`;
+    if (k === 'cloud' || k === 'rain' || k === 'storm') h += `<b class="dim${k === 'storm' ? ' hv' : ''}"></b>`;
+    if (k === 'fog') h += '<b class="fog"></b>';
+    if (isNight()) h += '<b class="night"></b>';
+    if (k === 'rain' || k === 'storm') h += parts('rn', Math.round(26 * n), .55, .95);
+    else if (k === 'snow') h += parts('sn', Math.round(22 * n), 5, 9);
+    else {
+      if (se === 'sp') h += parts('pt', Math.round(14 * n), 6, 11);
+      if (se === 'au') h += parts('lf', Math.round(12 * n), 6, 11, () => `--lc:${['#E8742A', '#C0452B', '#E9B03A', '#A5622B'][Math.floor(Math.random() * 4)]}`);
+      if (se === 'wi') h += parts('sn', Math.round(10 * n), 6, 10);
+      if (se === 'su' && k === 'clear' && !isNight()) h += '<b class="sun"></b>';
+    }
+    if (!home && (k === 'cloud' || k === 'storm')) h += Array.from({ length: 3 }, (_, i) => `<i class="cd" style="--y:${8 + i * 17}%;--d:${(28 + i * 9)}s;--dl:-${i * 11}s"></i>`).join('');
+    if (k === 'storm') h += '<b class="fl"></b>';
+    return `<div class="sky${home ? ' fixed' : ''}" data-sky="${mode}" aria-hidden="true">${h}</div>`;
+  }
+  const chip = () => { const w = cur(), se = SEA[season()]; return `${se[1]} ${se[0]}${w ? `　${WX[w.k][1]} ${WX[w.k][0]}${w.t != null ? ` ${Math.round(w.t)}°C` : ''}` : ''}`; };
+  const chipHtml = () => `<div class="wxchip">${chip()}</div>`;
+  function refresh() {                                       // 天氣抓到後，把畫面上現有的換成新的
+    document.querySelectorAll('.sky').forEach(el => { el.outerHTML = html(el.dataset.sky); });
+    document.querySelectorAll('.wxchip').forEach(el => { el.textContent = chip(); });
+  }
+  function load() {
+    try { const c = JSON.parse(localStorage.getItem(KEY) || 'null'); if (c && c.k) { wx = c; if (Date.now() - c.at < 30 * 60 * 1000) return; } } catch (e) { }
+    fetch(WX_URL).then(r => r.ok ? r.json() : Promise.reject()).then(j => {
+      const c = j.current; if (!c) return;
+      wx = { k: kindOf(c.weather_code), t: c.temperature_2m, day: !!c.is_day, at: Date.now() };
+      try { localStorage.setItem(KEY, JSON.stringify(wx)); } catch (e) { }
+      refresh();
+    }).catch(() => { });
+  }
+  // 魔王的服裝：下雨撐傘；冬天（或下雪）圍巾＋耳罩；秋天圍巾；夏天墨鏡；春天頭上別花
+  const outfit = () => { const w = cur(); return { se: w && w.k === 'snow' ? 'wi' : season(), rain: !!w && (w.k === 'rain' || w.k === 'storm') }; };
+  const outfitKey = () => { const o = outfit(); return o.se + (o.rain ? 'r' : ''); };
+  return { html, chipHtml, load, outfit, outfitKey };
+})();
+
 /* ===== 魔王背景：依科目（kind）換場景，96x56 的方塊拼成，貼在 3D 舞台後面 ===== */
 const Scene = (() => {
   const px = (x, y, w, h, c, o, cls) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"${o ? ` opacity="${o}"` : ''}${cls ? ` class="${cls}"` : ''}/>`;
@@ -2048,7 +2131,7 @@ const Scene = (() => {
   };
   function html(kind) {
     const f = D[kind] || D.mix, r = f();
-    return `<div class="scene" aria-hidden="true" style="background:${r[0]}"><svg viewBox="0 0 96 56" preserveAspectRatio="xMidYMax slice">${r[1]}</svg></div>`;
+    return `<div class="scene" aria-hidden="true" style="background:${r[0]}"><svg viewBox="0 0 96 56" preserveAspectRatio="xMidYMax slice">${r[1]}</svg>${Sky.html('stage')}</div>`;
   }
   return { html };
 })();
@@ -2226,6 +2309,33 @@ const Boss3D = (() => {
     return o;
   }
 
+  /* --- 季節／天氣服裝：畫在臉之後（座標同 64x64 設計座標）；倒下（ko）不穿 --- */
+  function outfit(out, S, o, dy, L) {
+    if (o.se === 'sp') over(out, L(b => {                 // 右耳旁別一朵花
+      [[0, -2.3], [2.2, -.7], [1.4, 1.9], [-1.4, 1.9], [-2.2, -.7]].forEach(p => ell(b, 48 + p[0], 14 + dy + p[1], 2, 2, '#FF8FB8', '#E0608F'));
+      ell(b, 48, 14 + dy, 1.5, 1.5, '#FFE066');
+    }));
+    if (o.se === 'su') over(out, L(b => {                 // 墨鏡推到額頭上
+      ell(b, 24, 17 + dy, 6, 3.6, '#1B1B26', '#000000', '#4E5068'); ell(b, 40, 17 + dy, 6, 3.6, '#1B1B26', '#000000', '#4E5068'); rect(b, 29, 16 + dy, 6, 1.5, '#1B1B26');
+    }));
+    if (o.se === 'au') over(out, L(b => {                 // 橘格圍巾
+      rect(b, 23, 40, 18, 4, '#E2742A'); rect(b, 35, 44, 4, 7, '#E2742A');
+      [26, 31, 36].forEach(x => rect(b, x, 40, 1, 4, '#8A3B12')); rect(b, 23, 43, 18, 1, '#B2531B'); rect(b, 35, 48, 4, 1, '#8A3B12');
+    }));
+    if (o.se === 'wi') {                                  // 藍白圍巾＋白毛球耳罩
+      over(out, L(b => {
+        rect(b, 22, 40, 20, 4, '#4A8FE0'); rect(b, 35, 44, 5, 8, '#4A8FE0');
+        [25, 30, 35, 40].forEach(x => rect(b, x, 40, 2, 4, '#FFFFFF')); rect(b, 36, 47, 3, 1, '#FFFFFF'); rect(b, 22, 43, 20, 1, '#2F66B0');
+      }));
+      over(out, L(b => { ell(b, 8, 29 + dy, 3.6, 3.6, '#FFFFFF', '#BBD3F2'); ell(b, 56, 29 + dy, 3.6, 3.6, '#FFFFFF', '#BBD3F2'); }));
+    }
+    if (o.rain) over(out, L(b => {                        // 頭上撐一把傘（紅黃相間）
+      for (let y = -5; y <= 1; y++) { const hw = Math.round(20 * Math.sqrt(Math.max(0, 1 - ((y - 2) / 7) ** 2)));
+        for (let x = 32 - hw; x <= 32 + hw; x++) put(b, x, y + dy, Math.floor((x + 40) / 8) % 2 ? '#F2C230' : '#E5483C'); }
+      rect(b, 31, 2 + dy, 2, 4, '#6B4A10');
+    }));
+  }
+
   /* --- 組一隻貓：f＝{ pose, eyes, pupil, brows, hiss, tail, swirl } --- */
   function drawCat(S, f) {
     const out = buf(), L = fn => { const b = buf(); fn(b); return outline(b, S.ol); };
@@ -2282,6 +2392,7 @@ const Boss3D = (() => {
     }
     if (S.acc) over(out, L(b => S.acc(b, dy)));
     face(out, S, f, dy);
+    if (!ko) outfit(out, S, Sky.outfit(), dy, L);
     return out;
   }
 
@@ -2753,7 +2864,7 @@ const Boss3D = (() => {
   const SPR = {};
   function sprite(kind, hex, f) {
     f = f || {};
-    const key = [kind, hex, f.pose || 'stand', f.eyes || 'open', f.tail ? 1 : 0, f.brows ? 1 : 0, f.hiss ? 1 : 0, f.sleep ? 1 : 0].join('|');
+    const key = [kind, hex, f.pose || 'stand', f.eyes || 'open', f.tail ? 1 : 0, f.brows ? 1 : 0, f.hiss ? 1 : 0, f.sleep ? 1 : 0, Sky.outfitKey()].join('|');
     if (SPR[key]) return SPR[key];
     const cv = document.createElement('canvas'); cv.width = cv.height = W;
     const ctx = cv.getContext('2d'), img = ctx.createImageData(W, W), d = img.data;
@@ -3749,6 +3860,7 @@ const Mini = (() => {
 /* ===== 啟動：支援 ?bank=banks/xxx.json ===== */
 load();
 document.body.classList.toggle('nofuri', !!db.noFuri);
+Sky.load();
 home();
 Mini.start();
 autoSync(true);
