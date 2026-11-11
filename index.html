@@ -3907,12 +3907,15 @@ if (bankUrl) {
   const idle = () => !S && !(document.getElementById('pad') || { classList: { contains: () => false } }).classList.contains('show');
   // 題庫：index.json 的 updated 變了就重抓整份線上題庫，有「新題庫」或「題庫有更新」就跳提示條（跟版本提示條分開；同一批內容按過「稍後」就不再跳）
   let bIdx = null, bLast = 0, bBusy = false, bDismissed = null;
+  const DIS = 'beishu.updDis';                                       // 「稍後」記在這台裝置：同一批內容重新整理也不再跳（有新內容才會再跳）
+  try { bDismissed = localStorage.getItem(DIS); } catch (e) { }
+  const bDismiss = key => { bDismissed = key; try { localStorage.setItem(DIS, key); } catch (e) { } };
   const bPend = () => (ghCache || []).filter(x => x.bank && ghStatus(x.bank) !== 'same');
   const bKey = ps => hash(ps.map(x => x.bank.id + '|' + ghStatus(x.bank) + '|' + hash(bankSig(x.bank))).join(','));
   function bBanner() {
     let el = document.getElementById('updb');
     const ps = bPend(), key = bKey(ps);
-    if (!ps.length || key === bDismissed || !idle() || !db.order.length) { if (el) el.remove(); return; }
+    if (!ps.length || String(key) === String(bDismissed) || !idle() || !db.order.length) { if (el) el.remove(); return; }
     const nn = ps.filter(x => ghStatus(x.bank) === 'new').length, nu = ps.length - nn;
     const txt = '📚 ' + [nn ? `有 ${nn} 份新題庫` : '', nu ? `${nu} 份題庫有更新` : ''].filter(Boolean).join('、');
     if (el) { el.firstChild.textContent = txt; return; }
@@ -3920,10 +3923,11 @@ if (bankUrl) {
     el.innerHTML = `<span>${txt}</span><button data-u="go">去看看</button><button data-u="later">稍後</button>`;
     el.onclick = e => {
       const u = e.target.dataset && e.target.dataset.u; if (!u) return;
-      bDismissed = bKey(bPend()); el.remove();
+      bDismiss(bKey(bPend())); el.remove();
       if (u === 'go') importView();
     };
     document.body.appendChild(el);
+    setTimeout(() => { if (el.isConnected) { bDismiss(bKey(bPend())); el.remove(); } }, 8000);   // 8 秒沒按就自己收起來，也算「稍後」
   }
   async function checkBanks(force) {
     if (bBusy || (!force && Date.now() - bLast < GAP)) return;
