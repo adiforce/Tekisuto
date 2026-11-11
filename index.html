@@ -2866,11 +2866,11 @@ function startQuiz(refs, opt) {
   const all = resolve(refs);
   if (!all.length) { toast('沒有可以挑戰的題目'); return; }
   const items = shuffle(all).slice(0, MAX_Q);
-  const n = items.length, maxHp = Math.min(10, Math.max(5, Math.ceil(n * .6)));   // 10 題＝6 顆愛心（原本 3 顆太容易倒下）
+  const n = items.length;
   S = {
     title: opt.title, boss: opt.boss, sub: opt.sub, recordBid: opt.recordBid || null, multi: isMulti(items), pool: refs,
     i: 0, correct: 0, wrong: [], answered: false, combo: 0, maxCombo: 0, exp: 0, coins: 0,
-    n, bossHp: n, hp: maxHp, maxHp,
+    n, bossHp: n, hp: 1,                                          // 不會倒下：hp 固定 1，答錯不扣
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
   SET.all = toRefs(S.items);
@@ -2898,9 +2898,8 @@ function startQuiz(refs, opt) {
 function updateHud() {
   const el = S && S.stageEl && S.stageEl.querySelector('#hud'); if (!el) return;
   const bp = S.bossHp / S.n * 100;
-  const hearts = Array.from({ length: S.maxHp }, (_, i) => `<span class="${i < S.hp ? '' : 'lost'}">♥</span>`).join('');
   el.innerHTML = `<div class="row"><span class="who">BOSS</span><div class="hpbar ${bp <= 25 ? 'low' : ''}"><i style="width:${bp}%"></i></div><span class="num">${S.bossHp}/${S.n}</span>
-      <div class="hearts" aria-label="剩餘生命 ${S.hp}">${hearts}</div></div>`;
+      </div>`;
   S.stageEl.querySelector('.qn').textContent = `${S.i + 1}/${S.n}`;
   S.stageEl.querySelector('.cb').innerHTML = S.combo >= 2 ? `<span class="combo pop">${S.combo}<small>COMBO</small></span>` : '';
 }
@@ -3019,9 +3018,9 @@ function pick(k) {
     const w = move === 'hit2' ? ['DOUBLE!', '二連擊！'] : cw ? [cw[1], cw[2]] : pickOne(HIT_WORDS);
     const tier = myTier(), ultName = S.ult + ULT_SUFFIX[tier];
     if (move === 'ult') {
-      const heal = !final && S.hp < S.maxHp;                  // 連續答對 3 題放大招，順便回 1 顆愛心
-      if (heal) S.hp++;
-      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…') + (heal ? '　💖 回復 1 顆愛心' : '');
+      const bonus = Math.min(S.combo / 3, 5) * 10;            // 連對獎勵：每 3 連擊放大招，額外 EXP（3 連 +10、6 連 +20…最多 +50）
+      S.exp += bonus;
+      say = `必殺技「${ultName}」命中！` + (final ? '' : '　BOSS 累得直喘氣…') + `　🔥 連對獎勵 EXP +${bonus}`;
       showCutin(ultName); SFX.ult(); vibrate([80, 40, 160]);
     } else {
       say = `${TIER_HIT[tier]}！${w[1]}`; showFx(w[0], w[1], true); SFX.hit(S.combo); vibrate(move === 'hit2' ? [30, 30, 50] : 30);
@@ -3032,9 +3031,9 @@ function pick(k) {
     if (!final) Boss3D.setAngry(S.bossHp / S.n <= .25);
     if (final) setTimeout(() => { showFx('K.O.!', 'BOSS 被擊倒了！', true); SFX.win(); }, koMs || (move === 'ult' ? 1500 : 650));
   } else {
-    S.wrong.push({ b: it.bid, q: it.q.id }); S.combo = 0; S.hp--;
+    S.wrong.push({ b: it.bid, q: it.q.id }); S.combo = 0;                   // 答錯只斷連擊，不扣命
     const atk = Boss3D.attack() || pickOne(CAT_ATTACKS);
-    say = `被「${atk.name}」打中了！` + (S.hp > 0 ? `　正解是 ${LETTER[right]}` : '　你倒下了…');
+    say = `被「${atk.name}」打中了！` + `　正解是 ${LETTER[right]}`;
     showFx(atk.hiss ? 'HISS!' : pickOne(['OUCH!', 'ARGH!', 'MEOW!']), atk.name + '！', false); SFX.hurt(); vibrate([60, 40, 60]);
     if (atk.claw) setTimeout(showClaw, 220);
     if (S.hp > 0 && S.i === S.items.length - 1) {          // 撐到最後一題還活著＝勝利，補上最後一擊
@@ -3045,19 +3044,18 @@ function pick(k) {
     app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
   }
   updateHud();
-  const done = S.hp <= 0 || S.i === S.items.length - 1;
+  const done = S.i === S.items.length - 1;
   const fb = document.getElementById('fb');
   fb.innerHTML = `<div class="panel fb ${ok ? 'ok' : 'ng'}">
       <div class="say">${esc(say)}${gain > 0 ? `<span class="coin">💰 +${gain}</span>` : gain === 0 ? '<span class="coin none">💰 已領過</span>' : gain === -2 ? '<span class="coin none">💡 看了提示，不給金幣</span>' : ''}</div>
       ${it.q.explain ? `<p>${fmt(it.q.explain)}</p>` : ''}
     </div>
-    ${S.hp <= 0 && db.revives ? `<button class="btn go wide revbtn" data-act="useRevive">💖 使用復活卡（剩 ${db.revives} 張）</button>` : ''}
-    <button class="btn ${S.hp <= 0 && db.revives ? '' : 'go '}wide nextbtn" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
+    <button class="btn go wide nextbtn" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
   setTimeout(() => fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
 }
 function next() {
   if (!S) return;
-  if (S.hp > 0 && S.i < S.items.length - 1) { S.i++; renderQ(); } else result();
+  if (S.i < S.items.length - 1) { S.i++; renderQ(); } else result();
 }
 const RANK_ORDER = ['C', 'B', 'A', 'S'];
 // 今日計數（dn 打贏、dl 被打趴、dq 撤退）：換日歸零
@@ -3087,7 +3085,7 @@ function recordQuit() {
 function result() {
   Boss3D.stop();
 
-  const n = S.n, win = S.hp > 0, pct = S.correct / n;
+  const n = S.n, win = true, pct = S.correct / n;                 // 不會倒下：打完一定算過關
   const rank = !win ? null : pct >= 1 ? 'S' : pct >= .85 ? 'A' : pct >= .7 ? 'B' : 'C';
   const LINES = {
     S: '完美擊破！這一課已經被你征服了！', A: '超強！只差一點就完美了！',
@@ -3147,7 +3145,8 @@ function result() {
       ${!win ? `<button class="btn ${wn ? '' : 'go'} span2" data-act="retry">重新挑戰</button>` : ''}
       ${win && !wn ? `<button class="btn go" data-act="cardsAllLast">修練卡複習</button>` : ''}
       <button class="btn ${win && !wn ? '' : 'span2'}" data-act="home">回基地</button>
-    </div>`;
+    </div>
+    ${wn ? `<div class="sec-h"><h2>錯題詳解（${wn} 題）</h2></div>${rvItems(resolve(S.wrong), isMulti(resolve(S.wrong)))}` : ''}`;
   SET.retry = { refs: S.pool, title: S.title, boss: S.boss, sub: S.sub, recordBid: S.recordBid };
   S = null;
   window.scrollTo(0, 0);
@@ -3226,13 +3225,8 @@ function gallery() {
 }
 
 /* ===== 作戰筆記（錯題重點） ===== */
-function review(refs, title) {
-  Boss3D.stop();
-  const items = resolve(refs), multi = isMulti(items);
-  SET.rev = { title, refs: toRefs(items), sub: multi ? '' : (items[0] || {}).sub };
-  setTheme(SET.rev.sub);
-  let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>作戰筆記｜${esc(title)}</h1></header>`;
-  if (!items.length) h += `<div class="empty"><p class="big">沒有錯題，全部擊破！</p></div>`;
+function rvItems(items, multi) {
+  let h = '';
   items.forEach((it, i) => {
     const q = it.q;
     h += `<article class="panel rv">
@@ -3246,6 +3240,16 @@ function review(refs, title) {
       ${q.mnemonic ? `<div class="mn"><b>💡 必殺口訣</b><p>${fmt(q.mnemonic)}</p></div>` : ''}
     </article>`;
   });
+  return h;
+}
+function review(refs, title) {
+  Boss3D.stop();
+  const items = resolve(refs), multi = isMulti(items);
+  SET.rev = { title, refs: toRefs(items), sub: multi ? '' : (items[0] || {}).sub };
+  setTheme(SET.rev.sub);
+  let h = `<header class="top"><button class="icon" data-act="home" aria-label="返回">‹</button><h1>作戰筆記｜${esc(title)}</h1></header>`;
+  if (!items.length) h += `<div class="empty"><p class="big">沒有錯題，全部擊破！</p></div>`;
+  h += rvItems(items, multi);
   if (items.length) h += `<div class="grid"><button class="btn" data-act="cardsReview">修練這些</button><button class="btn go" data-act="quizReview">馬上再戰</button></div>`;
   app.innerHTML = h;
   window.scrollTo(0, 0);
