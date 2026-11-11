@@ -251,13 +251,15 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .sky.fixed .dim{background:rgba(50,60,80,.1)}.sky.fixed .dim.hv{background:rgba(35,42,66,.18)}.sky.fixed .night{background:rgba(8,16,60,.16)}
 .sky .fog{background:linear-gradient(rgba(255,255,255,.3),rgba(255,255,255,.1) 60%,rgba(255,255,255,.32));animation:skypulse 7s ease-in-out infinite}
 .sky .fl{background:#fff;opacity:0;animation:skyflash 7s infinite}
-.sky .sun{inset:auto;right:-10%;top:-22%;width:75%;height:75%;background:radial-gradient(circle,rgba(255,240,170,.55),transparent 65%);animation:skypulse 6s ease-in-out infinite}
+.sky .sun{inset:auto;right:-10%;top:-22%;width:80%;height:80%;background:radial-gradient(circle,rgba(255,244,180,.75),rgba(255,230,120,.25) 45%,transparent 68%);animation:skypulse 5s ease-in-out infinite}
+.sky .heat{top:30%;background:repeating-linear-gradient(0deg,rgba(255,255,255,0) 0 9px,rgba(255,255,255,.2) 9px 13px);-webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%);animation:skyheat 3.2s ease-in-out infinite}   /* 熱浪：往上飄的晃動亮帶 */
+@keyframes skyheat{0%,100%{transform:translateY(0) skewX(0)}25%{transform:translateY(-5px) skewX(1.2deg)}50%{transform:translateY(-10px) skewX(0)}75%{transform:translateY(-5px) skewX(-1.2deg)}}
 .sky i{position:absolute;top:-10%;display:block;animation-delay:var(--dl),var(--dl);animation-duration:var(--d),calc(var(--d)/3);animation-iteration-count:infinite;animation-timing-function:linear,ease-in-out}
-.sky i.pt{width:7px;height:5px;border-radius:70% 0 70% 0;background:#FFB7D5;animation-name:skyfall,skysway}
-.sky i.lf{width:7px;height:6px;border-radius:2px 80% 2px 80%;background:var(--lc);animation-name:skyfall,skysway}
-.sky i.sn{width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 3px #fff;animation-name:skyfall,skydrift}
-.sky i.rn{width:1.5px;height:14px;background:linear-gradient(transparent,rgba(190,225,255,.85));transform:rotate(14deg);animation-name:skyfall}
-.sky i.cd{top:var(--y);left:-40%;width:38%;height:14%;background:rgba(255,255,255,.38);border-radius:50px;filter:blur(3px);animation-name:skycloud;animation-duration:var(--d);animation-timing-function:linear}
+.sky i.skp{width:12px;height:12px;background:linear-gradient(#FFD3E4,#FF9EC0);clip-path:polygon(50% 100%,6% 46%,14% 6%,38% 0,50% 22%,62% 0,86% 6%,94% 46%);animation-name:skyfall,skysway}   /* 櫻花瓣：上緣有缺口 */
+.sky i.skl{width:11px;height:11px;background:var(--lc);clip-path:polygon(50% 0,60% 18%,80% 10%,75% 36%,98% 38%,80% 56%,92% 74%,62% 68%,54% 100%,46% 100%,38% 68%,8% 74%,20% 56%,2% 38%,25% 36%,20% 10%,40% 18%);animation-name:skyfall,skysway}   /* 楓葉 */
+.sky i.sks{width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 3px #fff;animation-name:skyfall,skydrift}
+.sky i.skr{width:1.5px;height:14px;background:linear-gradient(transparent,rgba(190,225,255,.85));transform:rotate(14deg);animation-name:skyfall}
+.sky i.skc{top:var(--y);left:-40%;width:38%;height:14%;background:rgba(255,255,255,.38);border-radius:50px;filter:blur(3px);animation-name:skycloud;animation-duration:var(--d);animation-timing-function:linear}
 @keyframes skyfall{from{top:-10%}to{top:105%}}
 @keyframes skysway{0%,100%{transform:translateX(-12px) rotate(-20deg)}50%{transform:translateX(12px) rotate(160deg)}}
 @keyframes skydrift{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
@@ -265,7 +267,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 @keyframes skypulse{0%,100%{opacity:.6}50%{opacity:1}}
 @keyframes skyflash{0%,93%,100%{opacity:0}94%{opacity:.3}95%{opacity:.05}96%{opacity:.25}98%{opacity:0}}
 .wxchip{font-size:13px;font-weight:700;margin:-8px 0 12px;opacity:.85}
-@media (prefers-reduced-motion:reduce){.sky i,.sky .fl{display:none}.sky .fog,.sky .sun{animation:none}}
+@media (prefers-reduced-motion:reduce){.sky i,.sky .fl{display:none}.sky .fog,.sky .sun,.sky .heat{animation:none}}
 
 /* ===== 戰鬥（測驗） ===== */
 .hud{padding:10px 12px;margin-bottom:16px}
@@ -2032,15 +2034,15 @@ const Sky = (() => {
     if (k === 'cloud' || k === 'rain' || k === 'storm') h += `<b class="dim${k === 'storm' ? ' hv' : ''}"></b>`;
     if (k === 'fog') h += '<b class="fog"></b>';
     if (isNight()) h += '<b class="night"></b>';
-    if (k === 'rain' || k === 'storm') h += parts('rn', Math.round(26 * n), .55, .95);
-    else if (k === 'snow') h += parts('sn', Math.round(22 * n), 5, 9);
+    if (k === 'rain' || k === 'storm') h += parts('skr', Math.round(26 * n), .55, .95);
+    else if (k === 'snow') h += parts('sks', Math.round(22 * n), 5, 9);
     else {
-      if (se === 'sp') h += parts('pt', Math.round(14 * n), 6, 11);
-      if (se === 'au') h += parts('lf', Math.round(12 * n), 6, 11, () => `--lc:${['#E8742A', '#C0452B', '#E9B03A', '#A5622B'][Math.floor(Math.random() * 4)]}`);
-      if (se === 'wi') h += parts('sn', Math.round(10 * n), 6, 10);
-      if (se === 'su' && k === 'clear' && !isNight()) h += '<b class="sun"></b>';
+      if (se === 'sp') h += parts('skp', Math.round(14 * n), 6, 11);
+      if (se === 'au') h += parts('skl', Math.round(12 * n), 6, 11, () => `--lc:${['#E8742A', '#C0452B', '#E9B03A', '#A5622B'][Math.floor(Math.random() * 4)]}`);
+      if (se === 'wi') h += parts('sks', Math.round(10 * n), 6, 10);
+      if (se === 'su' && !isNight() && k !== 'fog') h += (k === 'clear' ? '<b class="sun"></b>' : '') + '<b class="heat"></b>';   // 夏天白天：陽光（晴）＋熱浪
     }
-    if (!home && (k === 'cloud' || k === 'storm')) h += Array.from({ length: 3 }, (_, i) => `<i class="cd" style="--y:${8 + i * 17}%;--d:${(28 + i * 9)}s;--dl:-${i * 11}s"></i>`).join('');
+    if (!home && (k === 'cloud' || k === 'storm')) h += Array.from({ length: 3 }, (_, i) => `<i class="skc" style="--y:${8 + i * 17}%;--d:${(28 + i * 9)}s;--dl:-${i * 11}s"></i>`).join('');
     if (k === 'storm') h += '<b class="fl"></b>';
     return `<div class="sky${home ? ' fixed' : ''}" data-sky="${mode}" aria-hidden="true">${h}</div>`;
   }
