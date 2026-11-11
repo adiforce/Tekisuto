@@ -71,7 +71,7 @@ header.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px;min-height
 header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ===== 首頁 ===== */
-.logo{display:flex;align-items:flex-end;gap:10px;margin:8px 0 18px}
+.logo{display:flex;align-items:center;gap:10px;margin:6px 0 10px}
 .logo h1{margin:0;flex:1;font-size:40px;line-height:1;font-weight:900;letter-spacing:.02em;transform:skew(-8deg);
   color:var(--paper);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;
   text-shadow:4px 4px 0 var(--ink)}
@@ -284,7 +284,8 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 @keyframes skycloud{to{transform:translateX(380%)}}
 @keyframes skypulse{0%,100%{opacity:.6}50%{opacity:1}}
 @keyframes skyflash{0%,93%,100%{opacity:0}94%{opacity:.3}95%{opacity:.05}96%{opacity:.25}98%{opacity:0}}
-.wxchip{font-size:13px;font-weight:700;margin:-8px 0 12px;opacity:.85}
+.wxchip{font-size:14px;font-weight:700;opacity:.85}
+.logo .wxchip{flex:1;margin:0}
 @media (prefers-reduced-motion:reduce){.sky i,.sky .fl{display:none}.sky .fog,.sky .sun,.sky .heat{animation:none}}
 
 /* ===== 戰鬥（測驗） ===== */
@@ -1536,9 +1537,9 @@ function home() {
   Boss3D.stop(); S = null; C = null; window.scrollTo(0, 0); setTheme(''); Music.base(true);
   const list = db.order.filter(id => db.banks[id]);
   const L = levelOf(db.exp);
-  let h = `<div class="logo"><h1><small>今天也要變強</small>背書小幫手</h1>
+  let h = `<div class="logo">${Sky.chipHtml()}
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音量">${!db.sound ? '🔇' : db.vol === 's' ? '🔈' : db.vol === 'm' ? '🔉' : '🔊'}</button></div>
-    ${Sky.chipHtml()}${Sky.html('home')}
+    ${Sky.html('home')}
     <section class="panel me cmp" data-act="profile"${frAttr(L.lv)}><span class="go-prof">個人資料 ›</span>
       <div class="lv"><img class="hero" src="${Hero.url(L.lv)}" alt="勇者貓"><div class="n">LV ${L.lv}</div></div>
       <div class="info">
