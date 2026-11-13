@@ -1372,7 +1372,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', mini: true, revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, cards: 0, revives: 0, stats: {}, seen: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', mini: true, revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, qlv: {}, cool: {}, bseq: 0, cards: 0, revives: 0, stats: {}, seen: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -1454,6 +1454,17 @@ function remapIds(bid) {
       tbl[nk] = Math.max(tbl[nk] || 0, tbl[k] || 0); delete tbl[k]; changed = true;
     }
   }
+  if (db.qlv) {                                                              // 題目等級：[等級, 時間]，新舊 id 都有就留時間新的
+    const pre = bid + '|';
+    for (const k of Object.keys(db.qlv)) {
+      if (!k.startsWith(pre)) continue;
+      const q = k.slice(pre.length), to = mv(q);
+      if (to === q) continue;
+      const nk = pre + to, o = db.qlv[nk];
+      if (!o || (o[1] || 0) < (db.qlv[k][1] || 0)) db.qlv[nk] = db.qlv[k];
+      delete db.qlv[k]; changed = true;
+    }
+  }
   return changed;
 }
 function addBank(b) {
@@ -1493,6 +1504,42 @@ function earnQ(bid, qid) {
   const k = bid + '|' + qid, n = db.qwin[k] || 0, g = COIN_Q[n] || 0;
   db.qwin[k] = n + 1; db.coins += g; save();
   return g;
+}
+
+/* ===== 題目等級：挑戰 BOSS 抽題用 =====
+   1 級＝沒答過；2 級＝最近一次答錯；3 級＝答對但慢；4 級＝答對且快。db.qlv['題庫id|題目id'] = [等級, 時間]。
+   抽題比例 1 級 65%／2 級 20%／3 級 10%／4 級 5%；某級不夠就依 1→2→3→4 的順序補給其他級。
+   冷卻：剛答錯的題（db.cool[key] ＝答錯當下的 db.bseq）下一場挑戰先不抽，隔一場才會再出現；不夠 n 題時才補回來。cool／bseq 只存這台裝置，不進雲端。
+   「快」＝作答秒數 ≥ 1 且 ≤ 題幹字數 × 0.2 + 2（只算頁面在前景的時間，單題封頂 30 秒）。 */
+const LV_RATIO = [.65, .2, .1, .05], LV_MAXSEC = 30;
+function qLevel(bid, qid) {
+  const e = (db.qlv || {})[bid + '|' + qid]; if (e) return e[0];
+  if (wrongSet(bid).has(qid)) return 2;                                    // 舊紀錄（還沒有等級）：錯題算 2 級
+  return (db.qwin[bid + '|' + qid] || 0) > 0 ? 3 : 1;                      // 答對過但沒速度資料算 3 級
+}
+const isFast = (q, sec) => sec >= 1 && sec <= plain(q.q).length * .2 + 2;
+function setQLevel(bid, qid, ok, sec, q, hinted) {
+  if (!db.qlv) db.qlv = {};
+  db.qlv[bid + '|' + qid] = [!ok ? 2 : (!hinted && isFast(q, sec)) ? 4 : 3, Date.now()];
+  if (!db.cool) db.cool = {};
+  if (!ok) db.cool[bid + '|' + qid] = db.bseq || 0; else delete db.cool[bid + '|' + qid];
+}
+// 依等級比例抽 n 題（all 是 resolve() 的結果）
+function pickByLevel(all, n) {
+  if (all.length <= n) return all.slice();
+  const g = [[], [], [], []], cooled = [], cool = db.cool || {};
+  shuffle(all.slice()).forEach(it => {
+    const k = it.bid + '|' + it.q.id, lv = qLevel(it.bid, it.q.id);
+    if (lv === 2 && cool[k] === (db.bseq || 0)) cooled.push(it); else g[lv - 1].push(it);     // 上一場剛答錯的先冷卻
+  });
+  const quota = LV_RATIO.map(r => Math.floor(r * n));
+  let left = n - quota.reduce((a, b) => a + b, 0);
+  LV_RATIO.map((r, i) => [r * n - quota[i] + Math.random() * 1e-6, i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0) { quota[i]++; left--; } });
+  const out = [];
+  g.forEach((arr, i) => out.push(...arr.splice(0, quota[i])));
+  for (let i = 0; i < 4 && out.length < n; i++) out.push(...g[i].splice(0, n - out.length));   // 不夠的名額依 1→2→3→4 補
+  if (out.length < n) out.push(...cooled.splice(0, n - out.length));                          // 還是不夠才把冷卻中的補回來
+  return out;
 }
 
 /* ===== 題目清單（可跨題庫）：ref = { b: 題庫id, q: 題目id } ===== */
@@ -1789,7 +1836,7 @@ function profile() {
 
 /* ===== 雲端紀錄：進度存到 Google 試算表（Apps Script），題庫不存，匯入時從 GitHub 抓 ===== */
 const SYNC_URL = 'https://script.google.com/macros/s/AKfycbwFXemiamsVHKCFKHBcBw923EWK5I6juwYzz0tywW1McYuaD2WpKSueoR5RybEioYCo/exec';
-const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'cards', 'revives', 'stats', 'wd'];
+const PROG = ['order', 'wrong', 'last', 'best', 'exp', 'kills', 'coins', 'qwin', 'qlv', 'cards', 'revives', 'stats', 'wd'];
 const SYNC_NAME = 'beishu.syncName', SYNC_BAK = 'beishu.v1.bak';
 // 還沒設定過雲端紀錄（沒存過、也沒匯入過）時，首頁和戰果頁顯示的提醒，點了進 💾 頁
 const syncTip = () => SYNC_URL && !localStorage.getItem(SYNC_NAME) ? '<button class="sync-tip" data-act="syncView">☁️ 還沒設定雲端紀錄 → 點這裡設定</button>' : '';
@@ -1896,6 +1943,11 @@ function mergeProg(L, B, C) {
   out.wd = [].concat(C.wd || [], L.wd || []).filter(x => x && x.at && x.n > 0 && !wdSeen.has(x.at + '|' + x.n) && wdSeen.add(x.at + '|' + x.n)).sort((a, b) => a.at - b.at);
   out.qwin = {};
   ids(g(L, 'qwin'), g(C, 'qwin')).forEach(k => { out.qwin[k] = add(g(L, 'qwin')[k], B && g(B, 'qwin')[k], g(C, 'qwin')[k]); });
+  out.qlv = {};                                                              // 題目等級：兩邊都有就取時間新的
+  ids(g(L, 'qlv'), g(C, 'qlv')).forEach(k => {
+    const l = g(L, 'qlv')[k], c = g(C, 'qlv')[k];
+    out.qlv[k] = !c || (l && (l[1] || 0) >= (c[1] || 0)) ? l : c;
+  });
   out.stats = {};
   ids(g(L, 'stats'), g(C, 'stats')).forEach(id => {
     const l = g(L, 'stats')[id], c = g(C, 'stats')[id], b = B && g(B, 'stats')[id] || null;
@@ -3003,7 +3055,12 @@ const MAX_Q = 10;
 function startQuiz(refs, opt) {
   const all = resolve(refs);
   if (!all.length) { toast('沒有可以挑戰的題目'); return; }
-  const items = shuffle(all).slice(0, MAX_Q);
+  const items = opt.recordBid ? pickByLevel(all, MAX_Q) : shuffle(all).slice(0, MAX_Q);
+  if (opt.recordBid) {                                                      // 挑戰場次序號 +1，順便清掉過期的冷卻
+    db.bseq = (db.bseq || 0) + 1;
+    for (const k of Object.keys(db.cool || {})) if (db.cool[k] < db.bseq - 1) delete db.cool[k];
+    save();
+  }   // 挑戰 BOSS 依題目等級抽，其他（錯題、復仇）維持原樣
   const n = items.length;
   S = {
     title: opt.title, boss: opt.boss, sub: opt.sub, recordBid: opt.recordBid || null, multi: isMulti(items), pool: refs,
@@ -3044,6 +3101,7 @@ function updateHud() {
 function renderQ() {
   const it = S.items[S.i];
   S.answered = false;
+  S.tAcc = 0; S.tStart = document.hidden ? null : performance.now();        // 計時：只算頁面在前景的時間
   app.innerHTML = `<div id="stageSlot"></div>
     <div class="panel qcard">
       ${S.multi ? srcTag(it) : ''}
@@ -3125,6 +3183,9 @@ function pick(k) {
     const why = it.q.why && it.q.why[it.order[j]];
     if (j !== right && why) bt.lastElementChild.insertAdjacentHTML('beforeend', `<small class="why">✘ ${fmt(why)}</small>`);
   });
+  const sec = Math.min(LV_MAXSEC, (S.tAcc + (S.tStart != null ? performance.now() - S.tStart : 0)) / 1000);
+  S.tStart = null;
+  setQLevel(it.bid, it.q.id, ok, sec, it.q, it.hinted);
   const noCoin = bankNoCoin(it.bid);                                // 不給金幣的題庫：答對沒有金幣（經驗、復仇消滅數照算）
   if (ok && wrongSet(it.bid).has(it.q.id)) dayStat().cleared++;                 // 原本是錯題、這次答對＝消滅一題（每個科目都算）
   markWrong(it.bid, it.q.id, !ok);
@@ -3894,6 +3955,12 @@ Sky.load();
 home();
 Mini.start();
 autoSync(true);
+document.addEventListener('visibilitychange', () => {                // 作答計時：切到背景就暫停，切回來接著算
+  if (S && !S.answered && S.tStart !== undefined) {
+    if (document.hidden) { if (S.tStart != null) { S.tAcc += performance.now() - S.tStart; S.tStart = null; } }
+    else if (S.tStart == null) S.tStart = performance.now();
+  }
+});
 document.addEventListener('visibilitychange', () => autoSync(!document.hidden));   // 切到背景先上傳；切回來抓另一台的新進度
 const bankUrl = new URLSearchParams(location.search).get('bank');
 if (bankUrl) {

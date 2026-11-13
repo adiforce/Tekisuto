@@ -91,12 +91,14 @@ jp-kana-*.json（根目錄）    舊版遺留檔，播放器不讀
 | 草稿紙 | `Pad` 模組：全螢幕空白畫布（canvas＋指標事件），作答時在上方顯示題目、附圖、選項。入口是戰鬥頂列的 ✏️（首頁的按鈕已拿掉，`ACT.padOpen` 還在）。筆畫只存在記憶體，換題或換場戰鬥就清空；用過 Apple Pencil 後手指觸碰不畫（防手掌誤觸）；草稿紙內文字一律不可選取，並擋掉 selectstart／contextmenu、有選取就清掉（iPad 長按會跳出全選並吃掉下一次點擊） |
 | 季節與天氣 | `Sky` 模組（在 `Scene` 前面）：季節依月份（3–5 春、6–8 夏、9–11 秋、12–2 冬），天氣向 Open-Meteo（免金鑰、台北座標、快取 30 分鐘 `beishu.wx`）抓，抓不到就只有季節；`Sky.html('home'｜'stage')` 疊在首頁（固定整頁）和魔王背景（`Scene.html` 裡）上：色調＋飄落特效（春櫻花瓣（clip-path 缺口）、秋楓葉、冬雪、雨、雷雨閃光、雲、霧、夏天陽光＋熱浪（`.heat`，往上飄的晃動亮帶）、夜晚變暗），不吃點擊，減少動態時只留色調；首頁最上面一列左邊 `.wxchip` 顯示季節與天氣（右邊是 💾、🔊）；`Sky.outfit()` 決定魔王服裝（`drawCat` 最後的 `outfit()`：春別花、夏墨鏡（大太陽＝晴天白天且夏天或 ≥28°C → 戴在眼睛上；陰天或生氣時推到額頭；下雨不戴）、秋橘圍巾、冬藍白圍巾＋耳罩、下雨撐傘；倒下不穿），`Boss3D.sprite` 快取 key 含 `Sky.outfitKey()`。預覽：網址加 `?season=sp\|su\|au\|wi`、`?wx=clear\|cloud\|rain\|storm\|snow\|fog`、`?night=1` |
 | 魔王背景 | `Scene` 模組：依科目 kind 用 SVG 方塊拼 96×56 的點陣場景，貼在 three.js 舞台後面，新增科目時要在 `D` 裡補一個 kind |
-| 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result`；一場最多 `MAX_Q`（10）題，超過就隨機抽，重新挑戰時從整份重抽 |
+| 戰鬥 | `startQuiz` → `renderQ` → `pick` → `next` → `result`；一場最多 `MAX_Q`（10）題，超過就抽，重新挑戰時從整份重抽：挑戰 BOSS（有 `recordBid`）依題目等級抽（`pickByLevel`，見 db 欄位 `qlv`），錯題再戰、復仇戰維持隨機／最久沒碰優先 |
 | 事件 | `ACT` 物件：`data-act="xxx"` 的按鈕點下去會呼叫 `ACT.xxx(dataset, el)` |
 
 ### db 欄位
 
-`banks, order, wrong, last, best, exp, kills, sound, coins, qwin, cards, revives, stats, wd, seen`，另有 `subHome`、`subGh` 是篩選狀態。
+`banks, order, wrong, last, best, exp, kills, sound, coins, qwin, qlv, cards, revives, stats, wd, seen`，另有 `subHome`、`subGh` 是篩選狀態。
+
+- `qlv['題庫id|題目id'] = [等級, 時間]`：題目等級，每次作答（任何模式）在 `pick()` 用 `setQLevel()` 更新。1 級沒答過（沒紀錄）、2 級最近一次答錯、3 級答對但慢、4 級答對且快（看過提示算慢）。「快」＝作答秒數 ≥ 1 且 ≤ 題幹字數（`plain()` 後）× 0.2 + 2；計時從 `renderQ()` 開始、只算頁面在前景的時間（`S.tAcc`／`S.tStart`，visibilitychange 暫停），單題封頂 `LV_MAXSEC`（30 秒）。沒有 `qlv` 紀錄的舊資料由 `qLevel()` 推：在錯題裡算 2 級、`qwin` > 0 算 3 級、其餘 1 級。挑戰 BOSS 抽題比例 `LV_RATIO`＝1 級 65%／2 級 20%／3 級 10%／4 級 5%（`pickByLevel(all, n)`，名額小數用餘數大的先拿、餘數相同隨機，所以 10 題時 1 級平均 6.5 題、4 級平均 0.5 題），某級不夠依 1→2→3→4 補。冷卻：剛答錯的題（`db.cool[key]`＝答錯當下的 `db.bseq`，挑戰場次序號，每開一場挑戰 +1）下一場挑戰先不抽，隔一場再出現，不夠 10 題才補回來；`cool`／`bseq` 只存這台裝置，不進 `PROG`。`qlv` 在 `PROG`、`mergeProg`（同 key 取時間新的）、`remapIds`（換 id）都有處理。
 
 - `cards`：刪去卡張數；`revives`：已停用，欄位保留只為了舊雲端紀錄相容（不顯示、不再發放）。升級時每級抽一次：30% 刪去卡、30% 金幣 +10、40% 沒有（復活卡已移除）。
 - 不會倒下：答錯只斷連擊、不扣命（`S.hp` 固定 1，愛心 UI 已拿掉）；每 3 連擊放大招額外給 EXP（3 連 +10、6 連 +20…最多 +50，`Math.min(combo/3,5)*10`），同時每連對 3 題 +3 元（`COMBO_COIN`，不給金幣的題庫、看過提示的題不算，之後從 1 重新數）。打完一律算過關（敗北不再發生）。戰果頁最下面直接接「錯題詳解」（`rvItems()`，和作戰筆記共用）。
