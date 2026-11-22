@@ -259,7 +259,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 
 
 /* ===== 季節與天氣：疊在首頁（整個畫面）和魔王背景（舞台內）上的色調＋飄落特效，不吃點擊 ===== */
-.sky{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.sky{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;container-type:size}
 .sky.fixed{position:fixed;z-index:4}
 .sky>b{position:absolute;inset:0;display:block}
 .sky .t-sp{background:rgba(255,170,205,.14)}.sky .t-su{background:rgba(255,214,90,.12)}
@@ -278,7 +278,7 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .sky i.sks{width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 3px #fff;animation-name:skyfall,skydrift}
 .sky i.skr{width:1.5px;height:14px;background:linear-gradient(transparent,rgba(190,225,255,.85));transform:rotate(14deg);animation-name:skyfall}
 .sky i.skc{top:var(--y);left:-40%;width:38%;height:14%;background:rgba(255,255,255,.38);border-radius:50px;filter:blur(3px);animation-name:skycloud;animation-duration:var(--d);animation-timing-function:linear}
-@keyframes skyfall{from{top:-10%}to{top:105%}}
+@keyframes skyfall{from{translate:0 0}to{translate:0 115cqh}}   /* 用 translate 往下掉（只動合成層），不要動 top（每格都要重新排版，很耗電） */
 @keyframes skysway{0%,100%{transform:translateX(-12px) rotate(-20deg)}50%{transform:translateX(12px) rotate(160deg)}}
 @keyframes skydrift{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
 @keyframes skycloud{to{transform:translateX(380%)}}
@@ -287,6 +287,9 @@ header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;
 .wxchip{font-size:14px;font-weight:700;opacity:.85}
 .logo .wxchip{flex:1;margin:0}
 @media (prefers-reduced-motion:reduce){.sky i,.sky .fl{display:none}.sky .fog,.sky .sun,.sky .heat{animation:none}}
+/* 省電：閒置（html.calm）時把一直循環的裝飾動畫停在原地 */
+html.calm :is(.sky *,.me[data-fr],.bank.frozen,.bank.revenge,.bank.revenge .band,.bank.revenge .body,.scene .cl,.scene .tw,#mini .zz i),
+html.calm :is(.me[data-fr],.bank.frozen)::before,html.calm .me[data-fr]::after{animation-play-state:paused!important}
 
 /* ===== 戰鬥（測驗） ===== */
 .hud{padding:10px 12px;margin-bottom:16px}
@@ -1022,6 +1025,15 @@ async function copyText(t) {
 const vibrate = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
 
 /* ===== 音效（Web Audio 合成，不用音檔） ===== */
+/* ===== 省電：8 秒沒碰畫面，<html> 加上 calm，一直循環的裝飾動畫（天氣、外框、結冰、復仇卡…）先停；一碰就恢復。3D 魔王也會降格數 ===== */
+const Calm = (() => {
+  const IDLE = 8000; let tm = 0, on = false;
+  const set = v => { if (v === on) return; on = v; document.documentElement.classList.toggle('calm', v); };
+  const poke = () => { set(false); clearTimeout(tm); tm = setTimeout(() => set(true), IDLE); };
+  ['pointerdown', 'keydown', 'wheel', 'touchmove'].forEach(e => addEventListener(e, poke, { passive: true, capture: true }));
+  poke();
+  return { get on() { return on; } };
+})();
 let actx = null;
 // 音量：大／中／小（總音量一個 gain，所有聲音都先經過它；大＝原本的音量）
 const VOLS = { l: 1, m: .55, s: .25 };
@@ -1031,11 +1043,26 @@ function outNode() {
   masterG.gain.value = VOLS[db.vol] || 1;
   return masterG;
 }
+// 省電：音效引擎開著就算沒聲音，iPad 的音訊硬體也會一直醒著耗電；所以沒在出聲就讓它睡，要出聲時再叫醒
+let audioUntil = 0, audioNapT = 0, audioBusy = () => false;     // audioBusy 由 Music 換成「還有音樂在播」
+function audioWake(sec) {
+  if (!actx) return;
+  if (actx.state !== 'running' && actx.state !== 'closed' && !document.hidden) actx.resume().catch(() => {});
+  audioUntil = Math.max(audioUntil, Date.now() + (sec || 0) * 1000 + 4000);   // 播完再多留 4 秒，接著的音效不用重新叫醒
+  clearTimeout(audioNapT); audioNapT = setTimeout(audioNap, audioUntil - Date.now());
+}
+function audioNap() {
+  if (!actx || actx.state !== 'running') return;
+  const left = audioUntil - Date.now();
+  if (left > 50) { audioNapT = setTimeout(audioNap, left); return; }
+  if (audioBusy()) { audioNapT = setTimeout(audioNap, 3000); return; }
+  actx.suspend().catch(() => {});
+}
 function tone(freq, dur, type = 'square', when = 0, vol = .08) {
   if (!db.sound) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
+    audioWake(when + dur);
     const t = actx.currentTime + when, o = actx.createOscillator(), g = actx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t);
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
@@ -1047,6 +1074,7 @@ function sweep(f1, f2, dur, type = 'sawtooth', when = 0, vol = .06) {
   if (!db.sound) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    audioWake(when + dur);
     const t = actx.currentTime + when, o = actx.createOscillator(), g = actx.createGain();
     o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
@@ -1058,6 +1086,7 @@ function noise(dur, when = 0, vol = .1, lp = 2000, lpEnd = 200) {
   if (!db.sound) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    audioWake(when + dur);
     const t = actx.currentTime + when, n = Math.floor(actx.sampleRate * dur);
     const buf = actx.createBuffer(1, n, actx.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
@@ -1223,7 +1252,8 @@ const SLOT_ALIAS = { lose: ['lose', 'lost'] };               // 檔名別名：l
 const Music = (() => {
   const slots = {}, live = new Set();
   let loaded = false, want = false, baseH = null, resH = null, resTimer = 0, baseDone = false, holdUntil = 0, baseTimer = 0;
-  const ctxOk = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); return actx; };
+  const ctxOk = () => { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); audioWake(0); return actx; };
+  audioBusy = () => live.size > 0;
   async function loadOne(name) {
     for (const f of SLOT_ALIAS[name] || [name]) {
       for (const ext of ['mp3', 'm4a']) {                    // mp3 優先，其次 m4a（AAC，iPhone／Chrome 都能解）
@@ -1244,6 +1274,7 @@ const Music = (() => {
     if (!sl || !db.sound) return null;
     try {
       const ctx = ctxOk(), out = ctx.createGain(), t0 = ctx.currentTime + .05; let halt = () => {};
+      audioWake(secs(name));
       out.gain.value = cfg.vol; out.connect(outNode());
       if (sl.buf) {
         const src = ctx.createBufferSource(); src.buffer = sl.buf; src.connect(out);
@@ -1308,7 +1339,7 @@ document.addEventListener('pointerdown', () => Music.load(), { once: true });
 // 切到別的分頁、鎖屏就暫停，回來再接著播
 document.addEventListener('visibilitychange', () => {
   if (!actx) return;
-  if (document.hidden) actx.suspend().catch(() => {}); else if (db.sound) actx.resume().catch(() => {});
+  if (document.hidden) actx.suspend().catch(() => {}); else if (db.sound && audioBusy()) audioWake(0);   // 回來時有音樂在播才叫醒，其它等下次出聲
 });
 // 升級號角（原創）：G4 C5 E5 G5 上爬 → F5、A5 → C6 大和弦
 function lvupSfx(custom) {
@@ -2532,7 +2563,7 @@ const Boss3D = (() => {
     try {
       if (!renderer) {
         renderer = new T.WebGLRenderer({ antialias: false, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));      // 點陣貓用 1.5 倍就夠清楚，2 倍要多畫快一倍的像素
       }
     } catch (e) { renderer = null; return false; }
     const scene = new T.Scene();
@@ -2584,7 +2615,11 @@ const Boss3D = (() => {
     if (!R) return;
     R.raf = requestAnimationFrame(loop);
     if (document.hidden) return;
-    const now = performance.now(), dt = Math.min(.05, (now - R.last) / 1000); R.last = now;
+    // 省電：有招式／特效時每秒約 30 格，只是站著呼吸約 20 格，一陣子沒碰畫面（Calm）約 10 格；沒到時間就不畫
+    const busy = R.tweens.length || R.parts.length || R.flash > 0 || R.shake > 0 || R.hurt > 0 || R.dizzy || R.angry;
+    const now = performance.now();
+    if (now - R.last < (busy ? 30 : Calm.on ? 95 : 45)) return;
+    const dt = Math.min(.12, (now - R.last) / 1000); R.last = now;
     R.t += dt;
     const cur = R.tweens; R.tweens = [];          // done() 裡新增的動作會放進新的 R.tweens
     const alive = cur.filter(tw => {
@@ -3874,7 +3909,9 @@ const Mini = (() => {
 
   function schedule() {
     if (raf || tm || !on() || document.hidden) return;
-    if (st === 'away' || blk) tm = setTimeout(tick, 400); else raf = requestAnimationFrame(tick);      // 躲著的時候不用每格畫面都醒來
+    if (st === 'away' || blk) tm = setTimeout(tick, 400);              // 躲著的時候不用每格畫面都醒來
+    else if (st === 'idle' || st === 'sleep') tm = setTimeout(tick, 100);   // 站著／睡覺只有眨眼、搖尾巴，0.1 秒看一次就夠
+    else raf = requestAnimationFrame(tick);
   }
   function kick() { cancelAnimationFrame(raf); clearTimeout(tm); raf = tm = 0; last = now(); schedule(); }
   function tick() {
