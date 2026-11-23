@@ -1665,15 +1665,15 @@ function home() {
   for (const id of list.filter(id => !db.subHome || subName(db.banks[id].subject) === db.subHome)) {
     const b = db.banks[id], w = (db.wrong[id] || []).length, best = db.best[id], eid = esc(id), x = subOf(b.subject);
     const frozen = (db.seen || {})[id] !== dayKey();
-    const st = db.stats[id], td = st && st.dd === dayKey();
-    const dn = td ? st.dn || 0 : 0, dl = td ? st.dl || 0 : 0, dq = td ? st.dq || 0 : 0;   // 今日挑戰 BOSS：打贏、被打趴、撤退次數
+    const st = db.stats[id];
+    const dn = st ? st.win || 0 : 0, dl = st ? (st.n || 0) - dn : 0, dq = st ? st.quit || 0 : 0;   // 累積挑戰 BOSS：打贏、被打趴、撤退次數（跟以前「今日」一樣只算打贏；被打趴算法同個人資料頁）
     h += `<section class="panel bank cp${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
       <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
       <button class="icon more" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button>
       ${best ? `<div class="rankmark" aria-label="最佳評級">${esc(best)}</div>` : ''}
       <div class="body">
         <h2>${esc(b.title)}</h2>
-        <div class="meta">HP ${Math.min(b.questions.length, MAX_Q)}${b.questions.length > MAX_Q ? `（共 ${b.questions.length} 題）` : ''}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>　平均 <b>${st && st.n ? Math.round(st.sum / st.n) : '—'}</b>　今日 <b>${dn}</b> 次${dl ? `　💥 <b class="ng">${dl}</b>` : ''}${dq ? `　🏳️ <b class="ng">${dq}</b>` : ''}</div>
+        <div class="meta">HP ${Math.min(b.questions.length, MAX_Q)}${b.questions.length > MAX_Q ? `（共 ${b.questions.length} 題）` : ''}　錯題 <b class="${w ? 'ng' : ''}">${w}</b>　平均 <b>${st && st.n ? Math.round(st.sum / st.n) : '—'}</b>　累積 <b>${dn}</b> 次${dl ? `　💥 <b class="ng">${dl}</b>` : ''}${dq ? `　🏳️ <b class="ng">${dq}</b>` : ''}</div>
         ${lastBad(st) ? `<div class="lastbad">${lastBad(st)}</div>` : ''}
         ${frozen ? '<div class="ice">今天還沒來過，快進去把牠融化！</div>' : ''}
         <div class="grid">
