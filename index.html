@@ -66,6 +66,23 @@ button{font:inherit;color:inherit}
 .chip:focus-visible{outline:3px solid var(--c);outline-offset:2px}
 .chips.mini{margin:0 0 12px;gap:6px}
 .chips.mini .chip{padding:3px 10px;font-size:13px;box-shadow:1px 1px 0 var(--ink)}
+/* 基地分類：右上角題庫數角標＋點了跳出的題庫清單 */
+.chips.home{margin-top:16px;gap:12px 10px}
+.chips.home .chip{position:relative}
+.chip .badge{position:absolute;top:-9px;right:-8px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border:2px solid var(--ink);border-radius:999px;background:#FF2E2E;color:#fff;font:900 11px/16px system-ui,sans-serif;text-align:center;font-style:normal}
+.subdd{position:relative;z-index:5;margin:4px 0 12px;padding:4px;border:2px solid var(--ink);border-radius:8px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);max-height:52vh;overflow:auto}
+.subdd button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:0;border-bottom:1px dashed rgba(0,0,0,.2);background:none;color:var(--ink);font:inherit;font-size:15px;font-weight:900;text-align:left;cursor:pointer}
+.subdd button:last-child{border-bottom:0}
+.subdd button:active{background:rgba(0,0,0,.06)}
+.subdd .dot{flex:none;width:10px;height:10px;border:2px solid var(--ink);border-radius:50%;background:var(--c)}
+.subdd .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.subdd small{flex:none;font-size:12px;color:var(--sub)}
+.bank.flash{animation:bkflash .5s steps(2) 3}
+@keyframes bkflash{50%{outline:4px solid #FFD400;outline-offset:3px}}
+/* 打到一半的場次：基地最上面的接續提示 */
+.resume{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;padding:8px 10px;border:2px solid var(--ink);border-radius:6px;background:#FFF4CC;box-shadow:3px 3px 0 var(--ink)}
+.resume .t{flex:1;min-width:0;font-size:14px;font-weight:900}
+.resume .btn{min-height:38px;padding:4px 12px;font-size:15px;box-shadow:2px 2px 0 var(--ink)}
 
 header.top{display:flex;align-items:center;gap:10px;margin:6px 0 16px;min-height:46px}
 header.top h1{margin:0;flex:1;font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -722,6 +739,16 @@ function subChips(items, cur, act) {
   const names = Object.keys(cnt).sort((x, y) => rk(x) - rk(y)); if (names.length < 2) return '';
   const chip = (n, label, k) => `<button class="chip ${cur === n ? 'on' : ''}" style="${subVars(n)}" data-act="${act}" data-s="${esc(n)}" aria-pressed="${cur === n}">${esc(label)}<small>${k}</small></button>`;
   return `<div class="chips" role="group" aria-label="依科目篩選">${chip('', '全部', items.length)}${names.map(n => chip(n, n, cnt[n])).join('')}</div>`;
+}
+// 基地專用的分類鈕：題庫數改成右上角的小圓角標；點了除了篩選，還會在下面跳出這個分類的題庫清單（subMenu）
+let subMenu = false;
+function homeChips(list, cur) {
+  const items = list.map(id => subName(db.banks[id].subject));
+  const cnt = {}; items.forEach(n => cnt[n] = (cnt[n] || 0) + 1);
+  const ord = Object.keys(SUBJECTS); const rk = n => { const i = ord.indexOf(n); return i < 0 ? 99 : i; };
+  const names = Object.keys(cnt).sort((x, y) => rk(x) - rk(y)); if (!list.length) return '';
+  const chip = (n, label, k) => `<button class="chip ${cur === n ? 'on' : ''}" style="${subVars(n)}" data-act="subHome" data-s="${esc(n)}" aria-pressed="${cur === n}" aria-expanded="${cur === n && subMenu}">${esc(label)}<i class="badge">${k}</i></button>`;
+  return `<div class="chips home" role="group" aria-label="依科目篩選">${names.length > 1 ? chip('', '全部', items.length) : ''}${names.map(n => chip(n, n, cnt[n])).join('')}</div>`;
 }
 function setTheme(s) { const x = subOf(s); document.documentElement.style.setProperty('--c', x.c); document.documentElement.style.setProperty('--c-ink', x.ink); }
 
@@ -1629,6 +1656,9 @@ function home() {
         <div class="coins" data-act="withdraw" role="button" aria-label="提領金幣">💰 ${db.coins || 0} 元</div>${db.cards ? `<div class="cards">✂️ 刪去卡 ×${db.cards}</div>` : ''}
       </div>
     </section>${syncTip()}`;
+  const run = loadRun();
+  if (run) h += `<div class="resume"><span class="t">⏸ 上一場「${esc(run.opt.title)}」答到 ${run.pos}/${run.n} 題，要接續嗎？</span>
+      <button class="btn go" data-act="resumeRun">接續</button><button class="btn" data-act="dropRun">放棄</button></div>`;
   if (!list.length) {
     h += `<div class="empty">
       <p class="big">還沒有 BOSS 可以打！</p>
@@ -1653,7 +1683,8 @@ function home() {
         <div class="revn">每場 ${[10, 20, 30].map(n => `<button class="${n === rn ? 'on' : ''}" data-act="setRevN" data-n="${n}">${n} 題<small>${revBonus(Math.min(n, allW.length, coinW)) ? `打贏 💰${mixed ? '最多' : ''}+${revBonus(Math.min(n, allW.length, coinW))}` : '不給金幣'}</small></button>`).join('')}</div>
         <div class="revnote">🎁 打贏通關：打幾題就 +幾元${mixed ? '（日文等「其它」科目的題不算）' : ''}；錯題清到嚴重度降級，再送刪去卡！</div>` : ''}
         <div class="grid ${revOpen ? 'three' : 'one'}">
-          <button class="btn go${revOpen ? '' : ' wide'}" data-act="allQuiz">開戰<small>${sbtn} 題${bn ? `・打贏 💰${most}+${bn}` : ''}</small></button>
+          ${runOf('rev') ? `<button class="btn go${revOpen ? '' : ' wide'}" data-act="resumeRun">⏸ 接續<small>${runOf('rev').pos}/${runOf('rev').n} 題</small></button>`
+          : `<button class="btn go${revOpen ? '' : ' wide'}" data-act="allQuiz">開戰<small>${sbtn} 題${bn ? `・打贏 💰${most}+${bn}` : ''}</small></button>`}
           ${revOpen ? `<button class="btn" data-act="allReview">筆記</button>
           <button class="btn" data-act="allCards">修練</button>` : ''}
         </div>
@@ -1661,13 +1692,19 @@ function home() {
     </section>`;
   }
   if (db.subHome && !list.some(id => subName(db.banks[id].subject) === db.subHome)) db.subHome = '';
-  h += subChips(list.map(id => subName(db.banks[id].subject)), db.subHome || '', 'subHome');
-  for (const id of list.filter(id => !db.subHome || subName(db.banks[id].subject) === db.subHome)) {
+  const shown = list.filter(id => !db.subHome || subName(db.banks[id].subject) === db.subHome);
+  h += homeChips(list, db.subHome || '');
+  if (subMenu && list.length) h += `<div class="subdd" role="menu">${shown.map(id => {
+    const b = db.banks[id], st = db.stats[id], fz = (db.seen || {})[id] !== dayKey(), r = runOf('boss', id);
+    return `<button role="menuitem" data-act="jumpBank" data-id="${esc(id)}" style="${subVars(b.subject)}"><i class="dot"></i><span class="t">${esc(b.title)}</span><small>${r ? '⏸ ' : ''}${fz ? '🧊 ' : ''}累積 ${st ? st.win || 0 : 0} 次</small></button>`;
+  }).join('')}</div>`;
+  for (const id of shown) {
     const b = db.banks[id], w = (db.wrong[id] || []).length, best = db.best[id], eid = esc(id), x = subOf(b.subject);
     const frozen = (db.seen || {})[id] !== dayKey();
     const st = db.stats[id];
     const dn = st ? st.win || 0 : 0, dl = st ? (st.n || 0) - dn : 0, dq = st ? st.quit || 0 : 0;   // 累積挑戰 BOSS：打贏、被打趴、撤退次數（跟以前「今日」一樣只算打贏；被打趴算法同個人資料頁）
-    h += `<section class="panel bank cp${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" style="${subVars(b.subject)}">
+    const rb = runOf('boss', id), rw = runOf('wrong', id);
+    h += `<section class="panel bank cp${frozen ? ' frozen' : thawed.has(id) && !iceBroke.has(id) ? ' thaw' : ''}" data-bid="${eid}" style="${subVars(b.subject)}">
       <div class="band"><b>${esc(b.subject || '題庫')}</b></div>
       <button class="icon more" data-act="bankMenu" data-id="${eid}" aria-label="更多">⋯</button>
       ${best ? `<div class="rankmark" aria-label="最佳評級">${esc(best)}</div>` : ''}
@@ -1677,10 +1714,13 @@ function home() {
         ${lastBad(st) ? `<div class="lastbad">${lastBad(st)}</div>` : ''}
         ${frozen ? '<div class="ice">今天還沒來過，快進去把牠融化！</div>' : ''}
         <div class="grid">
-          <button class="btn go span2" data-act="quiz" data-id="${eid}" data-mode="all">挑戰 BOSS（${x.boss}）</button>
+          ${rb ? `<button class="btn go" data-act="quiz" data-id="${eid}" data-mode="all" data-resume="1">⏸ 接續（${rb.pos}/${rb.n}）</button>
+          <button class="btn" data-act="quiz" data-id="${eid}" data-mode="all" data-fresh="1">重新開始</button>`
+          : `<button class="btn go span2" data-act="quiz" data-id="${eid}" data-mode="all">挑戰 BOSS（${x.boss}）</button>`}
         </div>
         <div class="grid three">
-          <button class="btn" data-act="quiz" data-id="${eid}" data-mode="wrong" ${w ? '' : 'disabled'}>錯題再戰</button>
+          ${rw ? `<button class="btn" data-act="quiz" data-id="${eid}" data-mode="wrong" data-resume="1">⏸ 接續錯題<small>${rw.pos}/${rw.n}</small></button>`
+          : `<button class="btn" data-act="quiz" data-id="${eid}" data-mode="wrong" ${w ? '' : 'disabled'}>錯題再戰</button>`}
           <button class="btn" data-act="cards" data-id="${eid}">修練</button>
           <button class="btn" data-act="review" data-id="${eid}" ${w ? '' : 'disabled'}>筆記</button>
         </div>
@@ -3091,6 +3131,9 @@ const MAX_Q = 10;
 function startQuiz(refs, opt) {
   const all = resolve(refs);
   if (!all.length) { toast('沒有可以挑戰的題目'); return; }
+  const old = loadRun();                                                    // 有一場打到一半：開新的就等於放棄它
+  if (old && !opt.fresh && !confirm(`上一場「${old.opt.title}」還沒打完（${old.pos}/${old.n} 題），開新的一場它就會放棄，確定嗎？`)) return;
+  if (old) dropRun(old);
   const items = opt.recordBid ? pickByLevel(all, MAX_Q) : shuffle(all).slice(0, MAX_Q);
   if (opt.recordBid) {                                                      // 挑戰場次序號 +1，順便清掉過期的冷卻
     db.bseq = (db.bseq || 0) + 1;
@@ -3104,13 +3147,17 @@ function startQuiz(refs, opt) {
     n, bossHp: n, hp: 1,                                          // 不會倒下：hp 固定 1，答錯不扣
     items: shuffle(items).map(it => ({ ...it, order: it.q.lock ? it.q.options.map((_, i) => i) : shuffle(it.q.options.map((_, i) => i)) }))
   };
-  SET.all = toRefs(S.items);
   S.sev0 = sevOf(allWrongRefs().length);                      // 開戰前的復仇嚴重度，打完降級有獎勵
-  Music.base(false); if (!(opt.sub === '錯題' && Music.shot('revenge'))) Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
-  const look = NO_COIN.has((opt.sub || '').trim()) ? randomBossSub() : opt.sub;   // 長相用哪一科的魔王（不給金幣的科目隨機）
-  setTheme(look);
-  const x = subOf(look), stage = document.createElement('div');
-  if (look !== opt.sub) S.boss = x.boss;
+  S.look = NO_COIN.has((opt.sub || '').trim()) ? randomBossSub() : opt.sub;   // 長相用哪一科的魔王（不給金幣的科目隨機）
+  if (S.look !== opt.sub) S.boss = subOf(S.look).boss;
+  launch();
+}
+// 把 S 搬上戰場：新開的（startQuiz）和接續的（resumeRun）共用
+function launch() {
+  SET.all = toRefs(S.items);
+  Music.base(false); if (!(S.sub === '錯題' && Music.shot('revenge'))) Music.shot('enter');                    // 進戰鬥：基地音樂停，播進入關卡的音
+  setTheme(S.look);
+  const x = subOf(S.look), stage = document.createElement('div');
   stage.className = 'panel stage';
   stage.innerHTML = `${Scene.html(x.kind)}<div class="cv"></div><div class="load">BOSS 登場中…</div>
     <div class="bar2"><button class="icon" data-act="quitQuiz" aria-label="撤退">✕</button><button class="icon" data-act="padOpen" aria-label="草稿紙">✏️</button>${furiBtn(S.items)}<div class="name"><span>${esc(S.boss)}</span></div><span class="cb"></span><span class="num qn"></span></div>
@@ -3118,6 +3165,7 @@ function startQuiz(refs, opt) {
   if (window.ResizeObserver) new ResizeObserver(() => Boss3D.resize()).observe(stage);
   S.stageEl = stage; S.ult = x.ult; S.kind = x.kind; S.kc = x.c;      // 小魔王（畫面上晃的小貓）跟著這場的魔王換貓種
   renderQ();
+  saveRun();
   const mine = S;
   Boss3D.load().then(ok => {
     if (S !== mine) return;
@@ -3125,6 +3173,45 @@ function startQuiz(refs, opt) {
     if (started) { stage.querySelector('.load').remove(); Boss3D.setAngry(S.bossHp / S.n <= .25); }
     else { stage.classList.add('flat'); stage.querySelector('.load').remove(); }
   });
+}
+/* ===== 接續：打到一半的場次存在 localStorage（beishu.run，只存這台、不進雲端），每答一題、用刪去卡／提示、切到背景都存一次；
+   撤退、網頁被關掉都能從基地接著打。同時只留一場：開新的一場就放棄舊的（挑戰 BOSS 放棄時才記一次撤退）。打完（result）就清掉 ===== */
+const RUN_KEY = 'beishu.run';
+function loadRun() { try { const r = JSON.parse(localStorage.getItem(RUN_KEY) || 'null'); return r && r.items && r.n ? r : null; } catch (e) { return null; } }
+const runOf = (kind, bid) => { const r = loadRun(); return r && r.kind === kind && (kind === 'rev' || r.bid === bid) ? r : null; };
+const clearRun = () => { try { localStorage.removeItem(RUN_KEY); } catch (e) {} };
+function saveRun() {
+  if (!S || !S.items) return;
+  const bids = [...new Set(S.items.map(it => it.bid))];
+  const kind = S.recordBid ? 'boss' : S.sub === '錯題' ? 'rev' : bids.length === 1 ? 'wrong' : 'other';
+  const r = {
+    kind, bid: S.recordBid || (bids.length === 1 ? bids[0] : null), at: Date.now(), pos: S.i + (S.answered ? 1 : 0), n: S.n,
+    opt: { title: S.title, boss: S.boss, sub: S.sub, recordBid: S.recordBid }, look: S.look, pool: S.pool, sev0: S.sev0,
+    correct: S.correct, wrong: S.wrong, combo: S.combo, maxCombo: S.maxCombo, exp: S.exp, coins: S.coins, bossHp: S.bossHp,
+    items: S.items.map(it => ({ b: it.bid, q: it.q.id, o: it.order, h: it.hinted ? 1 : 0, c: it.cut == null ? null : it.cut }))
+  };
+  try { localStorage.setItem(RUN_KEY, JSON.stringify(r)); } catch (e) {}
+}
+function dropRun(r) {
+  if (r && r.kind === 'boss' && r.pos > 0) recordQuit(r.bid, r.correct, r.pos, r.n);
+  clearRun();
+}
+function resumeRun() {
+  const r = loadRun(); if (!r) { home(); return; }
+  const items = r.items.map(x => {
+    const b = db.banks[x.b], q = b && b.questions.find(y => y.id === x.q);
+    if (!q || x.o.length !== q.options.length) return null;
+    return { bid: x.b, bt: b.title, sub: b.subject, q, order: x.o, hinted: !!x.h, cut: x.c == null ? undefined : x.c };
+  });
+  if (items.some(it => !it)) { dropRun(r); toast('題庫更新過，這場沒辦法接續了'); home(); return; }
+  if (r.bid && r.kind !== 'rev' && db.banks[r.bid]) markSeen(r.bid);
+  S = {
+    ...r.opt, multi: isMulti(items), pool: r.pool, i: Math.min(r.pos, r.n - 1), answered: r.pos >= r.n,
+    correct: r.correct, wrong: r.wrong, combo: r.combo, maxCombo: r.maxCombo, exp: r.exp, coins: r.coins,
+    n: r.n, bossHp: r.bossHp, hp: 1, items, sev0: r.sev0, look: r.look
+  };
+  if (S.answered) { result(); return; }                        // 最後一題答完、還沒看戰果就被關掉：直接結算
+  launch();
 }
 function updateHud() {
   const el = S && S.stageEl && S.stageEl.querySelector('#hud'); if (!el) return;
@@ -3152,6 +3239,8 @@ function renderQ() {
     <div id="fb"></div>`;
   const slot = document.getElementById('stageSlot');
   if (slot && S.stageEl) { slot.replaceWith(S.stageEl); S.stageEl.classList.remove('compact'); Boss3D.resize(); }
+  if (it.cut != null) { const o = app.querySelectorAll('.opt')[it.cut]; if (o) { o.classList.add('cut'); o.disabled = true; } const cb = app.querySelector('.cutbtn'); if (cb) { cb.disabled = true; cb.textContent = '✂️ 已刪去一個選項'; } }
+  if (it.hinted) { const hb = app.querySelector('.hintbtn'), qt = app.querySelector('.qcard .qtext'); if (qt) qt.insertAdjacentHTML('afterend', `<div class="hintbox">💡 ${fmt(hintOf(it))}</div>`); if (hb) { hb.disabled = true; hb.textContent = '💡 已看提示'; } }
   updateHud();
   window.scrollTo(0, 0);
 }
@@ -3194,6 +3283,7 @@ function useHint(btn) {
   const card = app.querySelector('.qcard .qtext');
   if (card) card.insertAdjacentHTML('afterend', `<div class="hintbox">💡 ${fmt(h)}</div>`);
   btn.disabled = true; btn.textContent = '💡 已看提示';
+  saveRun();
 }
 function useCut(btn) {
   if (!S || S.answered || !db.cards) return;
@@ -3205,6 +3295,7 @@ function useCut(btn) {
   db.cards--; save();
   btn.disabled = true; btn.textContent = '✂️ 已刪去一個選項';
   SFX.hit && SFX.hit(1);
+  saveRun();
 }
 function pick(k) {
   if (!S || S.answered) return;
@@ -3272,6 +3363,7 @@ function pick(k) {
     </div>
     <button class="btn go wide nextbtn" data-act="next">${done ? '看戰果' : '繼續攻擊！'}</button>`;
   setTimeout(() => fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
+  saveRun();
 }
 function next() {
   if (!S) return;
@@ -3289,21 +3381,19 @@ function lastBad(st) {
     ? `💥 上一場被打趴（答對 ${st.lc}/${st.la} 題）`
     : `🏳️ 上一場中途撤退（打到第 ${st.la}/${st.lt} 題）`;
 }
-// 撤退：挑戰 BOSS 至少答過 1 題才記，不算進次數、平均
-function recordQuit() {
-  if (!S || !S.recordBid) return;
-  const done = S.i + (S.answered ? 1 : 0);
-  if (!done) return;
-  const st = db.stats[S.recordBid] || (db.stats[S.recordBid] = { n: 0, sum: 0, best: 0, win: 0 });
+// 撤退：挑戰 BOSS 至少答過 1 題才記，不算進次數、平均。現在撤退會先保留進度可以接續，真的放棄（dropRun）才記
+function recordQuit(bid, correct, done, n) {
+  if (!bid || !done) return;
+  const st = db.stats[bid] || (db.stats[bid] = { n: 0, sum: 0, best: 0, win: 0 });
   st.quit = (st.quit || 0) + 1;
   stDay(st); st.dq = (st.dq || 0) + 1;
-  st.lr = 'quit'; st.lc = S.correct; st.la = done; st.lt = S.n; st.lat = Date.now();
-  stPush(st, { at: st.lat, c: S.correct, n: S.n, r: 'q', a: done });
-  st.title = db.banks[S.recordBid] ? db.banks[S.recordBid].title : st.title;
+  st.lr = 'quit'; st.lc = correct; st.la = done; st.lt = n; st.lat = Date.now();
+  stPush(st, { at: st.lat, c: correct, n, r: 'q', a: done });
+  st.title = db.banks[bid] ? db.banks[bid].title : st.title;
   save();
 }
 function result() {
-  Boss3D.stop();
+  Boss3D.stop(); clearRun();
 
   const n = S.n, win = true, pct = S.correct / n;                 // 不會倒下：打完一定算過關
   const rank = !win ? null : pct >= 1 ? 'S' : pct >= .85 ? 'A' : pct >= .7 ? 'B' : 'C';
@@ -3648,9 +3738,9 @@ const ACT = {
     db.mini = db.mini === false; save(); Mini.refresh();
     profile(); toast(db.mini ? '小魔王出來晃囉 🐾' : '小魔王去睡覺了 💤');
   },
-  quiz: d => d.mode === 'wrong'
-    ? startQuiz(enter(d.id, refsOf(d.id, 'wrong')), quizOpt(d.id, '・錯題'))
-    : startQuiz(enter(d.id, refsOf(d.id)), { ...quizOpt(d.id), recordBid: d.id }),
+  quiz: d => d.resume ? resumeRun() : d.mode === 'wrong'
+    ? startQuiz(enter(d.id, refsOf(d.id, 'wrong')), { ...quizOpt(d.id, '・錯題'), fresh: !!d.fresh })
+    : startQuiz(enter(d.id, refsOf(d.id)), { ...quizOpt(d.id), recordBid: d.id, fresh: !!d.fresh }),
   cards: d => cards(enter(d.id, refsOf(d.id))),
   review: d => review(enter(d.id, refsOf(d.id, 'wrong')), bankOf(d.id).title),
   gallery: () => gallery(),
@@ -3663,7 +3753,19 @@ const ACT = {
   allCards: () => cards(allWrongRefs()),
   pick: d => pick(+d.k),
   next,
-  quitQuiz: () => { if (!S || S.i === 0 || confirm('要撤退嗎？已作答的錯題會保留。')) { if (S) { Music.shot('exit'); recordQuit(); } S = null; home(); setTimeout(autoSync, 500); } },
+  quitQuiz: () => {                                            // 撤退：進度留著，回基地可以接續（一題都還沒碰就直接丟掉）
+    let kept = false;
+    if (S) { Music.shot('exit'); const it = S.items[S.i]; kept = S.i > 0 || S.answered || it.hinted || it.cut != null; kept ? saveRun() : clearRun(); }
+    S = null; home(); if (kept) toast('進度已保留，回基地可以接續'); setTimeout(autoSync, 500);
+  },
+  resumeRun: () => resumeRun(),
+  dropRun: () => { const r = loadRun(); if (r && confirm(`放棄「${r.opt.title}」這一場？已作答的紀錄會保留。`)) { dropRun(r); home(); } },
+  jumpBank: d => {
+    subMenu = false; home();
+    const el = [...app.querySelectorAll('.bank[data-bid]')].find(x => x.dataset.bid === d.id); if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  },
   reviewLast: () => review(SET.last.refs, SET.last.title),
   cardsLast: () => cards(SET.last.refs),
   quizLast: () => startQuiz(SET.last.refs, { title: SET.last.title.replace(/・錯題$/, '') + '・錯題', boss: SET.last.boss, sub: SET.last.sub }),
@@ -3685,7 +3787,10 @@ const ACT = {
   useHint: (d, el) => useHint(el),
   profile,
   syncView, syncList: () => loadSyncList(), syncSave: (d, el) => syncSave(el), syncLoad: d => syncLoad(+d.n), syncRestore,
-  subHome: d => { db.subHome = d.s; save(); home(); },
+  subHome: d => {                                              // 點分類：篩選＋跳出題庫清單；再點同一顆就收起來
+    subMenu = !(db.subHome === d.s && subMenu); db.subHome = d.s; save();
+    const y = window.scrollY; home(); window.scrollTo(0, y);
+  },
   subGh: d => { db.subGh = d.s; save(); renderGh(); },
   ghImport: d => {
     const x = ghCache && ghCache[+d.n]; if (!x || !x.bank) return;
@@ -3999,7 +4104,13 @@ document.addEventListener('visibilitychange', () => {                // 作答�
     else if (S.tStart == null) S.tStart = performance.now();
   }
 });
-document.addEventListener('visibilitychange', () => autoSync(!document.hidden));   // 切到背景先上傳；切回來抓另一台的新進度
+document.addEventListener('visibilitychange', () => { if (document.hidden && S) saveRun(); autoSync(!document.hidden); });   // 切到背景：戰鬥中先存一份接續用的進度、先上傳；切回來抓另一台的新進度
+window.addEventListener('pagehide', () => { if (S) saveRun(); });
+document.addEventListener('click', e => {                     // 基地的題庫清單：點外面就收起來
+  if (!subMenu || e.target.closest('.subdd, .chips.home')) return;
+  subMenu = false; const dd = app.querySelector('.subdd'); if (dd) dd.remove();
+  app.querySelectorAll('.chips.home .chip').forEach(c => c.setAttribute('aria-expanded', 'false'));
+});
 const bankUrl = new URLSearchParams(location.search).get('bank');
 if (bankUrl) {
   fetch(bankUrl, { cache: 'no-cache' })
