@@ -1431,7 +1431,7 @@ function normalize(raw) {
 
 /* ===== 儲存 ===== */
 const LS = 'beishu.v1';
-let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', mini: true, revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, qlv: {}, cool: {}, bseq: 0, cards: 0, revives: 0, stats: {}, seen: {} };
+let db = { banks: {}, order: [], wrong: {}, last: {}, best: {}, exp: 0, kills: 0, sound: true, vol: 'l', mini: true, revN: 10, wlast: {}, day: null, wd: [], coins: 0, qwin: {}, qlv: {}, cool: {}, bseq: 0, cards: 0, revives: 0, stats: {}, seen: {}, played: {} };
 function load() {
   try { const s = localStorage.getItem(LS); if (s) db = Object.assign(db, JSON.parse(s)); } catch (e) {}
   migrate();
@@ -1640,9 +1640,20 @@ let revOpen = false;                                           // 復仇區塊�
 const sevOf = n => Math.min(SEV.length - 1, Math.floor(n / 10));
 
 /* ===== 基地（首頁） ===== */
+// 最近打過的題庫排最上面：挑戰 BOSS、錯題再戰，打完或中途撤退都算（db.played，只存這台）；舊資料用挑戰紀錄的時間補；沒打過的照原本順序排後面
+const playedAt = id => { const st = db.stats[id] || {}; return Math.max((db.played || {})[id] || 0, st.lat || 0, st.at || 0); };
+function sortRecent(ids) {
+  const pos = new Map(ids.map((id, i) => [id, i]));
+  return ids.slice().sort((a, b) => (playedAt(b) - playedAt(a)) || (pos.get(a) - pos.get(b)));
+}
+function markPlayed() {                                      // 單一題庫的場次（復仇戰這種跨題庫的不算）
+  if (!S || !S.items) return;
+  const bids = new Set(S.items.map(it => it.bid)); if (bids.size !== 1) return;
+  (db.played || (db.played = {}))[[...bids][0]] = Date.now(); save();
+}
 function home() {
   Boss3D.stop(); S = null; C = null; window.scrollTo(0, 0); setTheme(''); Music.base(true);
-  const list = db.order.filter(id => db.banks[id]);
+  const list = sortRecent(db.order.filter(id => db.banks[id]));
   const L = levelOf(db.exp);
   let h = `<div class="logo">${Sky.chipHtml()}
       <button class="icon" data-act="syncView" aria-label="雲端紀錄">💾</button><button class="icon" data-act="toggleSound" aria-label="音量">${!db.sound ? '🔇' : db.vol === 's' ? '🔈' : db.vol === 'm' ? '🔉' : '🔊'}</button></div>
@@ -3393,7 +3404,7 @@ function recordQuit(bid, correct, done, n) {
   save();
 }
 function result() {
-  Boss3D.stop(); clearRun();
+  Boss3D.stop(); clearRun(); markPlayed();
 
   const n = S.n, win = true, pct = S.correct / n;                 // 不會倒下：打完一定算過關
   const rank = !win ? null : pct >= 1 ? 'S' : pct >= .85 ? 'A' : pct >= .7 ? 'B' : 'C';
@@ -3755,7 +3766,7 @@ const ACT = {
   next,
   quitQuiz: () => {                                            // 撤退：進度留著，回基地可以接續（一題都還沒碰就直接丟掉）
     let kept = false;
-    if (S) { Music.shot('exit'); const it = S.items[S.i]; kept = S.i > 0 || S.answered || it.hinted || it.cut != null; kept ? saveRun() : clearRun(); }
+    if (S) { Music.shot('exit'); markPlayed(); const it = S.items[S.i]; kept = S.i > 0 || S.answered || it.hinted || it.cut != null; kept ? saveRun() : clearRun(); }
     S = null; home(); if (kept) toast('進度已保留，回基地可以接續'); setTimeout(autoSync, 500);
   },
   resumeRun: () => resumeRun(),
